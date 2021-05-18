@@ -1,0 +1,51 @@
+{{define "content"}}
+
+<header>
+    <h1>New Lobby</h1>
+</header>
+
+<form action="post">
+    <div class="lobby-form-name">
+        <label for="lobbyname">Lobby Name</label>
+        <input type="text" name="lobbyname" id="lobbyname" required maxlength="30">
+    </div>
+    <div class="lobby-form-description">
+        <label for="lobbydescription">Description</label>
+        <textarea type="text" name="lobbydescription" id="lobbydescription" maxlength="250" cols="auto" rows="5">
+    </div>
+    <div class="lobby-form-date">
+        <label>
+            <span>Activity Date</span><br>
+            <input type="date"><br>
+            <input type="time"> <br>
+            <input type="checkbox" value="Repeat">
+            <div class="weekdays-checkbox">
+                <input type="checkbox" class="weekday" value="M" name="weekday">
+                <input type="checkbox" class="weekday" value="T" name="weekday">
+                <input type="checkbox" class="weekday" value="W" name="weekday">
+                <input type="checkbox" class="weekday" value="Th" name="weekday">
+                <input type="checkbox" class="weekday" value="F" name="weekday">
+                <input type="checkbox" class="weekday" value="S" name="weekday">
+                <input type="checkbox" class="weekday" value="Su" name="weekday">
+            </div>
+        </label>
+    </form>
+</div>
+<div class="lobby-form-location">
+    <label for="lobbylocation">Location</label>
+    <input type="text" name="lobbylocation" id="lobbylocation">
+</div>
+</div>
+<div class="lobby-form-cap-priv">
+    <label for="lobbycapacity">Capacity</label>
+    <input type="text" name="lobbycapacity" id="lobbycapacity">
+    <label>Privacy</label>
+    <input type="radio" id="public" name="privacy" value="public" checked>
+    <label for="public">Public</label><br>
+    <input type="radio" id="private" name="privacy" value="private">
+    <label for="private">Private</label><br>
+    <input type="radio" id="inviteonly" name="privacy" value="inviteonly">
+    <label for="inviteonly">Invite Only</label>
+</div>
+
+{{end}}

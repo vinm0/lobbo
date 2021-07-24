@@ -59,7 +59,13 @@ CREATE TABLE profiles (
 
 CREATE TABLE preferences (
 	owner_id 	INTEGER PRIMARY KEY,
-	visibility	INTEGER DEFAULT 0,
+	visibility	INTEGER DEFAULT 'public',
+		CHECK (visibility IN (
+				'public', 
+				'user', 
+				'friend of friend', 
+				'friend', 
+				'private'))
 		CONSTRAINT preferences_owner_fk FOREIGN KEY (owner_id)
 			REFERENCES leaders(leader_id)
 			ON DELETE CASCADE 
@@ -69,6 +75,7 @@ CREATE TABLE preferences (
 CREATE TABLE requests (
 	request_id		INTEGER PRIMARY KEY AUTOINCREMENT,
 	sender_id		INTEGER NOT NULL,
+	reference_id	INTEGER NOT NULL
 	receiver_id		INTEGER NOT NULL,
 	req_type		TEXT NOT NULL,
 	send_date		TEXT NOT NULL,
@@ -155,66 +162,66 @@ VALUES
 
 INSERT INTO colleagues (owner_id, colleague_id)
 VALUES
-	(, ), (, ),
-	(, ), (, ),
-	(, ), (, ),
-	(, ), (, ),
-	(, ), (, ),
-	(, ), (, ),
-	(, ), (, ),
-	(, ), (, ),
-	(, ), (, ),
-	(, ), (, ),
+	(1, 9), (9, 1),
+	(1, 7), (9, 3),
+	(1, 4), (9, 5),
+	(2, 3), (8, 1),
+	(2, 5), (8, 5),
+	(3, 7), (7, 9),
+	(3, 9), (7, 6),
+	(4, 6), (6, 4),
+	(4, 1), (6, 2),
+	(10, 1), (10, 2)
 ;
 
 
 INSERT INTO profiles (owner_id, email, bio)
 VALUES
-	(1, "", ""),
-	(2, "", ""),
-	(3, "", ""),
-	(4, "", ""),
-	(5, "", ""),
-	(6, "", ""),
-	(7, "", ""),
-	(8, "", ""),
-	(9, "", ""),
-	(10, "", "")
+	(1, "ukxxv@gmail.com", ""),
+	(2, "nqkah@gmail.com", ""),
+	(3, "murrr@gmail.com", ""),
+	(4, "abbsk@gmail.com", ""),
+	(5, "wrncj@gmail.com", ""),
+	(6, "zeqrq@gmail.com", ""),
+	(7, "waauq@gmail.com", ""),
+	(8, "jrncf@gmail.com", ""),
+	(9, "twhav@gmail.com", ""),
+	(10, "qzmfa@gmail.com", "")
 ;
 
 
 INSERT INTO preferences (owner_id, visibility)
 VALUES
-	(1, ),
-	(2, ),
-	(3, ),
-	(4, ),
-	(5, ),
-	(6, ),
-	(7, ),
-	(8, ),
-	(9, ),
-	(10, )
+	(1, 'public'),
+	(2, 'user'),
+	(3, 'public'),
+	(4, 'user'),
+	(5, 'friend'),
+	(6, 'public'),
+	(7, 'friend of friend'),
+	(8, 'public'),
+	(9, 'public'),
+	(10, 'private')
 ;
 
 
 INSERT INTO requests (
 	sender_id, 
 	receiver_id, 
+	reference_id,
 	req_type, 
 	send_date, 
 	response, 
 	response_date)
 VALUES
-	(, , , "", , ""),
-	(, , , "", , ""),
-	(, , , "", , ""),
-	(, , , "", , ""),
-	(, , , "", , ""),
-	(, , , "", , ""),
-	(, , , "", , ""),
-	(, , , "", , ""),
-	(, , , "", , ""),
-	(, , , "", , ""),
+	(1, 8, 5, "l invite", "2021-07-10 00:00:00", NULL, NULL),
+	(2, 8, 2, "l join", "2021-07-10 00:00:00", NULL, NULL),
+	(2, 7, 2, "l invite", "2021-07-10 00:00:00", NULL, NULL),
+	(2, 6, 2, "l invite", "2021-07-10 00:00:00", NULL, NULL),
+	(4, 1, 4, "l join", "2021-07-10 00:00:00", NULL, NULL),
+	(6, 4, 10, "l invite", "2021-07-10 00:00:00", NULL, NULL),
+	(6, 3, 10, "l join", "2021-07-10 00:00:00", NULL, NULL),
+	(7, 10, 9, "l invite", "2021-07-10 00:00:00", NULL, NULL),
+	(6, 1, 10, "l join", "2021-07-10 00:00:00", NULL, NULL),
+	(6, 10, 10, "l invite", "2021-07-10 00:00:00",NULL, NULL)
 ;
-

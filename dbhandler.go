@@ -72,21 +72,18 @@ func (db *DB) Select(table string, cols []string, condition string, vals []inter
 }
 
 func (db *DB) Insert(table string, cols []string, vals []interface{}) (sql.Result, error) {
-	insFunc := db.sqlGeneric()
 
-	return insFunc(INS, table, cols, vals, "", nil)
+	return db.sqlGeneric(INS, table, cols, vals, "", nil)
 }
 
 func (db *DB) Update(table string, cols []string, condition string, vals []interface{}) (sql.Result, error) {
-	updFunc := db.sqlGeneric()
 
-	return updFunc(UPD, table, cols, vals, condition, nil)
+	return db.sqlGeneric(UPD, table, cols, vals, condition, nil)
 }
 
 func (db *DB) Delete(table string, conditions string, vals []interface{}) (sql.Result, error) {
-	delFunc := db.sqlGeneric()
 
-	return delFunc(DEL, table, nil, vals, conditions, nil)
+	return db.sqlGeneric(DEL, table, nil, vals, conditions, nil)
 }
 
 func Cols(columns ...string) []string {
@@ -97,26 +94,44 @@ func Vals(values ...interface{}) []interface{} {
 	return values
 }
 
-func (db *DB) sqlGeneric() func(int, string, []string, []interface{}, string, *sql.Rows) (sql.Result, error) {
+func (db *DB) sqlGeneric(crud int, table string, cols []string,
+	vals []interface{}, condition string, rows *sql.Rows) (sql.Result, error) {
 
-	return func(crud int, table string, cols []string,
-		vals []interface{}, condition string, rows *sql.Rows) (sql.Result, error) {
+	prepStr := prepString(crud, table, cols, condition)
 
-		prepStr := prepString(crud, table, cols, condition)
-
-		stmt, err := db.Prepare(prepStr)
-		if err != nil {
-			dbFail(err.Error())
-		}
-
-		res, err := stmt.Exec(vals...)
-		if err != nil {
-			dbFail(err.Error())
-		}
-
-		return res, err
+	stmt, err := db.Prepare(prepStr)
+	if err != nil {
+		dbFail(err.Error())
 	}
+
+	res, err := stmt.Exec(vals...)
+	if err != nil {
+		dbFail(err.Error())
+	}
+
+	return res, err
 }
+
+// func (db *DB) sqlGeneric() func(int, string, []string, []interface{}, string, *sql.Rows) (sql.Result, error) {
+
+// 	return func(crud int, table string, cols []string,
+// 		vals []interface{}, condition string, rows *sql.Rows) (sql.Result, error) {
+
+// 		prepStr := prepString(crud, table, cols, condition)
+
+// 		stmt, err := db.Prepare(prepStr)
+// 		if err != nil {
+// 			dbFail(err.Error())
+// 		}
+
+// 		res, err := stmt.Exec(vals...)
+// 		if err != nil {
+// 			dbFail(err.Error())
+// 		}
+
+// 		return res, err
+// 	}
+// }
 
 // int, string, []string, []string, string
 

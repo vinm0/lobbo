@@ -3,7 +3,8 @@ CREATE TABLE leaders (
 	usrname	    TEXT NOT NULL,
 	pwd	        TEXT NOT NULL,
 	fname		TEXT NOT NULL,
-	lname		TEXT NOT NULL
+	lname		TEXT NOT NULL,
+		UNIQUE(usrname)
 );
 
 CREATE TABLE lobby (
@@ -16,6 +17,7 @@ CREATE TABLE lobby (
 	capacity	INTEGER,
 	visibility	INTEGER DEFAULT 0,
 	invite_only	INTEGER DEFAULT 0,
+
 		CONSTRAINT lobby_owner_fk FOREIGN KEY (owner_id) 
 			REFERENCES leaders(leader_id)
 			ON DELETE CASCADE
@@ -37,6 +39,7 @@ CREATE TABLE colleagues (
 	owner_id		INTEGER,
 	colleague_id	INTEGER,
 		PRIMARY KEY (owner_id, colleague_id),
+		CHECK(owner_id != colleague_id)
 		CONSTRAINT colleagues_owner_fk FOREIGN KEY (owner_id)
 			REFERENCES leaders(leader_id)
 			ON DELETE CASCADE,
@@ -64,7 +67,7 @@ CREATE TABLE preferences (
 
 
 CREATE TABLE requests (
-	request_id		INTEGER PRIMARY KEY,
+	request_id		INTEGER PRIMARY KEY AUTOINCREMENT,
 	sender_id		INTEGER NOT NULL,
 	receiver_id		INTEGER NOT NULL,
 	req_type		TEXT NOT NULL,
@@ -78,3 +81,140 @@ CREATE TABLE requests (
 			REFERENCES leaders(leader_id)
 			ON DELETE CASCADE 
 );
+
+INSERT INTO leaders (usrname, pwd, fname, lname)
+VALUES
+	("jaynorth", "sledderconcerned", "Jason", "Northwood"),
+	("painterlaveer", "differangolan", "Pam", "Leer"),
+	("homesicksilk", "plinkponie", "Homer", "Slick"),
+	("toothquality", "possepeg", "Tabitha", "Lity"),
+	("poundbarely", "beautyelytra", "Pablo", "Barley"),
+	("supremeassertive", "velcroexhibition", "Savanna", "Serti"),
+	("chapterwitness", "wereenable", "Chap", "Wit"),
+	("toldearn", "sandpiperkey", "Todd", "Larn"),
+	("tagfuture", "whipstaffpastie", "Anselm", "Future"),
+	("edibleskit", "profitnancy", "Debbie", "Kitt")
+;
+
+INSERT INTO lobby (	
+	owner_id,
+	title,
+	lobby_desc,
+	meet_time,
+	meet_loc,
+	capacity,
+	visibility,
+	invite_only)
+VALUES
+	(1, "beauty", NULL, "2021-01-20 00:00:00", 
+		"Zoom", 10, 0, 0),
+	(2, "profit", "Look at company numbers", "2021-07-24 00:00:00", 
+		"123 N Main Ave", 5, 4, 1),
+	(3, "networking", NULL, "2021-07-25 00:00:00", 
+		"345 Mulberry", 50, 0, 0),
+	(4, "scrubs", "Nurses meeting", "2021-08-01 00:00:00", 
+		"Staff Lounge", 15, 2, 0),
+	(1, "chapter 9", "Book club meeting", "2021-10-31 00:00:00", 
+		"Marcy's House", 10, 1, 1),
+	(3, "homesick", NULL, "2021-01-10 00:00:00", 
+		"Mama's", 3, 4, 1),
+	(2, "supreme", "AHS fan club", "2021-03-19 00:00:00", 
+		"New Orleans, LA", NULL, 0, 0),
+	(2, "skit", "Improv night", "2021-09-18 00:00:00", 
+		"Community Theater", 30, 0, 0),
+	(7, "yelp", "Get reviews up", "2021-08-21 00:00:00", 
+		"Cafe", 10, 1, 0),
+	(6, "vegan", "Vegans anonymous", "2021-01-30 00:00:00", 
+		"Greens Restaurant", 15, 2, 1)
+;
+
+INSERT INTO lobby_members (lobby_id, member_id) 
+VALUES
+	(7, 1), (7, 4),
+	(7, 3), (7, 6),
+	(7, 5), (7, 8),
+	(7, 7), (3, 1),
+	(7, 9), (3, 2),
+	(3, 7), (3, 4),
+	(1, 9), (3, 5),
+	(1, 8), (3, 6),
+	(1, 7), (1, 6),
+	(4, 5), (4, 3),
+	(4, 9), (4, 7),
+	(5, 2), (4, 1),
+	(5, 6), (5, 4),
+	(6, 1), (6, 2),
+	(8, 6), (8, 9),
+	(8, 1), (8, 8),
+	(8, 3), (8, 7),
+	(9, 4), (9, 8),
+	(9, 1), (9, 6),
+	(9, 5), (9, 3),
+	(9, 2), (9, 9)
+;
+
+INSERT INTO colleagues (owner_id, colleague_id)
+VALUES
+	(, ), (, ),
+	(, ), (, ),
+	(, ), (, ),
+	(, ), (, ),
+	(, ), (, ),
+	(, ), (, ),
+	(, ), (, ),
+	(, ), (, ),
+	(, ), (, ),
+	(, ), (, ),
+;
+
+
+INSERT INTO profiles (owner_id, email, bio)
+VALUES
+	(1, "", ""),
+	(2, "", ""),
+	(3, "", ""),
+	(4, "", ""),
+	(5, "", ""),
+	(6, "", ""),
+	(7, "", ""),
+	(8, "", ""),
+	(9, "", ""),
+	(10, "", "")
+;
+
+
+INSERT INTO preferences (owner_id, visibility)
+VALUES
+	(1, ),
+	(2, ),
+	(3, ),
+	(4, ),
+	(5, ),
+	(6, ),
+	(7, ),
+	(8, ),
+	(9, ),
+	(10, )
+;
+
+
+INSERT INTO requests (
+	sender_id, 
+	receiver_id, 
+	req_type, 
+	send_date, 
+	response, 
+	response_date)
+VALUES
+	(, , , "", , ""),
+	(, , , "", , ""),
+	(, , , "", , ""),
+	(, , , "", , ""),
+	(, , , "", , ""),
+	(, , , "", , ""),
+	(, , , "", , ""),
+	(, , , "", , ""),
+	(, , , "", , ""),
+	(, , , "", , ""),
+;
+

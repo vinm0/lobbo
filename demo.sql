@@ -1,4 +1,17 @@
-CREATE TABLE leaders (
+-- ***************************************************
+-- Uncomment DROP TABLE commands to reset table states
+-- Or if table definitions have been changed.
+-- ***************************************************
+
+-- DROP TABLE IF EXISTS lobby_members;
+-- DROP TABLE IF EXISTS colleagues;
+-- DROP TABLE IF EXISTS profiles;
+-- DROP TABLE IF EXISTS preferences;
+-- DROP TABLE IF EXISTS requests;
+-- DROP TABLE IF EXISTS leaders;
+-- DROP TABLE IF EXISTS lobby;
+
+CREATE TABLE IF NOT EXISTS leaders (
 	leader_id	INTEGER PRIMARY KEY AUTOINCREMENT,
 	usrname	    TEXT NOT NULL,
 	pwd	        TEXT NOT NULL,
@@ -7,7 +20,7 @@ CREATE TABLE leaders (
 		UNIQUE(usrname)
 );
 
-CREATE TABLE lobby (
+CREATE TABLE IF NOT EXISTS lobby (
 	lobby_id	INTEGER PRIMARY KEY AUTOINCREMENT,
 	owner_id	INTEGER NOT NULL,
 	title		TEXT NOT NULL,
@@ -17,13 +30,12 @@ CREATE TABLE lobby (
 	capacity	INTEGER,
 	visibility	INTEGER DEFAULT 0,
 	invite_only	INTEGER DEFAULT 0,
-
 		CONSTRAINT lobby_owner_fk FOREIGN KEY (owner_id) 
 			REFERENCES leaders(leader_id)
 			ON DELETE CASCADE
 );
 
-CREATE TABLE lobby_members (
+CREATE TABLE IF NOT EXISTS lobby_members (
 	lobby_id	INTEGER,
 	member_id	INTEGER,
 		PRIMARY KEY (lobby_id, member_id),
@@ -35,11 +47,11 @@ CREATE TABLE lobby_members (
 			ON DELETE CASCADE
 );
 
-CREATE TABLE colleagues (
+CREATE TABLE IF NOT EXISTS colleagues (
 	owner_id		INTEGER,
 	colleague_id	INTEGER,
 		PRIMARY KEY (owner_id, colleague_id),
-		CHECK(owner_id != colleague_id)
+		CHECK(owner_id != colleague_id),
 		CONSTRAINT colleagues_owner_fk FOREIGN KEY (owner_id)
 			REFERENCES leaders(leader_id)
 			ON DELETE CASCADE,
@@ -48,7 +60,7 @@ CREATE TABLE colleagues (
 			ON DELETE CASCADE
 );
 
-CREATE TABLE profiles (
+CREATE TABLE IF NOT EXISTS profiles (
 	owner_id	INTEGER PRIMARY KEY,
 	email		TEXT NOT NULL,
 	bio			TEXT,
@@ -57,7 +69,7 @@ CREATE TABLE profiles (
 			ON DELETE CASCADE 
 );
 
-CREATE TABLE preferences (
+CREATE TABLE IF NOT EXISTS preferences (
 	owner_id 	INTEGER PRIMARY KEY,
 	visibility	INTEGER DEFAULT 'public',
 		CHECK (visibility IN (
@@ -65,17 +77,17 @@ CREATE TABLE preferences (
 				'user', 
 				'friend of friend', 
 				'friend', 
-				'private'))
+				'private')),
 		CONSTRAINT preferences_owner_fk FOREIGN KEY (owner_id)
 			REFERENCES leaders(leader_id)
 			ON DELETE CASCADE 
 );
 
 
-CREATE TABLE requests (
+CREATE TABLE IF NOT EXISTS requests (
 	request_id		INTEGER PRIMARY KEY AUTOINCREMENT,
 	sender_id		INTEGER NOT NULL,
-	reference_id	INTEGER NOT NULL
+	reference_id	INTEGER NOT NULL,
 	receiver_id		INTEGER NOT NULL,
 	req_type		TEXT NOT NULL,
 	send_date		TEXT NOT NULL,
@@ -86,7 +98,8 @@ CREATE TABLE requests (
 			ON DELETE CASCADE,
 		CONSTRAINT requests_receiver_fk FOREIGN KEY (receiver_id)
 			REFERENCES leaders(leader_id)
-			ON DELETE CASCADE 
+			ON DELETE CASCADE,
+		CHECK (req_type IN ('l join', 'l invite'))
 );
 
 INSERT INTO leaders (usrname, pwd, fname, lname)

@@ -1,0 +1,64 @@
+{{define "content"}}
+
+<div class="lobby-container">
+  <section class="lobby-details">
+    <h3>{{.lobbyName}}</h3>
+    <span class="lobby-description">Description</span>
+    <p>{{.lobbyDescription}}</p>
+    <div class="lobby-info-container">
+      <div>
+        <span class="lobby-info">Details</span>
+        <p class="lobby-time">{{.eventTime}}</p>
+        <p class="lobby-location">{{.eventLocation}}</p>
+      </div>
+      <div>
+        <p>Owner:</p>
+        <a href="{{.ownerlink}}">{{.ownerName}}</a><br />
+        {{range .socials}}
+        <a href="{{.socialLink}}" class="social-links">
+          <img
+            src="../media/img/{{.socialImg}}"
+            alt="Lobby Owner Social Media Link"
+          />
+        </a>
+        {{end}}
+      </div>
+    </div>
+  </section>
+
+  <section class="lobby-stats">
+    <h3>Lobby Stats</h3>
+    <div>
+      <div>
+        <strong>Members</strong>
+        <p>{{.totalParticipants}}/{{.capacity}}</p>
+      </div>
+      <div>
+        <strong>Privacy</strong>
+        <p>{{.privacy}}</p>
+      </div>
+      <div>
+        <a href="#!" class="del-btn"><strong>{{.lobbyAction}}</strong></a>
+      </div>
+    </div>
+    <div>
+      <strong>Progress</strong>
+      <p>{{.tasksCompleted}}/{{.tasksTotal}}</p>
+    </div>
+  </section>
+
+  <section class="lobbyParticipants">
+    <div class="table">
+      {{range .participants}}
+      <div class="group-member">
+        <a href="{{.member-link}}">
+          <strong>{{.memberName}}</strong>
+        </a>
+        <a href="#!" class="del-btn">Remove</a>
+      </div>
+      {{end}}
+    </div>
+  </section>
+</div>
+
+{{end}}

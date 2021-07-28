@@ -101,14 +101,11 @@ a {
   color: #e58718;
 }
 
-.logo-img {
-  /* transform: scale(.7); */
-  /* transform: translate(8rem, 2rem); */
-}
-
-/*
-Homepage
-*/
+/* 
+ * **************************************************
+ * ******************* Home Page ********************
+ * **************************************************
+ */
 
 .signin-signup {
   display: flex;
@@ -152,16 +149,16 @@ Homepage
 }
 
 .section-background {
-  /* position: absolute; */
   background-color: #39afbf;
   width: 100%;
   min-height: 20rem;
-  /* z-index: -1; */
 }
 
 /* 
-Components 
-*/
+ * **************************************************
+ * ****************** Components ********************
+ * **************************************************
+ */
 
 .home-logo {
   display: flex;

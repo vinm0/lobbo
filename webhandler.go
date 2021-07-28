@@ -31,6 +31,8 @@ func launch() {
 	fmt.Println("Accessing Homepage")
 	http.HandleFunc("/", homeHandler)
 
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+
 	fmt.Println("Launching Server ...")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

@@ -1,15 +1,15 @@
-/*
-    *****************
-    **** Colors *****
-    *****************
-
-    blue: #39AFBF
-    dark blue: #269EAE
-    link blue: #68EDFF
-    footer blue: #1A6F7A
-    orange: #E58718
-    dark orange: #E0720D
-    black: #2D2D2D
+/* 
+ * **************************************************
+ * ******************** Colors **********************
+ * **************************************************
+ *
+ *   blue: #39AFBF
+ *   dark blue: #269EAE
+ *   link blue: #68EDFF
+ *   footer blue: #1A6F7A
+ *   orange: #E58718
+ *   dark orange: #E0720D
+ *   black: #2D2D2D
 */
 
 * {
@@ -32,9 +32,11 @@ footer {
   min-height: 20rem;
 }
 
-/*  
-    Typography
-*/
+/* 
+ * **************************************************
+ * ****************** Typography ********************
+ * **************************************************
+ */
 
 h1,
 h2,
@@ -44,18 +46,20 @@ h5,
 h6 {
   font-family: "Secular One", sans-serif;
   text-shadow: 0 2px 2px rgba(0, 0, 0, 0.25);
+  font-weight: 400;
 }
 
 h1 {
   font-size: 5rem;
+  font-weight: 900;
 }
 
 h2 {
-  font-size: 3rem;
+  font-size: 5rem;
 }
 
 h3 {
-  font-size: 2.5rem;
+  font-size: 3rem;
 }
 
 h4 {
@@ -72,6 +76,7 @@ span,
 pre,
 strong {
   font-size: 1.6rem;
+  font-family: 'Roboto';
 }
 
 small {
@@ -82,11 +87,23 @@ a {
   color: #68edff;
 }
 
+.home-logo {
+  display: flex;
+  /* justify-content: center; */
+  align-items: center;
+  flex-direction: column-reverse;
+}
+
 .logo-type {
   position: relative;
-  bottom: -1rem;
-  font-size: 7rem;
+  /* bottom: -1rem; */
+  /* font-size: 5rem; */
   color: #e58718;
+}
+
+.logo-img {
+  /* transform: scale(.7); */
+  /* transform: translate(8rem, 2rem); */
 }
 
 /*
@@ -95,10 +112,11 @@ Homepage
 
 .signin-signup {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   text-align: center;
   margin: auto;
-  max-width: 80%;
+  width: 100%;
 }
 
 .textbox-left {
@@ -118,20 +136,27 @@ Homepage
 }
 
 .intro {
-  margin: 15rem auto;
-  position: relative;
+  margin: 5rem auto;
+  text-align: center;
+  /* margin: 3rem; */
+  /* position: relative;
   display: grid;
   align-items: center;
   grid-template-columns: 10% 1fr 1fr 10%;
-  column-gap: 3rem;
+  column-gap: 3rem; */
+}
+
+.intro p {
+  text-align: left;
+  margin: 0 4rem;
 }
 
 .section-background {
-  position: absolute;
+  /* position: absolute; */
   background-color: #39afbf;
   width: 100%;
   min-height: 20rem;
-  z-index: -1;
+  /* z-index: -1; */
 }
 
 /* 
@@ -147,8 +172,8 @@ Components
 .cta-btn {
   color: white;
   padding: 0.8rem 1.6rem;
-  margin: 2rem 2rem;
-  min-width: 30rem;
+  margin: 2rem;
+  min-width: 25rem;
   border-radius: 5px;
   text-decoration: none;
 }

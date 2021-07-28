@@ -8,7 +8,7 @@ import (
 
 const (
 	DB_DRIVER = "sqlite3"
-	DB_PATH   = "./sample-lobbo.db"
+	DB_PATH   = "./database/sample-lobbo.db"
 
 	// DB CRUD
 	CRUD_MAX = 6

@@ -2,7 +2,6 @@
 @import "helper";
 @import "global";
 
-
 /* 
  * **************************************************
  * ******************* Home Page ********************
@@ -10,33 +9,33 @@
  */
 
 .signin-signup {
-  @include flexCenter(column);
-  text-align: center;
-  margin: auto;
-  width: 100%;
+	@include flexCenter(column);
+	text-align: center;
+	margin: auto;
+	width: 100%;
 }
 
 .textbox-left {
-  grid-column-start: 2;
+	grid-column-start: 2;
 }
 
 .textbox-right {
-  grid-column-start: 3;
+	grid-column-start: 3;
 }
 
 .intro-img-left {
-  grid-column-start: 2;
+	grid-column-start: 2;
 }
 
 .intro-img-right {
-  grid-column-start: 3;
+	grid-column-start: 3;
 }
 
 .intro {
-  margin: 5rem auto;
-  text-align: center;
-  /* margin: 3rem; */
-  /* position: relative;
+	margin: 5rem auto;
+	text-align: center;
+	/* margin: 3rem; */
+	/* position: relative;
   display: grid;
   align-items: center;
   grid-template-columns: 10% 1fr 1fr 10%;
@@ -44,14 +43,33 @@
 }
 
 .intro p {
-  text-align: left;
-  margin: 0 4rem;
+	text-align: left;
+	margin: 0 4rem;
 }
 
 .section-background {
-  background-color: $blue;
-  width: 100%;
-  min-height: 20rem;
-  padding: 3rem 0;
+	background-color: $blue;
+	width: 100%;
+	min-height: 20rem;
+	padding: 3rem 0;
 }
 
+/* 
+ * **************************************************
+ * ***************** Sign-in Page *******************
+ * **************************************************
+ */
+
+.signin-form {
+	display: grid;
+	grid-template-columns: 8.6rem 1fr;
+	align-items: end;
+	row-gap: 2rem;
+	width: 80%;
+	margin: 5rem auto;
+}
+
+.submit {
+	grid-column-start: 1;
+	grid-column-end: 3;
+}

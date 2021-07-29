@@ -20,18 +20,24 @@
     </div>
 
     <form action="POST" class="acct-form">
+        <label for="fname">First name</label>
+        <input type="text" name="fname" id="fname" class="text" autofocus>
+
+        <label for="lname">Last name</label>
+        <input type="text" name="lname" class="text" id="lname">
+
         <label for="email">Email</label>
-        <input type="email" name="email" id="email" class="text" autofocus>
+        <input type="email" name="email" id="email" class="text">
 
         <label for="pass">Password</label>
         <input type="password" name="pass" id="pass" class="text">
 
-        <input type="submit" value="Sign-in" class="submit cta-btn cta-btn-blue">
+        <input type="submit" value="Create Account" class="submit cta-btn cta-btn-blue">
     </form>
 
     <div class="center">
-        <small>Don't have an account?</small><br>
-        <a href="signup.html" class="">Create an Account</a>
+        <small>Already have an account?</small><br>
+        <a href="signin.html" class="">Sign-in</a>
     </div>
 </body>
 

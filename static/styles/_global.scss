@@ -74,6 +74,12 @@ small {
 
 a {
 	color: $linkblue;
+	transition: color 0.2s ease-out;
+
+	&:hover {
+		box-shadow: inset 0 -0.4rem 0 -0.1rem $blue;
+		color: $blue;
+	}
 }
 
 footer a {
@@ -122,14 +128,16 @@ form .text {
 	}
 }
 
-form input.submit {
+form .submit {
 	font-size: 2rem;
 	text-shadow: $text-shadow;
 	border: none;
+	transition: background 0.2s ease-out;
 
 	&:hover {
 		background-color: rgba($color: $blue, $alpha: 0.5);
 		box-shadow: inset 0 0 0 0.2rem $blue;
+		cursor: pointer;
 	}
 }
 

@@ -86,6 +86,14 @@ small {
 
 a {
   color: #68edff;
+  -webkit-transition: color 0.2s ease-out;
+  transition: color 0.2s ease-out;
+}
+
+a:hover {
+  -webkit-box-shadow: inset 0 -0.4rem 0 -0.1rem #39afbf;
+          box-shadow: inset 0 -0.4rem 0 -0.1rem #39afbf;
+  color: #39afbf;
 }
 
 footer a {
@@ -160,16 +168,19 @@ form .text:focus {
           box-shadow: inset 0 -0.3rem 0 -0.1rem #39afbf;
 }
 
-form input.submit {
+form .submit {
   font-size: 2rem;
   text-shadow: 0 2px 2px rgba(0, 0, 0, 0.4);
   border: none;
+  -webkit-transition: background 0.2s ease-out;
+  transition: background 0.2s ease-out;
 }
 
-form input.submit:hover {
+form .submit:hover {
   background-color: rgba(57, 175, 191, 0.5);
   -webkit-box-shadow: inset 0 0 0 0.2rem #39afbf;
           box-shadow: inset 0 0 0 0.2rem #39afbf;
+  cursor: pointer;
 }
 
 /* 
@@ -271,7 +282,7 @@ form input.submit:hover {
  * ***************** Sign-in Page *******************
  * **************************************************
  */
-.signin-form {
+.acct-form {
   display: -ms-grid;
   display: grid;
   -ms-grid-columns: 8.6rem 1fr;
@@ -281,7 +292,7 @@ form input.submit:hover {
           align-items: end;
   row-gap: 2rem;
   width: 80%;
-  margin: 5rem auto;
+  margin: 3rem auto;
 }
 
 .submit {

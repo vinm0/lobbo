@@ -15,20 +15,27 @@ const (
 	PORT = ":8080"
 
 	// templates
-	TEMPL_DIR = "templates/"
-	HOME      = TEMPL_DIR + "index.html"
-	SIGN_IN   = TEMPL_DIR + "signin.html"
-	LOBBY     = TEMPL_DIR + "lobby.html"
-	PROFILE   = TEMPL_DIR + "profile.html"
-	LOBBIES   = TEMPL_DIR + "lobbies.html"
-	GROUPS    = TEMPL_DIR + "groups.html"
-	NEW_LOBBY = TEMPL_DIR + "lobbyform.html"
-	BASE      = TEMPL_DIR + "base.html"
+	TEMPL_DIR       = "templates/"
+	HOME_TEMPL      = TEMPL_DIR + "index.html"
+	SIGNIN_TEMPL    = TEMPL_DIR + "signin.html"
+	LOBBY_TEMPL     = TEMPL_DIR + "lobby.html"
+	PROFILE_TEMPL   = TEMPL_DIR + "profile.html"
+	LOBBIES_TEMPL   = TEMPL_DIR + "lobbies.html"
+	GROUPS_TEMPL    = TEMPL_DIR + "groups.html"
+	NEW_LOBBY_TEMPL = TEMPL_DIR + "lobbyform.html"
+	BASE_TEMPL      = TEMPL_DIR + "base.html"
 
-	SITE_TITLE = "Lobbo"
+	SITE_TITLE   = "Lobbo"
+	SIGNIN_TITLE = "Sign-in"
 
 	// cookies
 	SESSION = "session"
+	AUTH    = "authenticated"
+	PASS    = "pass"
+	LDR_ID  = "leader_id"
+	LNAME   = "lname"
+	FNAME   = "fname"
+	EMAIL   = "email"
 )
 
 type Page struct {
@@ -58,9 +65,19 @@ func loadPage(title string) *Page {
 	return &Page{Title: title}
 }
 
+func servePage(w http.ResponseWriter, title string, templ string) {
+	p := loadPage(title)
+	t, err := template.ParseFiles(templ)
+	if err != nil {
+		log.Printf("Unable to parse file: %s. \n", templ)
+		log.Println(err.Error())
+	}
+	t.Execute(w, p)
+}
+
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	p := loadPage(SITE_TITLE)
-	t, _ := template.ParseFiles(HOME)
+	t, _ := template.ParseFiles(HOME_TEMPL)
 
 	t.Execute(w, p)
 }
@@ -68,53 +85,41 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 func profileHandler(w http.ResponseWriter, r *http.Request) {
 	session, _ := store.Get(r, SESSION)
 	fmt.Printf("id: %d\nusr: %s\nfname: %s\nlname: %s",
-		session.Values["leader_id"],
-		session.Values["email"],
-		session.Values["fname"],
-		session.Values["lname"],
+		session.Values[LDR_ID],
+		session.Values[EMAIL],
+		session.Values[FNAME],
+		session.Values[LNAME],
 	)
 }
 
 func signinHandler(w http.ResponseWriter, r *http.Request) {
 	session, _ := store.Get(r, SESSION)
 
-	// auth, _ := session.Values["authenticated"].(bool)
-
 	if r.Method == "GET" {
 		fmt.Println("Get request")
-		// if auth {
-		// 	session.Values["authenticated"] = false
-		// 	http.Redirect(w, r, "/profile", http.StatusFound)
-		// 	return
-		// }
-
-		p := loadPage("login")
-		t, err := template.ParseFiles(SIGN_IN)
-		if err != nil {
-			log.Printf("Unable to parse file: %s. \n", SIGN_IN)
-			log.Println(err.Error())
+		if auth, _ := session.Values["authenticated"].(bool); auth {
+			http.Redirect(w, r, "/profile", http.StatusFound)
+			return
 		}
-		t.Execute(w, p)
+
+		servePage(w, SIGNIN_TITLE, SIGNIN_TEMPL)
 		return
 	}
 
 	fmt.Println("Post request")
-	usr := r.PostFormValue("email")
-	pwd := r.PostFormValue("pass")
+	usr := r.PostFormValue(EMAIL)
+	pwd := r.PostFormValue(PASS)
 	fmt.Printf("usr: %s\npwd: %s", usr, pwd)
 
 	ldr, err := Auth(usr, pwd)
-	if err != nil {
-		log.Printf("Cannot load user: %s. \n", usr)
-		log.Println(err.Error())
-	}
+	Check(err, "login err for user: ", usr)
 
-	session.Values["fname"] = ldr.Firstname
-	session.Values["lname"] = ldr.Lastname
-	session.Values["email"] = ldr.Username
-	session.Values["leader_id"] = ldr.LeaderID
-	session.Values["authenticated"] = true
+	session.Values[FNAME] = ldr.Firstname
+	session.Values[LNAME] = ldr.Lastname
+	session.Values[EMAIL] = usr
+	session.Values[LDR_ID] = ldr.LeaderID
+	session.Values[AUTH] = true
 	session.Save(r, w)
 
-	http.Redirect(w, r, "/profile", http.StatusTemporaryRedirect)
+	http.Redirect(w, r, "/profile", http.StatusFound)
 }

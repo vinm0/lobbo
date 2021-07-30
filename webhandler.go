@@ -6,6 +6,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"regexp"
+	"strings"
 
 	"github.com/gorilla/sessions"
 	"github.com/joho/godotenv"
@@ -36,6 +38,8 @@ const (
 	LNAME   = "lname"
 	FNAME   = "fname"
 	EMAIL   = "email"
+
+	MIN_PWD_LEN = 8
 )
 
 type Page struct {
@@ -52,6 +56,7 @@ func init() {
 func launch() {
 
 	http.HandleFunc("/signin/", signinHandler)
+	http.HandleFunc("/signout/", signoutHandler)
 	http.HandleFunc("/profile/", profileHandler)
 	http.HandleFunc("/", homeHandler)
 
@@ -84,12 +89,15 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 
 func profileHandler(w http.ResponseWriter, r *http.Request) {
 	session, _ := store.Get(r, SESSION)
-	fmt.Printf("id: %d\nusr: %s\nfname: %s\nlname: %s",
-		session.Values[LDR_ID],
-		session.Values[EMAIL],
-		session.Values[FNAME],
-		session.Values[LNAME],
-	)
+	for k, v := range session.Values {
+		fmt.Println("key:", k, "\nvalue: ", v)
+	}
+	// 	"id: %d\nusr: %s\nfname: %s\nlname: %s",
+	// 	session.Values[LDR_ID],
+	// 	session.Values[EMAIL],
+	// 	session.Values[FNAME],
+	// 	session.Values[LNAME],
+	// )
 }
 
 func signinHandler(w http.ResponseWriter, r *http.Request) {
@@ -97,19 +105,24 @@ func signinHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == "GET" {
 		fmt.Println("Get request")
-		if auth, _ := session.Values["authenticated"].(bool); auth {
-			http.Redirect(w, r, "/profile", http.StatusFound)
-			return
-		}
+		// if auth, _ := session.Values["authenticated"].(bool); auth {
+		// 	http.Redirect(w, r, "/profile", http.StatusFound)
+		// 	return
+		// }
 
 		servePage(w, SIGNIN_TITLE, SIGNIN_TEMPL)
 		return
 	}
 
-	fmt.Println("Post request")
-	usr := r.PostFormValue(EMAIL)
-	pwd := r.PostFormValue(PASS)
-	fmt.Printf("usr: %s\npwd: %s", usr, pwd)
+	usr := cleanString(r.PostFormValue(EMAIL))
+	pwd := cleanString(r.PostFormValue(PASS))
+
+	if valid, msg := validateSignin(usr, pwd); !valid {
+		session.Values["error"] = msg
+		session.Save(r, w)
+		http.Redirect(w, r, "/signin", http.StatusFound)
+		return
+	}
 
 	ldr, err := Auth(usr, pwd)
 	Check(err, "login err for user: ", usr)
@@ -122,4 +135,37 @@ func signinHandler(w http.ResponseWriter, r *http.Request) {
 	session.Save(r, w)
 
 	http.Redirect(w, r, "/profile", http.StatusFound)
+}
+
+func signoutHandler(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, SESSION)
+	for k := range session.Values {
+		delete(session.Values, k)
+	}
+	session.Save(r, w)
+
+	http.Redirect(w, r, "/", http.StatusFound)
+}
+
+func validateSignin(usr string, pwd string) (valid bool, msg string) {
+	s := []string{}
+	if len(usr) < 1 && !isEmail(usr) {
+		s = append(s, "Please enter a valid email.")
+	}
+	if len(pwd) < MIN_PWD_LEN {
+		s = append(s, "Password must be 8 or more characters")
+	}
+
+	return len(s) == 0, strings.Join(s, "<br>")
+}
+
+func isEmail(email string) bool {
+	valid, err := regexp.MatchString(`.{3,}@.+\..+$`, email)
+	Check(err, "Email match error:", email)
+
+	return valid
+}
+
+func cleanString(s string) string {
+	return strings.ToLower(strings.Trim(s, " "))
 }

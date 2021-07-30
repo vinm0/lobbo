@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"log"
 	"strings"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 const (
@@ -209,3 +211,36 @@ func safeMarkers(num int) string {
 // func dbfail() func(...interface{}) {
 // 	return log.Fatalln
 // }
+
+func Auth(usr string, pwd string) (client *Leader, err error) {
+	db, err := ConnectDB()
+	if err != nil {
+		dbFail("Cannot connect to database", err)
+		return nil, err
+	}
+
+	defer db.Close()
+
+	prep := "SELECT leader_id, fname, lname FROM leaders WHERE usrname = ? AND pwd = ?"
+	stmt, err := db.Prepare(prep)
+	if err != nil {
+		dbFail(err.Error())
+		return nil, err
+	}
+
+	var id int
+	var fname string
+	var lname string
+
+	if err = stmt.QueryRow(usr, pwd).
+		Scan(&id, &fname, &lname); err != nil {
+		dbFail(err.Error())
+		return nil, err
+	}
+
+	return &Leader{
+		LeaderID:  id,
+		Username:  usr,
+		Firstname: fname,
+		Lastname:  lname}, nil
+}

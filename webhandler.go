@@ -27,8 +27,9 @@ const (
 	NEW_LOBBY_TEMPL = TEMPL_DIR + "lobbyform.html"
 	BASE_TEMPL      = TEMPL_DIR + "base.html"
 
-	SITE_TITLE   = "Lobbo"
-	SIGNIN_TITLE = "Sign-in"
+	SITE_TITLE    = "Lobbo"
+	SIGNIN_TITLE  = "Sign-in"
+	PROFILE_TITLE = "Profile"
 
 	// cookies
 	SESSION = "session"
@@ -42,9 +43,7 @@ const (
 	MIN_PWD_LEN = 8
 )
 
-type Page struct {
-	Title string
-}
+type Page map[string]interface{}
 
 var store *sessions.CookieStore
 
@@ -66,60 +65,70 @@ func launch() {
 	log.Fatal(http.ListenAndServe(PORT, nil))
 }
 
-func loadPage(title string) *Page {
-	return &Page{Title: title}
-}
-
-func servePage(w http.ResponseWriter, title string, templ string) {
-	p := loadPage(title)
-	t, err := template.ParseFiles(templ)
-	if err != nil {
-		log.Printf("Unable to parse file: %s. \n", templ)
-		log.Println(err.Error())
-	}
-	t.Execute(w, p)
-}
+/*
+ * ********************************************************************
+ * ********************************************************************
+ * *********************** Handler Functions **************************
+ * ********************************************************************
+ * ********************************************************************
+ */
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
-	p := loadPage(SITE_TITLE)
-	t, _ := template.ParseFiles(HOME_TEMPL)
-
-	t.Execute(w, p)
+	p := &Page{"title": SITE_TITLE}
+	servePage(w, p, HOME_TEMPL)
 }
 
 func profileHandler(w http.ResponseWriter, r *http.Request) {
-	session, _ := store.Get(r, SESSION)
-	for k, v := range session.Values {
-		fmt.Println("key:", k, "\nvalue: ", v)
+	_, session := session(r)
+
+	if auth, _ := session["authenticated"].(bool); !auth {
+		http.Redirect(w, r, "/signin", http.StatusFound)
+		return
 	}
-	// 	"id: %d\nusr: %s\nfname: %s\nlname: %s",
-	// 	session.Values[LDR_ID],
-	// 	session.Values[EMAIL],
-	// 	session.Values[FNAME],
-	// 	session.Values[LNAME],
-	// )
+
+	fmt.Println("Loading user info")
+	ldr := loadLeader(session)
+
+	// session.Values[]
+	fmt.Println("Loading Page context")
+	p := &Page{
+		"title":        PROFILE_TITLE,
+		"leader":       ldr,
+		"ownedLobbies": ownedLobbies(ldr.LeaderID),
+	}
+
+	fmt.Println(ownedLobbies(ldr.LeaderID))
+
+	fmt.Println("serving page")
+	servePage(w, p, BASE_TEMPL, PROFILE_TEMPL)
+	fmt.Println("Page served:", PROFILE_TEMPL, BASE_TEMPL)
+
+	// for k, v := range session.Values {
+	// 	fmt.Println("key:", k, "\nvalue: ", v)
+	// }
 }
 
 func signinHandler(w http.ResponseWriter, r *http.Request) {
-	session, _ := store.Get(r, SESSION)
+	cookie, session := session(r)
 
 	if r.Method == "GET" {
 		fmt.Println("Get request")
-		// if auth, _ := session.Values["authenticated"].(bool); auth {
-		// 	http.Redirect(w, r, "/profile", http.StatusFound)
-		// 	return
-		// }
+		if auth, _ := session["authenticated"].(bool); auth {
+			http.Redirect(w, r, "/profile", http.StatusFound)
+			return
+		}
 
-		servePage(w, SIGNIN_TITLE, SIGNIN_TEMPL)
+		p := &Page{"title": SIGNIN_TITLE}
+		servePage(w, p, SIGNIN_TEMPL)
 		return
 	}
 
 	usr := cleanString(r.PostFormValue(EMAIL))
 	pwd := cleanString(r.PostFormValue(PASS))
 
-	if valid, msg := validateSignin(usr, pwd); !valid {
-		session.Values["error"] = msg
-		session.Save(r, w)
+	if valid, errMsg := validateSignin(usr, pwd); !valid {
+		session["error"] = errMsg
+		cookie.Save(r, w)
 		http.Redirect(w, r, "/signin", http.StatusFound)
 		return
 	}
@@ -127,24 +136,66 @@ func signinHandler(w http.ResponseWriter, r *http.Request) {
 	ldr, err := Auth(usr, pwd)
 	Check(err, "login err for user: ", usr)
 
-	session.Values[FNAME] = ldr.Firstname
-	session.Values[LNAME] = ldr.Lastname
-	session.Values[EMAIL] = usr
-	session.Values[LDR_ID] = ldr.LeaderID
-	session.Values[AUTH] = true
-	session.Save(r, w)
+	session[FNAME] = ldr.Firstname
+	session[LNAME] = ldr.Lastname
+	session[EMAIL] = usr
+	session[LDR_ID] = ldr.LeaderID
+	session[AUTH] = true
+	cookie.Save(r, w)
 
 	http.Redirect(w, r, "/profile", http.StatusFound)
 }
 
 func signoutHandler(w http.ResponseWriter, r *http.Request) {
 	session, _ := store.Get(r, SESSION)
-	for k := range session.Values {
-		delete(session.Values, k)
-	}
+	session.Values = make(map[interface{}]interface{})
 	session.Save(r, w)
 
-	http.Redirect(w, r, "/", http.StatusFound)
+	http.Redirect(w, r, "/signin", http.StatusFound)
+}
+
+/*
+ * ********************************************************************
+ * ********************************************************************
+ * *********************** Helper Functions ***************************
+ * ********************************************************************
+ * ********************************************************************
+ */
+
+func servePage(w http.ResponseWriter, p *Page, templ ...string) {
+	fmt.Println("Parsing templates")
+	t := template.Must(template.ParseFiles(templ...))
+	fmt.Println((*t).Tree)
+	// if err != nil {
+	// 	log.Println("Unable to parse file:", templ)
+	// 	log.Println(err.Error())
+	// }
+	fmt.Println("Executing templates")
+	err := t.Execute(w, p)
+	if err != nil {
+		log.Println(err.Error(), "Unable to execute template.")
+	}
+}
+
+func session(r *http.Request) (cookie *sessions.Session, session map[interface{}]interface{}) {
+	cookie, _ = store.Get(r, SESSION)
+	return cookie, cookie.Values
+}
+
+func loadLeader(session map[interface{}]interface{}) *Leader {
+	id, _ := session[LDR_ID].(int)
+	em, _ := session[EMAIL].(string)
+	fn, _ := session[FNAME].(string)
+	ln, _ := session[LNAME].(string)
+	return &Leader{
+		LeaderID:  id,
+		Username:  em,
+		Firstname: fn,
+		Lastname:  ln}
+}
+
+func ownedLobbies(ownerID int) []*Lobby {
+	return OwnedLobbiesDB(ownerID)
 }
 
 func validateSignin(usr string, pwd string) (valid bool, msg string) {

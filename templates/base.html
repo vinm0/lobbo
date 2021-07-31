@@ -1,4 +1,4 @@
-{{define "base"}}
+{{define "base.html"}}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -17,7 +17,7 @@
         }
       </style>
     </noscript>
-    <title>{{.Title}}</title>
+    <title>{{.title}}</title>
   </head>
   <body>
     <nav>
@@ -28,12 +28,12 @@
         <a href="#">Groups</a>
       </div>
 
-      {{if .title == "Lobby"}}
+      {{if eq .title "Lobby"}}
       <div class="del-lobby-btn">
         <img src="#" alt="" class="del-img" />
         <span>Delete Lobby</span>
       </div>
-      {{end}} {{if .title != "New Lobby"}}
+      {{end}} {{if ne .title "New Lobby"}}
       <div class="new-lobby-btn">
         <svg
           width="165"
@@ -52,9 +52,9 @@
         {{end}}
       </div>
       <div class="user-info">
-        <span>{{.username}}</span>
+        <span>{{.usrname}}</span>
         <div class="settings">
-          <a href="#" class="signout">signout</a>
+          <a href="/signout" class="signout">signout</a>
           <div class="vertical-border"></div>
           <svg
             width="82"
@@ -90,6 +90,5 @@
 
     <!-- TODO Create popup for for quick lobby creation -->
   </body>
-  {{template "js"}}
 </html>
 {{end}}

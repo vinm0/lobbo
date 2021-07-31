@@ -39,60 +39,57 @@
 <section>
   <h3>Lobbies Owned</h3>
   <div>
-    {{range .lobbiesOwned}}
-    <div class="sml-lobby-card lobbies-owned">
-      <div class="option-dots">
-        <div></div>
-        <div></div>
-        <div></div>
-      </div>
-      <header class="sml-lobby-title">{{.lobbyName}}</header>
-      <section class="sml-card-body">
-        <div class="lobby-totals">
-          <span>Total {{.memberCount}}</span>
-          <span>Capacity {{.capacity}}</span>
+    {{with .ownedLobbies}}
+      {{range .}}
+        <div class="sml-lobby-card lobbies-owned">
+          <div class="option-dots">
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
+          <header class="sml-lobby-title">{{.Title}}</header>
+          <section class="sml-card-body">
+            <div class="lobby-totals">
+            <br /><br />
+            <span>{{.Description}}</span>
+            <span>Lobby ID: {{.LobbyID}}</span>
+            <div class="ask-to-join">
+              <svg
+                width="75"
+                height="75"
+                viewBox="0 0 75 75"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fill-rule="evenodd"
+                  clip-rule="evenodd"
+                  d="M27.7667 5.93335C21.0818 5.93335 15.6667 11.3473 15.6667 
+                    18.0238C15.6667 24.7004 21.0818 30.1143 27.7667 30.1143C34.4516 
+                    30.1143 39.8667 24.7004 39.8667 18.0238C39.8667 11.3473 34.4516 
+                    5.93335 27.7667 5.93335ZM10.6667 18.0238C10.6667 8.58277 18.3234 
+                    0.93335 27.7667 0.93335C37.2099 0.93335 44.8667 8.58277 44.8667 
+                    18.0238C44.8667 27.4649 37.2099 35.1143 27.7667 35.1143C18.3234 
+                    35.1143 10.6667 27.4649 10.6667 18.0238ZM44.7333 32.6333C44.7333 
+                    25.8771 50.2104 20.4 56.9667 20.4C63.723 20.4 69.2 25.8771 69.2 
+                    32.6333C69.2 39.3896 63.723 44.8667 56.9667 44.8667C50.2104 44.8667 
+                    44.7333 39.3896 44.7333 32.6333ZM56.9667 25.4C52.9718 25.4 49.7333 
+                    28.6385 49.7333 32.6333C49.7333 36.6282 52.9718 39.8667 56.9667 
+                    39.8667C60.9615 39.8667 64.2 36.6282 64.2 32.6333C64.2 28.6385 
+                    60.9615 25.4 56.9667 25.4ZM18.0333 49.7048C11.3501 49.7048 5.93335 
+                    55.1202 5.93335 61.8023V69.0223H49.6V61.8023C49.6 55.1202 44.1832 
+                    49.7048 37.5 49.7048H18.0333ZM0.93335 61.8023C0.93335 52.3577 8.58984 
+                    44.7048 18.0333 44.7048H37.5C46.9435 44.7048 54.6 52.3577 54.6 
+                    61.8023V74.0223H0.93335V61.8023ZM69.0667 64.2667C69.0667 58.9279 64.7388 
+                    54.6 59.4 54.6V49.6C67.5002 49.6 74.0667 56.1665 74.0667 
+                    64.2667V74.0667H59.4V69.0667H69.0667V64.2667Z"
+                  fill="#E58718"
+                />
+              </svg>
+            </div>
+          </section>
         </div>
-        <span>{{.privacy}}</span><br />
-        <span>{{.inviteOnly}}</span>
-        <br /><br />
-        <span>{{.lobbySummary}}</span>
-        <span>Lobby ID: {{.lobbyID}}</span>
-        <div class="ask-to-join">
-          <svg
-            width="75"
-            height="75"
-            viewBox="0 0 75 75"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fill-rule="evenodd"
-              clip-rule="evenodd"
-              d="M27.7667 5.93335C21.0818 5.93335 15.6667 11.3473 15.6667 
-                18.0238C15.6667 24.7004 21.0818 30.1143 27.7667 30.1143C34.4516 
-                30.1143 39.8667 24.7004 39.8667 18.0238C39.8667 11.3473 34.4516 
-                5.93335 27.7667 5.93335ZM10.6667 18.0238C10.6667 8.58277 18.3234 
-                0.93335 27.7667 0.93335C37.2099 0.93335 44.8667 8.58277 44.8667 
-                18.0238C44.8667 27.4649 37.2099 35.1143 27.7667 35.1143C18.3234 
-                35.1143 10.6667 27.4649 10.6667 18.0238ZM44.7333 32.6333C44.7333 
-                25.8771 50.2104 20.4 56.9667 20.4C63.723 20.4 69.2 25.8771 69.2 
-                32.6333C69.2 39.3896 63.723 44.8667 56.9667 44.8667C50.2104 44.8667 
-                44.7333 39.3896 44.7333 32.6333ZM56.9667 25.4C52.9718 25.4 49.7333 
-                28.6385 49.7333 32.6333C49.7333 36.6282 52.9718 39.8667 56.9667 
-                39.8667C60.9615 39.8667 64.2 36.6282 64.2 32.6333C64.2 28.6385 
-                60.9615 25.4 56.9667 25.4ZM18.0333 49.7048C11.3501 49.7048 5.93335 
-                55.1202 5.93335 61.8023V69.0223H49.6V61.8023C49.6 55.1202 44.1832 
-                49.7048 37.5 49.7048H18.0333ZM0.93335 61.8023C0.93335 52.3577 8.58984 
-                44.7048 18.0333 44.7048H37.5C46.9435 44.7048 54.6 52.3577 54.6 
-                61.8023V74.0223H0.93335V61.8023ZM69.0667 64.2667C69.0667 58.9279 64.7388 
-                54.6 59.4 54.6V49.6C67.5002 49.6 74.0667 56.1665 74.0667 
-                64.2667V74.0667H59.4V69.0667H69.0667V64.2667Z"
-              fill="#E58718"
-            />
-          </svg>
-        </div>
-      </section>
-    </div>
+      {{end}}
     {{end}}
   </div>
 </section>
@@ -100,25 +97,19 @@
 <section>
   <h3>Lobbies In</h3>
   <div>
-    {{range .lobbiesIn}}
+    {{range .inLobbies}}
     <div class="sml-lobby-card lobbies-in">
       <div class="option-dots">
         <div></div>
         <div></div>
         <div></div>
       </div>
-      <header class="sml-lobby-title">{{.lobbyName}}</header>
+      <header class="sml-lobby-title">{{.Title}}</header>
       <section class="sml-card-body">
         <span>{{.ownerName}}</span>
-        <div class="lobby-totals">
-          <span>Total {{.memberCount}}</span>
-          <span>Capacity {{.capacity}}</span>
-        </div>
-        <span>{{.privacy}}</span><br />
-        <span>{{.inviteOnly}}</span>
         <br /><br />
-        <span>{{.lobbySummary}}</span>
-        <span>Lobby ID: {{.lobbyID}}</span>
+        <span>{{.Description}}</span>
+        <span>Lobby ID: {{.LobbyID}}</span>
         <div class="ask-to-join">
           <svg
             width="75"

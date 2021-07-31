@@ -2,8 +2,10 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -13,20 +15,23 @@ const (
 	DB_PATH   = "./database/sample-lobbo.db"
 
 	// DB CRUD
-	CRUD_MAX = 6
-	INS      = iota
-	SEL
-	UPD
-	DEL
+	INS      = 0
+	SEL      = 1
+	UPD      = 2
+	DEL      = 3
+	CRUD_MAX = 6 // Longest length of sqlCRUD slice
+
+	// Error Messages
+	CONN_FAIL = "Unable to connect to Database."
 )
 
 var (
-	dbFail func(...interface{}) = log.Fatalln
+	dbFail func(...interface{}) = log.Println
 
 	// SQL command templates
 	sqlCRUD = [][]string{
 		{"INSERT INTO ", "", " VALUES ", ""},
-		{"SELECT (", "", ") FROM ", "", " WHERE ", ""},
+		{"SELECT ", "", " FROM ", "", " WHERE ", ""},
 		{"UPDATE ", "", " SET ", "", " WHERE ", ""},
 		{"DELETE FROM ", "", " WHERE ", ""},
 	}
@@ -57,19 +62,23 @@ func ConnectDB() (*DB, error) {
 // 	return err
 // }
 
-func (db *DB) Select(table string, cols []string, condition string, vals []interface{}) (*sql.Rows, error) {
+func (db *DB) Select(table string, cols []string, condition string, vals ...interface{}) (*sql.Rows, error) {
 	prepStr := prepString(SEL, table, cols, condition)
 
+	fmt.Println("String prepped:", prepStr)
 	stmt, err := db.Prepare(prepStr)
 	if err != nil {
 		dbFail(err.Error())
 	}
+	defer stmt.Close()
 
+	fmt.Println("Statement created")
 	rows, err := stmt.Query(vals...)
 	if err != nil {
 		dbFail(err.Error())
 	}
 
+	fmt.Println("returning rows")
 	return rows, err
 }
 
@@ -243,4 +252,35 @@ func Auth(usr string, pwd string) (client *Leader, err error) {
 		Username:  usr,
 		Firstname: fname,
 		Lastname:  lname}, nil
+}
+
+func OwnedLobbiesDB(ownerID int) []*Lobby {
+	db, err := ConnectDB()
+	Check(err, CONN_FAIL)
+	defer db.Close()
+
+	fmt.Println("Database Connected")
+
+	cols := []string{"lobby_id", "title", "lobby_desc", "meet_time"}
+	condition := "owner_id = ? LIMIT 10"
+	rows, err := db.Select("lobbies", cols, condition, ownerID)
+	Check(err, "Unable to query lobbies owned for ownerID", ownerID)
+
+	fmt.Println("Rows returned")
+	lobbies := []*Lobby{}
+	for rows.Next() {
+		l := Lobby{}
+		var meetTime string
+
+		rows.Scan(&l.LobbyID, &l.Title, &l.Description, &meetTime)
+
+		if meetTime != "" {
+			l.MeetTime, err = time.Parse(time.RFC822, meetTime)
+			Check(err, "Unable to parse meeting time:", meetTime)
+		}
+
+		lobbies = append(lobbies, &l)
+	}
+
+	return lobbies
 }

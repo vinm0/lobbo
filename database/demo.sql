@@ -9,7 +9,7 @@
 -- DROP TABLE IF EXISTS preferences;
 -- DROP TABLE IF EXISTS requests;
 -- DROP TABLE IF EXISTS leaders;
--- DROP TABLE IF EXISTS lobby;
+-- DROP TABLE IF EXISTS lobbies;
 
 CREATE TABLE IF NOT EXISTS leaders (
 	leader_id	INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS leaders (
 		UNIQUE(usrname)
 );
 
-CREATE TABLE IF NOT EXISTS lobby (
+CREATE TABLE IF NOT EXISTS lobbies (
 	lobby_id	INTEGER PRIMARY KEY AUTOINCREMENT,
 	owner_id	INTEGER NOT NULL,
 	title		TEXT NOT NULL,
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS lobby (
 	capacity	INTEGER,
 	visibility	INTEGER DEFAULT 0,
 	invite_only	INTEGER DEFAULT 0,
-		CONSTRAINT lobby_owner_fk FOREIGN KEY (owner_id) 
+		CONSTRAINT lobbies_owner_fk FOREIGN KEY (owner_id) 
 			REFERENCES leaders(leader_id)
 			ON DELETE CASCADE
 );
@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS lobby_members (
 	member_id	INTEGER,
 		PRIMARY KEY (lobby_id, member_id),
 		CONSTRAINT lobby_members_lobby_fk FOREIGN KEY (lobby_id) 
-			REFERENCES lobby(lobby_id) 
+			REFERENCES lobbies(lobby_id) 
 			ON DELETE CASCADE,
 		CONSTRAINT lobby_members_member_fk FOREIGN KEY (member_id)
 			REFERENCES leaders(leader_id)
@@ -116,7 +116,7 @@ VALUES
 	("edibleskit", "profitnancy", "Debbie", "Kitt")
 ;
 
-INSERT INTO lobby (	
+INSERT INTO lobbies (	
 	owner_id,
 	title,
 	lobby_desc,
@@ -126,25 +126,25 @@ INSERT INTO lobby (
 	visibility,
 	invite_only)
 VALUES
-	(1, "beauty", NULL, "2021-01-20 00:00:00", 
+	(1, "beauty", NULL, "20 Jan 06 00:00 CST", 
 		"Zoom", 10, 0, 0),
-	(2, "profit", "Look at company numbers", "2021-07-24 00:00:00", 
+	(2, "profit", "Look at company numbers", "24 Jul 06 00:00 CST", 
 		"123 N Main Ave", 5, 4, 1),
-	(3, "networking", NULL, "2021-07-25 00:00:00", 
+	(3, "networking", NULL, "25 Jul 06 00:00 CST", 
 		"345 Mulberry", 50, 0, 0),
-	(4, "scrubs", "Nurses meeting", "2021-08-01 00:00:00", 
+	(4, "scrubs", "Nurses meeting", "01 Aug 06 00:00 CST", 
 		"Staff Lounge", 15, 2, 0),
-	(1, "chapter 9", "Book club meeting", "2021-10-31 00:00:00", 
+	(1, "chapter 9", "Book club meeting", "31 Oct 06 00:00 CST", 
 		"Marcy's House", 10, 1, 1),
-	(3, "homesick", NULL, "2021-01-10 00:00:00", 
+	(3, "homesick", NULL, "10 Jan 06 00:00 CST", 
 		"Mama's", 3, 4, 1),
-	(2, "supreme", "AHS fan club", "2021-03-19 00:00:00", 
+	(2, "supreme", "AHS fan club", "19 Mar 06 00:00 CST", 
 		"New Orleans, LA", NULL, 0, 0),
-	(2, "skit", "Improv night", "2021-09-18 00:00:00", 
+	(2, "skit", "Improv night", "18 Sep 06 00:00 CST", 
 		"Community Theater", 30, 0, 0),
-	(7, "yelp", "Get reviews up", "2021-08-21 00:00:00", 
+	(7, "yelp", "Get reviews up", "21 Aug 06 00:00 CST", 
 		"Cafe", 10, 1, 0),
-	(6, "vegan", "Vegans anonymous", "2021-01-30 00:00:00", 
+	(6, "vegan", "Vegans anonymous", "30 Jan 06 00:00 CST", 
 		"Greens Restaurant", 15, 2, 1)
 ;
 

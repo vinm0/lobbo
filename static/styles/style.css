@@ -1,3 +1,7 @@
+.top-margin-sm {
+  margin-top: 3rem;
+}
+
 .top-margin-med {
   margin-top: 7rem;
 }
@@ -24,6 +28,11 @@ html {
 
 body {
   background-color: #2d2d2d;
+  overflow-x: hidden;
+}
+
+.body-mobile {
+  padding-bottom: 10rem;
 }
 
 footer {
@@ -130,6 +139,25 @@ footer a {
           align-items: center;
 }
 
+.app-logo {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-align: end;
+      -ms-flex-align: end;
+          align-items: flex-end;
+}
+
 .logo-type {
   position: relative;
   /* bottom: -1rem; */
@@ -180,6 +208,76 @@ form .submit:hover {
  * ****************** Components ********************
  * **************************************************
  */
+.navlinks {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-pack: distribute;
+      justify-content: space-around;
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 100vw;
+  background-color: #018fa1;
+  padding: 0.8rem 0;
+}
+
+.navlinks a {
+  display: inline-block;
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  font-size: 1.2rem;
+}
+
+.icon {
+  width: 2.5rem;
+}
+
+.icon-settings {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.icon-settings img {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 1.6rem;
+}
+
+.carousel-cards {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: nowrap;
+      flex-wrap: nowrap;
+  overflow-x: scroll;
+  overflow-y: visible;
+  margin: 1.6rem 0 4rem 0;
+  padding: 0 1.6rem 1.6rem 1.6rem;
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.carousel-cards::-webkit-scrollbar {
+  display: none;
+}
+
+.sm-lobby-card {
+  min-width: 20rem;
+  background-color: #4a4a4a;
+  padding: 1.6rem;
+  margin: 0 1.6rem;
+  border-radius: 1.5rem;
+  -webkit-box-shadow: -0.6rem 0.6rem 0.4rem 0.2rem #1c1c1c;
+          box-shadow: -0.6rem 0.6rem 0.4rem 0.2rem #1c1c1c;
+}
+
 .cta-btn {
   color: white;
   padding: 0.8rem 1.6rem;
@@ -291,5 +389,14 @@ form .submit:hover {
   -ms-grid-column: 1;
       grid-column-start: 1;
   grid-column-end: 3;
+}
+
+/* 
+ * **************************************************
+ * ***************** Profile Page *******************
+ * **************************************************
+ */
+.profile-name {
+  text-align: center;
 }
 /*# sourceMappingURL=style.css.map */

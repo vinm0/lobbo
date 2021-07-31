@@ -1,38 +1,21 @@
 {{define "content"}}
 
 <header>
-  <div class="username">
-    <img src="../images/icons/profile.svg" alt="Profile icon">
-    <br />
-    <span>Username</span>
+  <div class="profile-name top-margin-sm">
+    <h3>{{.leader.Firstname}} {{.leader.Lastname}}</h3>
+    <a href="/signout" class="signout"><small>Sign-out</small></a>
   </div>
-  <div class="bio">
-    <span>Bio</span><br />
-    <p>{{.bio}}</p>
-    {{range .socials}}
-    <a href="{{.socialLink}}">{{.socialSite}}</a>
-    {{end}}
-  </div>
-  <div class="profile-actions">
-    <span>Invite</span>
-    <span>Add to Group</span>
-    <span>Message</span>
-  </div>
+
 </header>
 
-<section>
+<section class="lobbies-owned top-margin-sm">
   <h3>Lobbies Owned</h3>
-  <div>
+  <div class="carousel-cards">
     {{with .ownedLobbies}}
       {{range .}}
-        <div class="sml-lobby-card lobbies-owned">
-          <div class="option-dots">
-            <div></div>
-            <div></div>
-            <div></div>
-          </div>
-          <header class="sml-lobby-title">{{.Title}}</header>
-          <section class="sml-card-body">
+        <div class="sm-lobby-card">
+          <header class="sm-lobby-title"><h4>{{.Title}}</h4></header>
+          <section class="sm-card-body">
             <div class="lobby-totals">
             <br /><br />
             <span>{{.Description}}</span>
@@ -49,16 +32,16 @@
 
 <section>
   <h3>Lobbies In</h3>
-  <div>
+  <div class="carousel-cards">
     {{range .inLobbies}}
-    <div class="sml-lobby-card lobbies-in">
+    <div class="sm-lobby-card lobbies-in">
       <div class="option-dots">
         <div></div>
         <div></div>
         <div></div>
       </div>
-      <header class="sml-lobby-title">{{.Title}}</header>
-      <section class="sml-card-body">
+      <header class="sm-lobby-title">{{.Title}}</header>
+      <section class="sm-card-body">
         <span>{{.OwnerName}}</span>
         <br /><br />
         <span>{{.Description}}</span>

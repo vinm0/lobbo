@@ -19,13 +19,29 @@
     </noscript>
     <title>{{.title}}</title>
   </head>
-  <body>
+  <body class="body-mobile">
     <nav>
-      <h1>lobbo.io</h1>
       <div class="navlinks">
-        <a href="/profile">Profile</a>
-        <a href="/lobbies">Lobbies</a>
-        <a href="/groups">Groups</a>
+        <a href="/profile">
+          <img src="../images/icons/profile-wht.svg" alt="Profile" class="icon"><br>
+          Profile
+        </a>
+        <a href="/lobbies">
+          <img src="../images/icons/grid-wht.svg" alt="Lobbies" class="icon"><br>
+          Lobbies
+        </a>
+        <a href="/lobbyform">
+          <img src="../images/icons/add-wht.svg" alt="Add" class="icon"><br>
+          New Lobby
+        </a>
+        <a href="/inbox">
+          <img src="../images/icons/bell-alert.svg" alt="Add" class="icon"><br>
+          Inbox
+        </a>
+        <a href="/groups">
+          <img src="../images/icons/people-wht.svg" alt="Groups" class="icon"><br>
+          Groups
+        </a>
       </div>
 
       {{if eq .title "Lobby"}}
@@ -33,21 +49,19 @@
         <img src="#" alt="" class="del-img" />
         <span>Delete Lobby</span>
       </div>
-      {{end}} {{if ne .title "New Lobby"}}
-      <div class="new-lobby-btn">
-        <img src="../images/icons/add.svg" alt="Add" class="icon">
-        <span>New Lobby</span>
-        {{end}}
-      </div>
-      <div class="user-info">
-        <span>{{.usrname}}</span>
-        <div class="settings">
-          <a href="/signout" class="signout">signout</a>
-          <div class="vertical-border"></div>
-          <img src="../images/icons/gear.svg" alt="Settings" class="icon">
-        </div>
+      {{end}}
       </div>
     </nav>
+
+    <div class="icon-settings">
+      <img src="../images/icons/gear.svg" alt="Settings" class="icon">
+  </div>
+    <div class="app-logo top-margin-med center">
+      <h1 class="logo-type">Lobbo.io</h1>
+      <img src="../images/logo-bubbles.svg" class="logo-img">
+    </div>
+  
+
 
     {{template "content" .}}
 

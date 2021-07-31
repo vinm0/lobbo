@@ -61,6 +61,7 @@ func launch() {
 	http.HandleFunc("/", homeHandler)
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+	http.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir("images"))))
 
 	fmt.Println("Launching Server on port", PORT)
 	log.Fatal(http.ListenAndServe(PORT, nil))

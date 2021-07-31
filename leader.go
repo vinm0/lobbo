@@ -1,8 +1,9 @@
 package main
 
 type Leader struct {
-	LeaderID  int
-	Username  string
-	Firstname string
-	Lastname  string
+	LeaderID     int
+	Username     string
+	Firstname    string
+	Lastname     string
+	OwnedLobbies []*Lobby
 }

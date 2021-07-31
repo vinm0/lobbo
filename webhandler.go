@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/gorilla/sessions"
@@ -94,10 +95,9 @@ func profileHandler(w http.ResponseWriter, r *http.Request) {
 	p := &Page{
 		"title":        PROFILE_TITLE,
 		"leader":       ldr,
-		"ownedLobbies": ownedLobbies(ldr.LeaderID),
+		"ownedLobbies": ownedLobbies(ldr.LeaderID, 10),
+		"inLobbies":    inLobbies(ldr.LeaderID, 10),
 	}
-
-	fmt.Println(ownedLobbies(ldr.LeaderID))
 
 	fmt.Println("serving page")
 	servePage(w, p, BASE_TEMPL, PROFILE_TEMPL)
@@ -194,8 +194,12 @@ func loadLeader(session map[interface{}]interface{}) *Leader {
 		Lastname:  ln}
 }
 
-func ownedLobbies(ownerID int) []*Lobby {
-	return OwnedLobbiesDB(ownerID)
+func ownedLobbies(ownerID int, limit int) []*Lobby {
+	return OwnedLobbiesDB(ownerID, " Limit "+strconv.Itoa(limit))
+}
+
+func inLobbies(memberID int, limit int) []*Lobby {
+	return inLobbiesDB(memberID, " Limit "+strconv.Itoa(limit))
 }
 
 func validateSignin(usr string, pwd string) (valid bool, msg string) {

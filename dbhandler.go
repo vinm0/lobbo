@@ -254,19 +254,37 @@ func Auth(usr string, pwd string) (client *Leader, err error) {
 		Lastname:  lname}, nil
 }
 
-func OwnedLobbiesDB(ownerID int) []*Lobby {
+func OwnedLobbiesDB(ownerID int, limit string) []*Lobby {
 	db, err := ConnectDB()
 	Check(err, CONN_FAIL)
 	defer db.Close()
 
-	fmt.Println("Database Connected")
-
 	cols := []string{"lobby_id", "title", "lobby_desc", "meet_time"}
-	condition := "owner_id = ? LIMIT 10"
+	condition := "owner_id = ?" + limit
+
 	rows, err := db.Select("lobbies", cols, condition, ownerID)
 	Check(err, "Unable to query lobbies owned for ownerID", ownerID)
 
-	fmt.Println("Rows returned")
+	return loadOwnedLobbies(rows)
+}
+
+func inLobbiesDB(memberID int, limit string) []*Lobby {
+	db, err := ConnectDB()
+	Check(err, CONN_FAIL)
+	defer db.Close()
+
+	ownerName := "fname||' '||lname"
+	cols := []string{"l.lobby_id", ownerName, "title", "lobby_desc", "meet_time"}
+	condition := "member_id = ?" + limit
+	table := "lobbies l JOIN leaders ON leader_id = owner_id JOIN lobby_members lm ON l.lobby_id = lm.lobby_id"
+
+	rows, err := db.Select(table, cols, condition, memberID)
+	Check(err, "Unable to query lobbies owned for ownerID", memberID)
+
+	return loadInLobbies(rows)
+}
+
+func loadOwnedLobbies(rows *sql.Rows) []*Lobby {
 	lobbies := []*Lobby{}
 	for rows.Next() {
 		l := Lobby{}
@@ -275,8 +293,31 @@ func OwnedLobbiesDB(ownerID int) []*Lobby {
 		rows.Scan(&l.LobbyID, &l.Title, &l.Description, &meetTime)
 
 		if meetTime != "" {
-			l.MeetTime, err = time.Parse(time.RFC822, meetTime)
+			t, err := time.Parse(time.RFC822, meetTime)
 			Check(err, "Unable to parse meeting time:", meetTime)
+
+			l.MeetTime = t
+		}
+
+		lobbies = append(lobbies, &l)
+	}
+
+	return lobbies
+}
+
+func loadInLobbies(rows *sql.Rows) []*Lobby {
+	lobbies := []*Lobby{}
+	for rows.Next() {
+		l := Lobby{}
+		var meetTime string
+
+		rows.Scan(&l.LobbyID, &l.OwnerName, &l.Title, &l.Description, &meetTime)
+
+		if meetTime != "" {
+			t, err := time.Parse(time.RFC822, meetTime)
+			Check(err, "Unable to parse meeting time:", meetTime)
+
+			l.MeetTime = t
 		}
 
 		lobbies = append(lobbies, &l)

@@ -92,7 +92,7 @@ func (db *DB) Update(table string, cols []string, condition string, vals []inter
 	return db.sqlGeneric(UPD, table, cols, vals, condition, nil)
 }
 
-func (db *DB) Delete(table string, conditions string, vals []interface{}) (sql.Result, error) {
+func (db *DB) Delete(table string, conditions string, vals ...interface{}) (sql.Result, error) {
 
 	return db.sqlGeneric(DEL, table, nil, vals, conditions, nil)
 }
@@ -350,4 +350,14 @@ func loadLeaders(rows *sql.Rows) []*Leader {
 	}
 
 	return leaders
+}
+
+func DeleteColleagueDB(ownerID int, colleagueID int) {
+	db, err := ConnectDB()
+	Check(err, CONN_FAIL)
+	defer db.Close()
+
+	condition := "owner_id = ? AND colleague_id = ?"
+	_, err = db.Delete("colleagues", condition, ownerID, colleagueID)
+	Check(err, "Unable to query lobbies owned for ownerID", ownerID)
 }

@@ -88,6 +88,15 @@ func profileHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if r.Method == http.MethodPost {
+		ownerID, _ := session["leader_id"].(int)
+		colleagueID, _ := strconv.Atoi(r.FormValue("del-id"))
+
+		deleteColleague(ownerID, colleagueID)
+		http.Redirect(w, r, "/profile", http.StatusFound)
+		return
+	}
+
 	fmt.Println("Loading user info")
 	ldr := loadLeader(session)
 
@@ -113,7 +122,7 @@ func profileHandler(w http.ResponseWriter, r *http.Request) {
 func signinHandler(w http.ResponseWriter, r *http.Request) {
 	cookie, session := session(r)
 
-	if r.Method == "GET" {
+	if r.Method == http.MethodGet {
 		fmt.Println("Get request")
 		if auth, _ := session["authenticated"].(bool); auth {
 			http.Redirect(w, r, "/profile", http.StatusFound)
@@ -206,6 +215,10 @@ func inLobbies(memberID int, limit int) []*Lobby {
 
 func colleagues(ownerID int, limit int) []*Leader {
 	return ColleaguesDB(ownerID, " Limit "+strconv.Itoa(limit))
+}
+
+func deleteColleague(ownerID int, colleagueID int) {
+	DeleteColleagueDB(ownerID, colleagueID)
 }
 
 func validateSignin(usr string, pwd string) (valid bool, msg string) {

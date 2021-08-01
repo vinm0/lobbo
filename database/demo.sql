@@ -24,9 +24,10 @@ CREATE TABLE IF NOT EXISTS lobbies (
 	lobby_id	INTEGER PRIMARY KEY AUTOINCREMENT,
 	owner_id	INTEGER NOT NULL,
 	title		TEXT NOT NULL,
-	lobby_desc	TEXT,
+	summary		TEXT,
 	meet_time	TEXT,
 	meet_loc	TEXT,
+	loc_link	TEXT,
 	capacity	INTEGER,
 	visibility	INTEGER DEFAULT 0,
 	invite_only	INTEGER DEFAULT 0,
@@ -119,33 +120,34 @@ VALUES
 INSERT INTO lobbies (	
 	owner_id,
 	title,
-	lobby_desc,
+	summary,
 	meet_time,
 	meet_loc,
+	loc_link,
 	capacity,
 	visibility,
 	invite_only)
 VALUES
-	(1, "beauty", NULL, "20 Jan 06 00:00 CST", 
-		"Zoom", 10, 0, 0),
+	(1, "beauty", "", "20 Jan 06 00:00 CST", 
+		"Zoom", "", 10, 0, 0),
 	(2, "profit", "Look at company numbers", "24 Jul 06 00:00 CST", 
-		"123 N Main Ave", 5, 4, 1),
-	(3, "networking", NULL, "25 Jul 06 00:00 CST", 
-		"345 Mulberry", 50, 0, 0),
+		"123 N Main Ave", "", 5, 4, 1),
+	(3, "networking", "", "25 Jul 06 00:00 CST", 
+		"345 Mulberry", "", 50, 0, 0),
 	(4, "scrubs", "Nurses meeting", "01 Aug 06 00:00 CST", 
-		"Staff Lounge", 15, 2, 0),
+		"Staff Lounge", "", 15, 2, 0),
 	(1, "chapter 9", "Book club meeting", "31 Oct 06 00:00 CST", 
-		"Marcy's House", 10, 1, 1),
-	(3, "homesick", NULL, "10 Jan 06 00:00 CST", 
-		"Mama's", 3, 4, 1),
+		"Marcy's House", "", 10, 1, 1),
+	(3, "homesick", "", "10 Jan 06 00:00 CST", 
+		"Mama's", "", 3, 4, 1),
 	(2, "supreme", "AHS fan club", "19 Mar 06 00:00 CST", 
-		"New Orleans, LA", NULL, 0, 0),
+		"New Orleans, LA", "", "", 0, 0),
 	(2, "skit", "Improv night", "18 Sep 06 00:00 CST", 
-		"Community Theater", 30, 0, 0),
+		"Community Theater", "", 30, 0, 0),
 	(7, "yelp", "Get reviews up", "21 Aug 06 00:00 CST", 
-		"Cafe", 10, 1, 0),
+		"Cafe", "", 10, 1, 0),
 	(6, "vegan", "Vegans anonymous", "30 Jan 06 00:00 CST", 
-		"Greens Restaurant", 15, 2, 1)
+		"Greens Restaurant", "", 15, 2, 1)
 ;
 
 INSERT INTO lobby_members (lobby_id, member_id) 
@@ -190,16 +192,16 @@ VALUES
 
 INSERT INTO profiles (owner_id, email, bio)
 VALUES
-	(1, "ukxxv@gmail.com", ""),
-	(2, "nqkah@gmail.com", ""),
-	(3, "murrr@gmail.com", ""),
-	(4, "abbsk@gmail.com", ""),
-	(5, "wrncj@gmail.com", ""),
-	(6, "zeqrq@gmail.com", ""),
-	(7, "waauq@gmail.com", ""),
-	(8, "jrncf@gmail.com", ""),
-	(9, "twhav@gmail.com", ""),
-	(10, "qzmfa@gmail.com", "")
+	(1, "ukxxv@gmail.com", "I'm the nicest person you'll ever meet"),
+	(2, "nqkah@gmail.com", "Nothing special. Just trying to make my way."),
+	(3, "murrr@gmail.com", "Following my dreams. To infinity and Beyond."),
+	(4, "abbsk@gmail.com", "Nothing better in life than spending time with friends."),
+	(5, "wrncj@gmail.com", "Life's a struggle, but it's all worth it in the end."),
+	(6, "zeqrq@gmail.com", "I'm not the smartest, but nothing's gonna keep me down."),
+	(7, "waauq@gmail.com", "Making the best with what I have."),
+	(8, "jrncf@gmail.com", "I'm a big ball of energy, and I'm living life."),
+	(9, "twhav@gmail.com", "Keep on keepin' on. - Joe Dirt"),
+	(10, "qzmfa@gmail.com", "Don't go chasing waterfalls.")
 ;
 
 
@@ -227,14 +229,14 @@ INSERT INTO requests (
 	response, 
 	response_date)
 VALUES
-	(1, 8, 5, "l invite", "2021-07-10 00:00:00", NULL, NULL),
-	(2, 8, 2, "l join", "2021-07-10 00:00:00", NULL, NULL),
-	(2, 7, 2, "l invite", "2021-07-10 00:00:00", NULL, NULL),
-	(2, 6, 2, "l invite", "2021-07-10 00:00:00", NULL, NULL),
-	(4, 1, 4, "l join", "2021-07-10 00:00:00", NULL, NULL),
-	(6, 4, 10, "l invite", "2021-07-10 00:00:00", NULL, NULL),
-	(6, 3, 10, "l join", "2021-07-10 00:00:00", NULL, NULL),
-	(7, 10, 9, "l invite", "2021-07-10 00:00:00", NULL, NULL),
-	(6, 1, 10, "l join", "2021-07-10 00:00:00", NULL, NULL),
-	(6, 10, 10, "l invite", "2021-07-10 00:00:00",NULL, NULL)
+	(1, 8, 5, "l invite", "2021-07-10 00:00:00", "", ""),
+	(2, 8, 2, "l join", "2021-07-10 00:00:00", "", ""),
+	(2, 7, 2, "l invite", "2021-07-10 00:00:00", "", ""),
+	(2, 6, 2, "l invite", "2021-07-10 00:00:00", "", ""),
+	(4, 1, 4, "l join", "2021-07-10 00:00:00", "", ""),
+	(6, 4, 10, "l invite", "2021-07-10 00:00:00", "", ""),
+	(6, 3, 10, "l join", "2021-07-10 00:00:00",  "", ""),
+	(7, 10, 9, "l invite", "2021-07-10 00:00:00", "", ""),
+	(6, 1, 10, "l join", "2021-07-10 00:00:00",  "", ""),
+	(6, 10, 10, "l invite", "2021-07-10 00:00:00", "", "")
 ;

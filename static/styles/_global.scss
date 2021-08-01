@@ -223,7 +223,7 @@ form .submit {
 .sm-lobby-card {
 	position: relative;
 	min-width: 25rem;
-	min-height: 25rem;
+	min-height: 27rem;
 	background-color: rgb(74, 74, 74);
 	padding: 1.6rem;
 	margin: 0 1.6rem;
@@ -233,7 +233,9 @@ form .submit {
 	header.sm-lobby-title h4 {
 		font-family: $roboto;
 		font-weight: 700;
-		line-height: 1.5;
+		line-height: 1;
+		background-color: $dkblue;
+		box-shadow: 0 0 0 1.6rem $dkblue;
 	}
 
 	.lobby-id {
@@ -241,6 +243,10 @@ form .submit {
 		bottom: 1rem;
 		left: 1rem;
 	}
+}
+
+.sm-lobby-title {
+	background-color: $dkblue;
 }
 
 .list {
@@ -278,9 +284,10 @@ form .submit {
 	}
 }
 
-.btn {
+form input.btn {
 	padding: 0.4rem 0.8rem;
 	border-radius: 0.5rem;
+	font-size: 1.4rem;
 }
 
 // .sm-lobby-card::before {

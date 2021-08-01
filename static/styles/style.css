@@ -285,7 +285,7 @@ form .submit:hover {
 .sm-lobby-card {
   position: relative;
   min-width: 25rem;
-  min-height: 25rem;
+  min-height: 27rem;
   background-color: #4a4a4a;
   padding: 1.6rem;
   margin: 0 1.6rem;
@@ -297,13 +297,20 @@ form .submit:hover {
 .sm-lobby-card header.sm-lobby-title h4 {
   font-family: "Roboto", sans-serif;
   font-weight: 700;
-  line-height: 1.5;
+  line-height: 1;
+  background-color: #018fa1;
+  -webkit-box-shadow: 0 0 0 1.6rem #018fa1;
+          box-shadow: 0 0 0 1.6rem #018fa1;
 }
 
 .sm-lobby-card .lobby-id {
   position: absolute;
   bottom: 1rem;
   left: 1rem;
+}
+
+.sm-lobby-title {
+  background-color: #018fa1;
 }
 
 .list {
@@ -353,9 +360,10 @@ form .submit:hover {
       justify-self: end;
 }
 
-.btn {
+form input.btn {
   padding: 0.4rem 0.8rem;
   border-radius: 0.5rem;
+  font-size: 1.4rem;
 }
 
 .cta-btn {
@@ -479,5 +487,11 @@ form .submit:hover {
  */
 .profile-name {
   text-align: center;
+}
+
+.time-loc {
+  background-color: #6e6e6e;
+  -webkit-box-shadow: 0 0 0 0.8rem #6e6e6e, 0 0.3rem 0.5rem 0.4rem #000;
+          box-shadow: 0 0 0 0.8rem #6e6e6e, 0 0.3rem 0.5rem 0.4rem #000;
 }
 /*# sourceMappingURL=style.css.map */

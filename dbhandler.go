@@ -259,7 +259,7 @@ func OwnedLobbiesDB(ownerID int, limit string) []*Lobby {
 	Check(err, CONN_FAIL)
 	defer db.Close()
 
-	cols := []string{"lobby_id", "title", "lobby_desc", "meet_time", "meet_loc"}
+	cols := []string{"lobby_id", "title", "summary", "meet_time", "meet_loc"}
 	condition := "owner_id = ?" + limit
 
 	rows, err := db.Select("lobbies", cols, condition, ownerID)
@@ -274,7 +274,7 @@ func inLobbiesDB(memberID int, limit string) []*Lobby {
 	defer db.Close()
 
 	ownerName := "fname||' '||lname"
-	cols := []string{"l.lobby_id", ownerName, "title", "lobby_desc", "meet_time", "meet_loc"}
+	cols := []string{"l.lobby_id", ownerName, "title", "summary", "meet_time", "meet_loc"}
 	condition := "member_id = ?" + limit
 	table := "lobbies l JOIN leaders ON leader_id = owner_id JOIN lobby_members lm ON l.lobby_id = lm.lobby_id"
 
@@ -298,10 +298,9 @@ func loadOwnedLobbies(rows *sql.Rows) []*Lobby {
 
 			l.MeetTime = t
 		}
-
+		fmt.Println(l)
 		lobbies = append(lobbies, &l)
 	}
-
 	return lobbies
 }
 

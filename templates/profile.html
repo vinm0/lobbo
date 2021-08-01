@@ -17,11 +17,13 @@
           <header class="sm-lobby-title">
             <h4>{{.Title}}</h4>
           </header>
-          <br><br>
+          <br><br><br>
           <section class="sm-card-body">
             <div class="lobby-totals">
-            <span>{{.Location}}</span><br /><br />
-            <span>{{.MeetTime}}</span><br /><br />
+              <div class="time-loc">
+                <span>{{.Location}}</span><br />
+                <small>{{.MeetTime.Format "Jan 02, 2006 - 3:04p"}}</small>
+              </div><br /><br />
             <span>{{.Description}}</span><br /><br />
             <small class="lobby-id">Lobby ID: {{.LobbyID}}</small>
             </div>
@@ -39,12 +41,14 @@
     <div class="sm-lobby-card">
       <header class="sm-lobby-title">
         <h4>{{.Title}}</h4>
-      </header>
-      <section class="sm-card-body">
         <small>{{.OwnerName}}</small>
-        <br /><br />
-        <span>{{.Location}}</span><br /><br />
-        <span>{{.MeetTime}}</span><br /><br />
+      </header><br>
+      <section class="sm-card-body">
+        <br />
+        <div class="time-loc">
+          <span>{{.Location}}</span><br />
+          <small>{{.MeetTime.Format "Jan 02, 2006 - 3:04p"}}</small>
+        </div><br /><br />
         <span>{{.Description}}</span><br /><br />
         <small class="lobby-id">Lobby ID: {{.LobbyID}}</small>
       </section>

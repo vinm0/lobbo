@@ -3,7 +3,7 @@
 <header>
   <div class="profile-name top-margin-sm">
     <h3>{{.leader.Firstname}} {{.leader.Lastname}}</h3>
-    <a href="/signout" class="signout"><small>Sign-out</small></a>
+    <small><a href="/signout" class="signout">Sign-out</a></small>
   </div>
 
 </header>
@@ -14,14 +14,16 @@
     {{with .ownedLobbies}}
       {{range .}}
         <div class="sm-lobby-card">
-          <header class="sm-lobby-title"><h4>{{.Title}}</h4></header>
+          <header class="sm-lobby-title">
+            <h4>{{.Title}}</h4>
+          </header>
+          <br><br>
           <section class="sm-card-body">
             <div class="lobby-totals">
-            <br /><br />
-            <span>{{.Description}}</span>
-            <span>Lobby ID: {{.LobbyID}}</span>
-            <div class="ask-to-join">
-              <img src="../images/icons/people.svg" alt="Group" class="icon">
+            <span>{{.Location}}</span><br /><br />
+            <span>{{.MeetTime}}</span><br /><br />
+            <span>{{.Description}}</span><br /><br />
+            <small class="lobby-id">Lobby ID: {{.LobbyID}}</small>
             </div>
           </section>
         </div>
@@ -30,29 +32,51 @@
   </div>
 </section>
 
-<section>
+<section class="lobbies-in">
   <h3>Lobbies In</h3>
   <div class="carousel-cards">
     {{range .inLobbies}}
-    <div class="sm-lobby-card lobbies-in">
-      <div class="option-dots">
-        <div></div>
-        <div></div>
-        <div></div>
-      </div>
-      <header class="sm-lobby-title">{{.Title}}</header>
+    <div class="sm-lobby-card">
+      <header class="sm-lobby-title">
+        <h4>{{.Title}}</h4>
+      </header>
       <section class="sm-card-body">
-        <span>{{.OwnerName}}</span>
+        <small>{{.OwnerName}}</small>
         <br /><br />
-        <span>{{.Description}}</span>
-        <span>Lobby ID: {{.LobbyID}}</span>
-        <div class="ask-to-join">
-          <img src="../images/icons/people.svg" alt="Group" class="icon">
-        </div>
+        <span>{{.Location}}</span><br /><br />
+        <span>{{.MeetTime}}</span><br /><br />
+        <span>{{.Description}}</span><br /><br />
+        <small class="lobby-id">Lobby ID: {{.LobbyID}}</small>
       </section>
     </div>
     {{end}}
   </div>
+</section>
+
+<section class="colleagues">
+  <h3>Colleagues</h3>
+
+  <div class="list">
+    {{range .colleagues}}
+
+    <div class="list-item">
+      <span class="colleague-name">
+        {{.Firstname}} {{.Lastname}}
+      </span>
+
+      <a href="profile?leader_id={{.LeaderID}}" class="profile-link">
+        Profile
+      </a>
+
+      <form method="post">
+        <input type="hidden" name="del-id" value="{{.LeaderID}}">
+        <input type="submit" value="Delete" name="delete" class="submit btn cta-btn-orange">
+      </form>
+    </div>
+
+    {{end}}
+  </div>
+
 </section>
 
 {{end}}

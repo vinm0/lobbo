@@ -98,6 +98,7 @@ func profileHandler(w http.ResponseWriter, r *http.Request) {
 		"leader":       ldr,
 		"ownedLobbies": ownedLobbies(ldr.LeaderID, 10),
 		"inLobbies":    inLobbies(ldr.LeaderID, 10),
+		"colleagues":   colleagues(ldr.LeaderID, 10),
 	}
 
 	fmt.Println("serving page")
@@ -201,6 +202,10 @@ func ownedLobbies(ownerID int, limit int) []*Lobby {
 
 func inLobbies(memberID int, limit int) []*Lobby {
 	return inLobbiesDB(memberID, " Limit "+strconv.Itoa(limit))
+}
+
+func colleagues(ownerID int, limit int) []*Leader {
+	return ColleaguesDB(ownerID, " Limit "+strconv.Itoa(limit))
 }
 
 func validateSignin(usr string, pwd string) (valid bool, msg string) {

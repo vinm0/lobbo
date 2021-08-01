@@ -88,13 +88,26 @@ strong {
   font-family: "Roboto", sans-serif;
 }
 
-small {
-  font-size: 1.4rem;
+small,
+small a {
+  font-size: 1.2rem;
   font-family: "Roboto", sans-serif;
 }
 
-a {
+a:not(.cta-btn) {
   color: #68edff;
+  -webkit-transition: opacity 0.2s ease-out;
+  transition: opacity 0.2s ease-out;
+}
+
+a:not(.cta-btn):hover {
+  -webkit-box-shadow: inset 0 -0.4rem 0 -0.1rem #018fa1;
+          box-shadow: inset 0 -0.4rem 0 -0.1rem #018fa1;
+  opacity: 70%;
+}
+
+section h3 {
+  margin-left: 2rem;
 }
 
 footer a {
@@ -220,6 +233,7 @@ form .submit:hover {
   width: 100vw;
   background-color: #018fa1;
   padding: 0.8rem 0;
+  z-index: 100;
 }
 
 .navlinks a {
@@ -269,17 +283,82 @@ form .submit:hover {
 }
 
 .sm-lobby-card {
-  min-width: 20rem;
+  position: relative;
+  min-width: 25rem;
+  min-height: 25rem;
   background-color: #4a4a4a;
   padding: 1.6rem;
   margin: 0 1.6rem;
-  border-radius: 1.5rem;
+  border-radius: 0.5rem;
   -webkit-box-shadow: -0.6rem 0.6rem 0.4rem 0.2rem #1c1c1c;
           box-shadow: -0.6rem 0.6rem 0.4rem 0.2rem #1c1c1c;
 }
 
+.sm-lobby-card header.sm-lobby-title h4 {
+  font-family: "Roboto", sans-serif;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.sm-lobby-card .lobby-id {
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+}
+
+.list {
+  width: 85%;
+  margin: 1.6rem auto 4rem auto;
+}
+
+.list-item {
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-columns: 1fr 5rem 1fr;
+      grid-template-columns: 1fr 5rem 1fr;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  padding: 0.8rem 0.8rem;
+  margin-bottom: 0.2rem;
+  -webkit-transition: -webkit-transform 0.2s ease-out;
+  transition: -webkit-transform 0.2s ease-out;
+  transition: transform 0.2s ease-out;
+  transition: transform 0.2s ease-out, -webkit-transform 0.2s ease-out;
+}
+
+.list-item:nth-child(odd) {
+  background-color: #6e6e6e;
+}
+
+.list-item:nth-child(even) {
+  background-color: #4a4a4a;
+}
+
+.list-item:hover {
+  -webkit-transform: scale(1.05);
+          transform: scale(1.05);
+}
+
+.list-item .profile-link {
+  -ms-grid-column-align: center;
+      justify-self: center;
+}
+
+.list-item form {
+  -ms-grid-column-align: end;
+      justify-self: end;
+}
+
+.btn {
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.5rem;
+}
+
 .cta-btn {
-  color: white;
   padding: 0.8rem 1.6rem;
   margin: 2rem;
   min-width: 25rem;
@@ -289,10 +368,12 @@ form .submit:hover {
 
 .cta-btn-blue {
   background-color: #39afbf;
+  color: white;
 }
 
 .cta-btn-orange {
   background-color: #fa9828;
+  color: white;
 }
 
 .textbox-left,

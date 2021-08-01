@@ -9,6 +9,7 @@ type Lobby struct {
 	Title       string
 	Members     []*Leader
 	Description string
+	Location    string
 	Capacity    int
 	Privacy     int
 	Visibility  int

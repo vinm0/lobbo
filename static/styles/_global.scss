@@ -72,19 +72,24 @@ strong {
 	font-family: $roboto;
 }
 
-small {
-	font-size: 1.4rem;
+small,
+small a {
+	font-size: 1.2rem;
 	font-family: $roboto;
 }
 
-a {
+a:not(.cta-btn) {
 	color: $linkblue;
-	// transition: color 0.2s ease-out;
+	transition: opacity 0.2s ease-out;
 
-	// &:hover {
-	// 	box-shadow: inset 0 -0.4rem 0 -0.1rem $blue;
-	// 	color: $blue;
-	// }
+	&:hover {
+		box-shadow: inset 0 -0.4rem 0 -0.1rem $dkblue;
+		opacity: 70%;
+	}
+}
+
+section h3 {
+	margin-left: 2rem;
 }
 
 footer a {
@@ -171,6 +176,7 @@ form .submit {
 	width: 100vw;
 	background-color: $dkblue;
 	padding: 0.8rem 0;
+	z-index: 100;
 
 	a {
 		display: inline-block;
@@ -215,13 +221,66 @@ form .submit {
 }
 
 .sm-lobby-card {
-	min-width: 20rem;
+	position: relative;
+	min-width: 25rem;
+	min-height: 25rem;
 	background-color: rgb(74, 74, 74);
 	padding: 1.6rem;
 	margin: 0 1.6rem;
-
-	border-radius: 1.5rem;
+	border-radius: 0.5rem;
 	box-shadow: -0.6rem 0.6rem 0.4rem 0.2rem rgba(28, 28, 28, 58%);
+
+	header.sm-lobby-title h4 {
+		font-family: $roboto;
+		font-weight: 700;
+		line-height: 1.5;
+	}
+
+	.lobby-id {
+		position: absolute;
+		bottom: 1rem;
+		left: 1rem;
+	}
+}
+
+.list {
+	width: 85%;
+	margin: 1.6rem auto 4rem auto;
+}
+
+.list-item {
+	display: grid;
+	grid-template-columns: 1fr 5rem 1fr;
+	justify-content: space-between;
+	align-items: center;
+	padding: 0.8rem 0.8rem;
+	margin-bottom: 0.2rem;
+	transition: transform 0.2s ease-out;
+
+	&:nth-child(odd) {
+		background-color: #6e6e6e;
+	}
+
+	&:nth-child(even) {
+		background-color: #4a4a4a;
+	}
+
+	&:hover {
+		transform: scale(1.05);
+	}
+
+	.profile-link {
+		justify-self: center;
+	}
+
+	form {
+		justify-self: end;
+	}
+}
+
+.btn {
+	padding: 0.4rem 0.8rem;
+	border-radius: 0.5rem;
 }
 
 // .sm-lobby-card::before {
@@ -231,7 +290,6 @@ form .submit {
 // }
 
 .cta-btn {
-	color: white;
 	padding: 0.8rem 1.6rem;
 	margin: 2rem;
 	min-width: 25rem;
@@ -241,10 +299,12 @@ form .submit {
 
 .cta-btn-blue {
 	background-color: $blue;
+	color: white;
 }
 
 .cta-btn-orange {
 	background-color: $orange;
+	color: white;
 }
 
 .textbox-left,

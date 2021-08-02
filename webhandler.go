@@ -28,9 +28,13 @@ const (
 	NEW_LOBBY_TEMPL = TEMPL_DIR + "lobbyform.html"
 	BASE_TEMPL      = TEMPL_DIR + "base.html"
 
-	SITE_TITLE    = "Lobbo"
-	SIGNIN_TITLE  = "Sign-in"
-	PROFILE_TITLE = "Profile"
+	SITE_TITLE      = "Lobbo"
+	SIGNIN_TITLE    = "Sign-in"
+	PROFILE_TITLE   = "Profile"
+	LOBBIES_TITLE   = "Lobbies"
+	NEW_LOBBY_TITLE = "New"
+	GROUPS_TITLE    = "Groups"
+	INBOX_TITLE     = "Inbox"
 
 	// cookies
 	SESSION = "session"
@@ -58,6 +62,7 @@ func launch() {
 	http.HandleFunc("/signin/", signinHandler)
 	http.HandleFunc("/signout/", signoutHandler)
 	http.HandleFunc("/profile/", profileHandler)
+	http.HandleFunc("/lobbies/", lobbiesHandler)
 	http.HandleFunc("/", homeHandler)
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
@@ -80,6 +85,24 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	servePage(w, p, HOME_TEMPL)
 }
 
+func lobbiesHandler(w http.ResponseWriter, r *http.Request) {
+	_, session := session(r)
+
+	if auth, _ := session["authenticated"].(bool); !auth {
+		http.Redirect(w, r, "/signin", http.StatusFound)
+		return
+	}
+
+	ldr := loadLeader(session)
+
+	p := &Page{
+		"title":        "Lobbies",
+		"ownedLobbies": ownedLobbiesAll(ldr.LeaderID),
+	}
+
+	servePage(w, p, BASE_TEMPL, LOBBIES_TEMPL)
+}
+
 func profileHandler(w http.ResponseWriter, r *http.Request) {
 	_, session := session(r)
 
@@ -88,7 +111,7 @@ func profileHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if r.Method == http.MethodPost {
+	if r.Method == http.MethodPost && r.FormValue("delete") == "Delete" {
 		ownerID, _ := session["leader_id"].(int)
 		colleagueID, _ := strconv.Atoi(r.FormValue("del-id"))
 
@@ -207,6 +230,10 @@ func loadLeader(session map[interface{}]interface{}) *Leader {
 
 func ownedLobbies(ownerID int, limit int) []*Lobby {
 	return OwnedLobbiesDB(ownerID, " Limit "+strconv.Itoa(limit))
+}
+
+func ownedLobbiesAll(ownerID int) []*Lobby {
+	return OwnedLobbiesDB(ownerID, "")
 }
 
 func inLobbies(memberID int, limit int) []*Lobby {

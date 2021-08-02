@@ -1,14 +1,14 @@
 {{define "content"}}
 
-<button type="button" class="my-lobbies">My Lobbies</button>
-<a href="/lobbies-in" class="other-lobbies">Other Lobbies</a>
+<a href="/lobbies" class="my-lobbies">My Lobbies</a>
+<button type="button" class="other-lobbies">Other Lobbies</button>
 
 <br /><br />
 
 <section class="grid-cards">
-  {{with .ownedLobbies}}
+  {{with .inLobbies}}
   {{range .}}
-  <div class="sm-lobby-card lobbies-owned">
+  <div class="sm-lobby-card lobbies-in">
     <header class="lobby-title">{{.Title}}</header>
     <section class="card-body">
       <span>{{.Description}}</span>
@@ -49,7 +49,7 @@
       </div>
     </section>
   </div>
-  {{end}} {{end}} 
+  {{end}} {{end}}
 </section>
 
 {{end}}

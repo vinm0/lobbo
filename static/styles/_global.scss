@@ -220,6 +220,16 @@ form .submit {
 	display: none;
 }
 
+.grid-cards {
+	width: 90%;
+	margin: auto;
+
+	.sm-lobby-card {
+		min-width: 20rem;
+		margin: 0;
+	}
+}
+
 .sm-lobby-card {
 	position: relative;
 	min-width: 25rem;

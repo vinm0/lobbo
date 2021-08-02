@@ -63,6 +63,7 @@ func launch() {
 	http.HandleFunc("/signout/", signoutHandler)
 	http.HandleFunc("/profile/", profileHandler)
 	http.HandleFunc("/lobbies/", lobbiesHandler)
+	http.HandleFunc("/lobbies-in/", lobbiesHandler)
 	http.HandleFunc("/", homeHandler)
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
@@ -93,11 +94,23 @@ func lobbiesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if r.Method == http.MethodPost {
+		switch r.PostFormValue("lobby-type") {
+		case "My Lobbies":
+			http.Redirect(w, r, "/lobbies", http.StatusFound)
+
+		case "Lobbies In":
+			http.Redirect(w, r, "/lobbies-in", http.StatusFound)
+		}
+		return
+	}
+
 	ldr := loadLeader(session)
+	lbys := loadLobbies(r, ldr.LeaderID)
 
 	p := &Page{
-		"title":        "Lobbies",
-		"ownedLobbies": ownedLobbiesAll(ldr.LeaderID),
+		"title":   strings.Title(strings.Trim(r.URL.Path, "/")),
+		"lobbies": lbys,
 	}
 
 	servePage(w, p, BASE_TEMPL, LOBBIES_TEMPL)
@@ -105,6 +118,8 @@ func lobbiesHandler(w http.ResponseWriter, r *http.Request) {
 
 func profileHandler(w http.ResponseWriter, r *http.Request) {
 	_, session := session(r)
+
+	fmt.Println("session:", session)
 
 	if auth, _ := session["authenticated"].(bool); !auth {
 		http.Redirect(w, r, "/signin", http.StatusFound)
@@ -228,6 +243,14 @@ func loadLeader(session map[interface{}]interface{}) *Leader {
 		Lastname:  ln}
 }
 
+func loadLobbies(r *http.Request, leaderID int) []*Lobby {
+	if r.URL.Path == "lobbies-in/" {
+		return inLobbiesAll(leaderID)
+	}
+
+	return ownedLobbiesAll(leaderID)
+}
+
 func ownedLobbies(ownerID int, limit int) []*Lobby {
 	return OwnedLobbiesDB(ownerID, " Limit "+strconv.Itoa(limit))
 }
@@ -238,6 +261,10 @@ func ownedLobbiesAll(ownerID int) []*Lobby {
 
 func inLobbies(memberID int, limit int) []*Lobby {
 	return inLobbiesDB(memberID, " Limit "+strconv.Itoa(limit))
+}
+
+func inLobbiesAll(memberID int) []*Lobby {
+	return inLobbiesDB(memberID, "")
 }
 
 func colleagues(ownerID int, limit int) []*Leader {

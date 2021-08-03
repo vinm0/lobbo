@@ -78,6 +78,10 @@ small a {
 	font-family: $roboto;
 }
 
+a {
+	text-decoration: none;
+}
+
 a:not(.cta-btn) {
 	color: $linkblue;
 	transition: opacity 0.2s ease-out;

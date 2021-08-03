@@ -110,9 +110,9 @@
 	text-decoration-color: white;
 }
 
-.list-item a h4.lobby-title {
+a h4.lobby-title {
 	color: white;
-	text-decoration: underline;
+	text-decoration: none;
 	box-shadow: none;
 
 	&:hover {

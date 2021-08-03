@@ -94,6 +94,10 @@ small a {
   font-family: "Roboto", sans-serif;
 }
 
+a {
+  text-decoration: none;
+}
+
 a:not(.cta-btn) {
   color: #68edff;
   -webkit-transition: opacity 0.2s ease-out;
@@ -572,14 +576,14 @@ form input.btn {
           text-decoration-color: white;
 }
 
-.list-item a h4.lobby-title {
+a h4.lobby-title {
   color: white;
-  text-decoration: underline;
+  text-decoration: none;
   -webkit-box-shadow: none;
           box-shadow: none;
 }
 
-.list-item a h4.lobby-title:hover {
+a h4.lobby-title:hover {
   opacity: 100%;
 }
 

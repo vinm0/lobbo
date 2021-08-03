@@ -34,8 +34,7 @@
     <header class="members-header">
       <h4>Members</h4>
     
-      <form Action="/join/" method="post" class="join-form">
-        <input type="hidden" name="join-id" value="{{.LobbyID}}">
+      <form Action="/join/{{.LobbyID}}" method="post" class="join-form">
         <input type="hidden" name="join-invite" value="{{.InviteOnly}}">
         <input type="submit" value="Join" class="submit btn cta-btn-orange">
       </form>

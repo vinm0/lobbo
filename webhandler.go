@@ -98,10 +98,10 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 func joinHandler(w http.ResponseWriter, r *http.Request) {
 	_, session := session(r)
 
-	id := r.PostFormValue("join-id")
+	id := strings.TrimPrefix(r.URL.Path, "/join/")
 
 	if auth, _ := session["authenticated"].(bool); !auth {
-		http.Redirect(w, r, "/signin/lobby/"+id, http.StatusFound)
+		http.Redirect(w, r, "/signin/join/"+id, http.StatusFound)
 		return
 	}
 
@@ -258,6 +258,7 @@ func signinHandler(w http.ResponseWriter, r *http.Request) {
 	// redirect to previous page
 	if len(r.URL.Path) > len("/signin/") {
 		path := strings.TrimPrefix(r.URL.Path, "/signin")
+		fmt.Println("redirecting to ", path)
 		http.Redirect(w, r, path, http.StatusFound)
 		return
 	}

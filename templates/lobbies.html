@@ -1,10 +1,10 @@
 {{define "content"}}
 
 <form method="post" class="tabs">
-  <input type="submit" name="lobby-type" class="tab my-lobbies"
+  <input type="submit" name="lobby-type" class="tab my-lobbies {{if eq .title "Lobbies"}}tab-active{{end}}"
     value="My Lobbies">
   </input>
-  <input type="submit" name="lobby-type" class="tab other-lobbies"
+  <input type="submit" name="lobby-type" class="tab other-lobbies {{if eq .title "Lobbies-In"}}tab-active{{end}}"
     value="Lobbies In">
   </input>
 </form>
@@ -12,21 +12,27 @@
 <br /><br />
 
 <main class="list-page">
-  <header><h3>{{.title}}</h3></header>
-  {{with .lobbies}}
-    {{range .}}
-    <div class="sm-lobby-card lobbies-owned">
-
-      <h4 class="lobby-title">{{.Title}}</h4>
-
+  <header><h3 class="category-title">{{.title}}</h3></header>
+  <div class="list">
+    {{range .lobbies}}
+    <div class="list-item list-item-lobby">
       <section class="card-body">
-        <span>{{.Description}}</span>
-        <span>Lobby ID: {{.LobbyID}}</span>
+        <a href="/lobby/{{.LobbyID}}">
+          <h4 class="lobby-title">{{.Title}}</h4>
+        </a>
+        <small>
+          {{.MeetTime.Format "Jan 02, 2006 - 3:04p"}} |
+          {{.Location}}
+        </small>
       </section>
+
+      {{if eq $.title "Lobbies" }}
+        <a href="/lobbyform/{{.LobbyID}}" class="edit btn cta-btn-orange">edit</a>
+      {{end}}
 
     </div>
     {{end}} 
-  {{end}} 
+  </div>
 </main>
 
 {{end}}

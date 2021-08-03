@@ -36,7 +36,7 @@ const (
 	GROUPS_TITLE    = "Groups"
 	INBOX_TITLE     = "Inbox"
 
-	// cookies
+	// Cookie Names
 	SESSION = "session"
 	AUTH    = "authenticated"
 	PASS    = "pass"
@@ -44,6 +44,13 @@ const (
 	LNAME   = "lname"
 	FNAME   = "fname"
 	EMAIL   = "email"
+
+	// Privacy Levels
+	PUBLIC             = 0
+	COMMUNITY          = 1
+	FRIENDS_OF_FRIENDS = 2
+	FRIENDS            = 3
+	PRIVATE
 
 	MIN_PWD_LEN = 8
 )
@@ -64,6 +71,8 @@ func launch() {
 	http.HandleFunc("/profile/", profileHandler)
 	http.HandleFunc("/lobbies/", lobbiesHandler)
 	http.HandleFunc("/lobbies-in/", lobbiesHandler)
+	http.HandleFunc("/lobby/", lobbyHandler)
+	http.HandleFunc("/join/", joinHandler)
 	http.HandleFunc("/", homeHandler)
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
@@ -86,6 +95,54 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	servePage(w, p, HOME_TEMPL)
 }
 
+func joinHandler(w http.ResponseWriter, r *http.Request) {
+	_, session := session(r)
+
+	id := r.PostFormValue("join-id")
+
+	if auth, _ := session["authenticated"].(bool); !auth {
+		http.Redirect(w, r, "/signin/lobby/"+id, http.StatusFound)
+		return
+	}
+
+	leaderID, _ := session[LDR_ID].(int)
+	lobbyID, _ := strconv.Atoi(id)
+	prv, _ := strconv.Atoi(r.PostFormValue("join-invite"))
+
+	if !joinAllowed(lobbyID, leaderID, prv) {
+		fmt.Fprint(w, "Permission to join lobby denied")
+		return
+	}
+
+	joinLobby(lobbyID, leaderID)
+
+	http.Redirect(w, r, "/lobby/"+id, http.StatusFound)
+}
+
+func lobbyHandler(w http.ResponseWriter, r *http.Request) {
+	_, session := session(r)
+
+	lobbyID := strings.TrimPrefix(r.URL.Path, "/lobby/")
+	lby := lobby(lobbyID)
+	owner := lobbyOwner(session, lby.OwnerID)
+
+	// TODO: Fix valid privacy verification
+	if lby.OwnerID != session["leader_id"] &&
+		lby.Privacy > FRIENDS_OF_FRIENDS {
+		fmt.Fprint(w, "Access Denied")
+	}
+
+	p := &Page{
+		"title":     lby.Title,
+		"lobby":     lby,
+		"members":   members(lby.LobbyID),
+		"owner":     owner,
+		"leader_id": session[LDR_ID],
+	}
+
+	servePage(w, p, BASE_TEMPL, LOBBY_TEMPL)
+}
+
 func lobbiesHandler(w http.ResponseWriter, r *http.Request) {
 	_, session := session(r)
 
@@ -95,17 +152,24 @@ func lobbiesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == http.MethodPost {
-		switch r.PostFormValue("lobby-type") {
-		case "My Lobbies":
-			http.Redirect(w, r, "/lobbies", http.StatusFound)
+		if lobbyType := r.PostFormValue("lobby-type"); lobbyType != "" {
+			switch lobbyType {
+			case "My Lobbies":
+				http.Redirect(w, r, "/lobbies", http.StatusFound)
 
-		case "Lobbies In":
-			http.Redirect(w, r, "/lobbies-in", http.StatusFound)
+			case "Lobbies In":
+				http.Redirect(w, r, "/lobbies-in", http.StatusFound)
+			}
+			return
 		}
-		return
+
+		if lobbyID := r.PostFormValue("lobby-id"); lobbyID != "" {
+			http.Redirect(w, r, "/lobbyform/"+lobbyID, http.StatusFound)
+			return
+		}
 	}
 
-	ldr := loadLeader(session)
+	ldr := sessionLeader(session)
 	lbys := loadLobbies(r, ldr.LeaderID)
 
 	p := &Page{
@@ -136,7 +200,7 @@ func profileHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Println("Loading user info")
-	ldr := loadLeader(session)
+	ldr := sessionLeader(session)
 
 	// session.Values[]
 	fmt.Println("Loading Page context")
@@ -161,7 +225,6 @@ func signinHandler(w http.ResponseWriter, r *http.Request) {
 	cookie, session := session(r)
 
 	if r.Method == http.MethodGet {
-		fmt.Println("Get request")
 		if auth, _ := session["authenticated"].(bool); auth {
 			http.Redirect(w, r, "/profile", http.StatusFound)
 			return
@@ -192,6 +255,12 @@ func signinHandler(w http.ResponseWriter, r *http.Request) {
 	session[AUTH] = true
 	cookie.Save(r, w)
 
+	// redirect to previous page
+	if len(r.URL.Path) > len("/signin/") {
+		path := strings.TrimPrefix(r.URL.Path, "/signin")
+		http.Redirect(w, r, path, http.StatusFound)
+		return
+	}
 	http.Redirect(w, r, "/profile", http.StatusFound)
 }
 
@@ -212,9 +281,9 @@ func signoutHandler(w http.ResponseWriter, r *http.Request) {
  */
 
 func servePage(w http.ResponseWriter, p *Page, templ ...string) {
-	fmt.Println("Parsing templates")
+	// fmt.Println("Parsing templates")
 	t := template.Must(template.ParseFiles(templ...))
-	fmt.Println((*t).Tree)
+	// fmt.Println((*t).Tree)
 	// if err != nil {
 	// 	log.Println("Unable to parse file:", templ)
 	// 	log.Println(err.Error())
@@ -231,7 +300,7 @@ func session(r *http.Request) (cookie *sessions.Session, session map[interface{}
 	return cookie, cookie.Values
 }
 
-func loadLeader(session map[interface{}]interface{}) *Leader {
+func sessionLeader(session map[interface{}]interface{}) *Leader {
 	id, _ := session[LDR_ID].(int)
 	em, _ := session[EMAIL].(string)
 	fn, _ := session[FNAME].(string)
@@ -243,8 +312,12 @@ func loadLeader(session map[interface{}]interface{}) *Leader {
 		Lastname:  ln}
 }
 
+func joinLobby(lobbyID int, leaderID int) {
+	JoinLobbyDB(lobbyID, leaderID)
+}
+
 func loadLobbies(r *http.Request, leaderID int) []*Lobby {
-	if r.URL.Path == "lobbies-in/" {
+	if r.URL.Path == "/lobbies-in/" {
 		return inLobbiesAll(leaderID)
 	}
 
@@ -275,6 +348,23 @@ func deleteColleague(ownerID int, colleagueID int) {
 	DeleteColleagueDB(ownerID, colleagueID)
 }
 
+func lobby(lobbyID string) *Lobby {
+	id, _ := strconv.Atoi(lobbyID)
+	return LobbyDB(id)
+}
+
+func members(lobbyID int) []*Leader {
+	return MembersDB(lobbyID)
+}
+
+func lobbyOwner(session map[interface{}]interface{}, ownerID int) *Leader {
+	if session[LDR_ID] == ownerID {
+		return sessionLeader(session)
+	}
+
+	return LeaderDB(ownerID)
+}
+
 func validateSignin(usr string, pwd string) (valid bool, msg string) {
 	s := []string{}
 	if len(usr) < 1 && !isEmail(usr) {
@@ -285,6 +375,12 @@ func validateSignin(usr string, pwd string) (valid bool, msg string) {
 	}
 
 	return len(s) == 0, strings.Join(s, "<br>")
+}
+
+func joinAllowed(lobbyID int, leaderID int, inviteCode int) bool {
+	return inviteCode <= 2
+	// TODO verify permissions based on network
+	// return JoinAllowedDB(lobbyID, leaderID)
 }
 
 func isEmail(email string) bool {

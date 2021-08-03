@@ -10,8 +10,10 @@ type Lobby struct {
 	Members     []*Leader
 	Description string
 	Location    string
+	Link        string
 	Capacity    int
 	Privacy     int
 	Visibility  int
+	InviteOnly  int
 	MeetTime    time.Time
 }

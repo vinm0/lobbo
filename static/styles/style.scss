@@ -88,3 +88,56 @@
 	background-color: #6e6e6e;
 	box-shadow: 0 0 0 0.8rem #6e6e6e, 0 0.3rem 0.5rem 0.4rem #000;
 }
+
+/* 
+ * **************************************************
+ * ***************** Lobby Page *******************
+ * **************************************************
+ */
+
+.lobby-page .lobby-title,
+.lobby-details {
+	margin-left: 1.6rem;
+}
+
+.lobby-details span {
+	font-size: 1.4rem;
+	line-height: 1.5;
+}
+
+.lobby-owner {
+	color: white;
+	text-decoration-color: white;
+}
+
+.list-item a h4.lobby-title {
+	color: white;
+	text-decoration: underline;
+	box-shadow: none;
+
+	&:hover {
+		opacity: 100%;
+	}
+}
+
+.members-header {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+	margin-left: 1.6rem;
+
+	h4 {
+		font-size: 2.5rem;
+	}
+}
+
+.join-form {
+	margin: 1.6rem;
+
+	.submit {
+		padding: 0.8rem 1.6rem;
+		font-size: 1.6rem;
+		font-weight: 700;
+	}
+}

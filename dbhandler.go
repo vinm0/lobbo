@@ -82,7 +82,7 @@ func (db *DB) Select(table string, cols []string, condition string, vals ...inte
 	return rows, err
 }
 
-func (db *DB) Insert(table string, cols []string, vals []interface{}) (sql.Result, error) {
+func (db *DB) Insert(table string, cols []string, vals ...interface{}) (sql.Result, error) {
 
 	return db.sqlGeneric(INS, table, cols, vals, "", nil)
 }
@@ -109,16 +109,20 @@ func (db *DB) sqlGeneric(crud int, table string, cols []string,
 	vals []interface{}, condition string, rows *sql.Rows) (sql.Result, error) {
 
 	prepStr := prepString(crud, table, cols, condition)
+	fmt.Println("String prepped for insert")
+	fmt.Println(prepStr)
 
 	stmt, err := db.Prepare(prepStr)
 	if err != nil {
 		dbFail(err.Error())
 	}
 
+	fmt.Println("Executing sql statement")
 	res, err := stmt.Exec(vals...)
 	if err != nil {
 		dbFail(err.Error())
 	}
+	fmt.Println("Statement Executed")
 
 	return res, err
 }
@@ -199,11 +203,11 @@ func prepString(crud int, table string, cols []string, condition string) string 
 }
 
 func safeMarkers(num int) string {
-	s := ""
+	s := "("
 	for i := 0; i < num-1; i++ {
 		s += "?, "
 	}
-	s += "?"
+	s += "?)"
 
 	return s
 }
@@ -285,6 +289,8 @@ func inLobbiesDB(memberID int, limit string) []*Lobby {
 }
 
 func loadOwnedLobbies(rows *sql.Rows) []*Lobby {
+	defer rows.Close()
+
 	lobbies := []*Lobby{}
 	for rows.Next() {
 		l := Lobby{}
@@ -305,6 +311,8 @@ func loadOwnedLobbies(rows *sql.Rows) []*Lobby {
 }
 
 func loadInLobbies(rows *sql.Rows) []*Lobby {
+	defer rows.Close()
+
 	lobbies := []*Lobby{}
 	for rows.Next() {
 		l := Lobby{}
@@ -341,6 +349,8 @@ func ColleaguesDB(ownerID int, limit string) []*Leader {
 }
 
 func loadLeaders(rows *sql.Rows) []*Leader {
+	defer rows.Close()
+
 	leaders := []*Leader{}
 	for rows.Next() {
 		l := Leader{}
@@ -361,3 +371,101 @@ func DeleteColleagueDB(ownerID int, colleagueID int) {
 	_, err = db.Delete("colleagues", condition, ownerID, colleagueID)
 	Check(err, "Unable to query lobbies owned for ownerID", ownerID)
 }
+
+func LobbyDB(id int) *Lobby {
+	db, err := ConnectDB()
+	Check(err, CONN_FAIL)
+	defer db.Close()
+
+	cols := []string{"*"}
+	rows, err := db.Select("lobbies", cols, "lobby_id = ?", id)
+	Check(err, "Unable to query lobby for id", id)
+
+	return loadLobby(rows)
+}
+
+func loadLobby(rows *sql.Rows) *Lobby {
+	defer rows.Close()
+	l := Lobby{}
+	var meetTime string
+	if rows.Next() {
+		rows.Scan(&l.LobbyID, &l.OwnerID, &l.Title, &l.Description,
+			&meetTime, &l.Location, &l.Link, &l.Capacity,
+			&l.Visibility, &l.InviteOnly)
+	}
+
+	if meetTime != "" {
+		t, err := time.Parse(time.RFC822, meetTime)
+		Check(err, "Unable to parse meeting time:", meetTime)
+
+		l.MeetTime = t
+	}
+
+	return &l
+}
+
+func LeaderDB(leaderID int) *Leader {
+	db, err := ConnectDB()
+	Check(err, CONN_FAIL)
+	defer db.Close()
+
+	cols := []string{"leader_id", "fname", "lname", "usrname"}
+	condition := "leader_id = ?"
+
+	rows, err := db.Select("leaders", cols, condition, leaderID)
+	Check(err, "Unable to query leaders for leaderID", leaderID)
+
+	return loadLeader(rows)
+}
+
+func loadLeader(row *sql.Rows) *Leader {
+	defer row.Close()
+	l := Leader{}
+	if row.Next() {
+		row.Scan(&l.LeaderID, &l.Firstname, &l.Lastname, &l.Username)
+	}
+
+	return &l
+}
+
+func MembersDB(lobbyID int) []*Leader {
+	db, err := ConnectDB()
+	Check(err, CONN_FAIL)
+	defer db.Close()
+
+	cols := []string{"member_id", "fname", "lname", "usrname"}
+	condition := "lobby_id = ?"
+	table := "lobby_members JOIN leaders ON member_id = leader_id"
+
+	rows, err := db.Select(table, cols, condition, lobbyID)
+	Check(err, "Unable to query members for lobbyID", lobbyID)
+
+	return loadLeaders(rows)
+}
+
+func JoinLobbyDB(lobbyID int, leaderID int) {
+	db, err := ConnectDB()
+	Check(err, CONN_FAIL)
+	defer db.Close()
+
+	cols := []string{"lobby_id", "member_id"}
+
+	_, err = db.Insert("lobby_members", cols, lobbyID, leaderID)
+	Check(err, "Unable to add leader to lobby ", lobbyID)
+
+}
+
+// TODO: validate join permissions based on invite code.
+// func JoinAllowed(lobbyID int, leaderID int, privacy int) bool {
+// 	db, err := ConnectDB()
+// 	Check(err, CONN_FAIL)
+// 	defer db.Close()
+
+// 	cols := []string{"member_id", "fname", "lname", "usrname"}
+// 	condition := "lobby_id = ?"
+// 	table := "lobby_members JOIN leaders ON member_id = leader_id"
+
+// 	rows, err := db.Select(table, cols, condition, lobbyID)
+// 	Check(err, "Unable to query members for lobbyID", lobbyID)
+
+// }

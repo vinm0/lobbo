@@ -1,64 +1,74 @@
 {{define "content"}}
+{{with .lobby}}
 
-<div class="lobby-container">
-  <section class="lobby-details">
-    <h3>{{.lobbyName}}</h3>
-    <span class="lobby-description">Description</span>
-    <p>{{.lobbyDescription}}</p>
-    <div class="lobby-info-container">
-      <div>
-        <span class="lobby-info">Details</span>
-        <p class="lobby-time">{{.eventTime}}</p>
-        <p class="lobby-location">{{.eventLocation}}</p>
-      </div>
-      <div>
-        <p>Owner:</p>
-        <a href="{{.ownerlink}}">{{.ownerName}}</a><br />
-        {{range .socials}}
-        <a href="{{.socialLink}}" class="social-links">
-          <img
-            src="../media/img/{{.socialImg}}"
-            alt="Lobby Owner Social Media Link"
-          />
+<main class="lobby-page top-margin-sm">
+  <header>
+    <h3 class="lobby-title">{{.Title}}</h3>
+  </header><br />
+
+  <section>
+    <div class="lobby-details">
+      <a href="/profile/{{.OwnerID}}">
+        <span class="lobby-owner">
+          {{$.owner.Firstname}} {{$.owner.Lastname}}
+        </span>
+      </a><br />
+
+      <span class="date">
+        {{.MeetTime.Format "Jan 02, 2006 - 3:04pm"}}
+      </span><br />
+
+      <span class="location">
+        {{.Location}}
+      </span><br /><br /><br />
+
+      <p class="summary">
+        {{.Description}}
+      </p>
+
+    </div>
+  </section> <br /><br />
+
+  <section>
+
+    <header class="members-header">
+      <h4>Members</h4>
+    
+      <form Action="/join/" method="post" class="join-form">
+        <input type="hidden" name="join-id" value="{{.LobbyID}}">
+        <input type="hidden" name="join-invite" value="{{.InviteOnly}}">
+        <input type="submit" value="Join" class="submit btn cta-btn-orange">
+      </form>
+    </header>
+    
+
+  {{end}}
+
+    <div class="list">
+    {{range $.members}}
+      <div class="list-item list-item-leader">
+
+        <span class="member-name">
+          {{.Firstname}} {{.Lastname}}
+        </span>
+
+        <a href="/profile/{{.LeaderID}}" class="profile-link">
+          Profile
         </a>
+
+        {{if eq $.leader_id $.lobby.OwnerID}}
+        <form method="post">
+          <input type="hidden" name="del-id" value="{{.LeaderID}}">
+          <input type="submit" value="Delete" name="delete" class="submit btn cta-btn-orange">
+        </form>
         {{end}}
+
       </div>
+    
+    {{end}}
     </div>
   </section>
 
-  <section class="lobby-stats">
-    <h3>Lobby Stats</h3>
-    <div>
-      <div>
-        <strong>Members</strong>
-        <p>{{.totalParticipants}}/{{.capacity}}</p>
-      </div>
-      <div>
-        <strong>Privacy</strong>
-        <p>{{.privacy}}</p>
-      </div>
-      <div>
-        <a href="#!" class="del-btn"><strong>{{.lobbyAction}}</strong></a>
-      </div>
-    </div>
-    <div>
-      <strong>Progress</strong>
-      <p>{{.tasksCompleted}}/{{.tasksTotal}}</p>
-    </div>
-  </section>
 
-  <section class="lobbyParticipants">
-    <div class="table">
-      {{range .participants}}
-      <div class="group-member">
-        <a href="{{.member-link}}">
-          <strong>{{.memberName}}</strong>
-        </a>
-        <a href="#!" class="del-btn">Remove</a>
-      </div>
-      {{end}}
-    </div>
-  </section>
-</div>
-
+</main>
 {{end}}

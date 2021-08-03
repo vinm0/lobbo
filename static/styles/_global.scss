@@ -101,6 +101,10 @@ footer a {
 	gap: 1rem;
 }
 
+.category-title {
+	margin-left: 1.6rem;
+}
+
 /* 
  * **************************************************
  * ********************* Logo ***********************
@@ -250,16 +254,15 @@ form .submit {
 }
 
 .list {
-	width: 85%;
+	width: 90%;
 	margin: 1.6rem auto 4rem auto;
 }
 
 .list-item {
 	display: grid;
-	grid-template-columns: 1fr 5rem 1fr;
 	justify-content: space-between;
 	align-items: center;
-	padding: 0.8rem 0.8rem;
+	padding: 1.6rem 0.8rem;
 	margin-bottom: 0.2rem;
 	transition: transform 0.2s ease-out;
 
@@ -272,16 +275,50 @@ form .submit {
 	}
 
 	&:hover {
-		transform: scale(1.05);
-	}
-
-	.profile-link {
-		justify-self: center;
+		transform: scale(1.02);
+		box-shadow: 0 0.2rem 0.6rem -0.2rem black;
 	}
 
 	form {
 		justify-self: end;
 	}
+}
+
+.list-item-leader {
+	grid-template-columns: 1fr 0.6fr 0fr;
+
+	.profile-link {
+		justify-self: center;
+	}
+}
+
+.list-item-lobby {
+	grid-template-columns: 1fr 0fr;
+	padding: 1rem;
+}
+
+.tabs {
+	display: flex;
+	width: 90%;
+	margin: 2rem auto 0 auto;
+	box-shadow: inset 0 0 0.3rem -0.1rem black;
+}
+
+.tab {
+	flex-grow: 1;
+	background-color: inherit;
+	border: none;
+	color: white;
+	padding: 1.6rem 0;
+	cursor: pointer;
+	// box-shadow: inset 0 -0.3rem 0.2rem -0.2rem black,
+	// 	inset 0 0.3rem 0.2rem -0.2rem black;
+	opacity: 40%;
+}
+
+.tab-active {
+	background-color: $dkgray;
+	opacity: 100%;
 }
 
 form input.btn {
@@ -317,4 +354,19 @@ form input.btn {
 .textbox-left,
 .textbox-right {
 	max-width: 40rem;
+}
+
+.list-item .edit {
+	color: white;
+	text-align: center;
+	padding: 1rem;
+	border-radius: 0.5rem;
+	text-decoration: none;
+	text-shadow: $text-shadow;
+	// transition: background 0.2s ease-out;
+
+	&:hover {
+		background-color: $blue;
+		opacity: 100%;
+	}
 }

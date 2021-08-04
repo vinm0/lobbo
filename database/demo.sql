@@ -1,15 +1,12 @@
--- ***************************************************
--- Uncomment DROP TABLE commands to reset table states
--- Or if table definitions have been changed.
--- ***************************************************
-
--- DROP TABLE IF EXISTS lobby_members;
--- DROP TABLE IF EXISTS colleagues;
--- DROP TABLE IF EXISTS profiles;
--- DROP TABLE IF EXISTS preferences;
--- DROP TABLE IF EXISTS requests;
--- DROP TABLE IF EXISTS leaders;
--- DROP TABLE IF EXISTS lobbies;
+DROP TABLE IF EXISTS group_members;
+DROP TABLE IF EXISTS groups;
+DROP TABLE IF EXISTS lobby_members;
+DROP TABLE IF EXISTS colleagues;
+DROP TABLE IF EXISTS profiles;
+DROP TABLE IF EXISTS preferences;
+DROP TABLE IF EXISTS requests;
+DROP TABLE IF EXISTS leaders;
+DROP TABLE IF EXISTS lobbies;
 
 CREATE TABLE IF NOT EXISTS leaders (
 	leader_id	INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -33,7 +30,8 @@ CREATE TABLE IF NOT EXISTS lobbies (
 	invite_only	INTEGER DEFAULT 0,
 		CONSTRAINT lobbies_owner_fk FOREIGN KEY (owner_id) 
 			REFERENCES leaders(leader_id)
-			ON DELETE CASCADE
+			ON DELETE CASCADE,
+		CONSTRAINT lobbies_lobby_ck CHECK (lobby_id <> 0)
 );
 
 CREATE TABLE IF NOT EXISTS lobby_members (
@@ -101,6 +99,28 @@ CREATE TABLE IF NOT EXISTS requests (
 			REFERENCES leaders(leader_id)
 			ON DELETE CASCADE,
 		CHECK (req_type IN ('l join', 'l invite'))
+);
+
+CREATE TABLE IF NOT EXISTS groups (
+	group_id	INTEGER PRIMARY KEY AUTOINCREMENT,
+	owner_id	INTEGER NOT NULL,
+	groupname	TEXT NOT NULL,
+		CONSTRAINT groups_owner_fk FOREIGN KEY (owner_id)
+			REFERENCES leaders(leader_id)
+			ON DELETE CASCADE,
+		CONSTRAINT groups_groupname_ck CHECK (length(groupname) <= 25)
+);
+
+CREATE TABLE IF NOT EXISTS group_members (
+	group_id	INTEGER,
+	member_id	INTEGER,
+		PRIMARY KEY (group_id, member_id),
+		CONSTRAINT group_members_group_fk FOREIGN KEY (group_id)
+			REFERENCES groups(group_id)
+			ON DELETE CASCADE,
+		CONSTRAINT group_members_member_fk FOREIGN KEY (member_id)
+			REFERENCES leaders(leader_id)
+			ON DELETE CASCADE
 );
 
 INSERT INTO leaders (usrname, pwd, fname, lname)
@@ -239,4 +259,27 @@ VALUES
 	(7, 10, 9, "l invite", "2021-07-10 00:00:00", "", ""),
 	(6, 1, 10, "l join", "2021-07-10 00:00:00",  "", ""),
 	(6, 10, 10, "l invite", "2021-07-10 00:00:00", "", "")
+;
+
+INSERT INTO groups (owner_id, groupname) 
+VALUES
+	(1, "Work"), (3, "School"), (5, "Work"), (6, "Clients"), 
+	(7, "Work"), (1, "Sports"), (3, "Hockey"), (5, "Clients"), 
+	(6, "Golf"), (7, "Dance"), (2, "Work"), (4, "Work"), 
+	(8, "Practice"), (9, "Work"), (9, "Gym"), (2, "Coffee"), 
+	(4, "Clients"), (8, "Reading"), (9, "Coffee"), (3, "Clients")
+;
+
+INSERT INTO group_members (group_id, member_id)
+VALUES
+	(1, 9), (9, 1), (11, 9), (19, 1),
+	(1, 7), (9, 3), (11, 7), (19, 3),
+	(1, 4), (9, 5), (11, 4), (19, 5),
+	(2, 3), (8, 1), (12, 3), (18, 1),
+	(2, 5), (8, 5), (12, 5), (18, 5),
+	(3, 7), (7, 9), (13, 7), (17, 9),
+	(3, 9), (7, 6), (13, 9), (17, 6),
+	(4, 6), (6, 4), (14, 6), (16, 4),
+	(4, 1), (6, 2), (14, 1), (16, 2),
+	(10, 1), (10, 2), (20, 1), (20, 2)
 ;

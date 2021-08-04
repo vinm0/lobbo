@@ -1,26 +1,44 @@
 {{define "content"}}
-<header>
-  <h2>Groups:</h2>
+<header class="page-title">
+  <h3>Groups</h3>
 </header>
 
-<section class="group-list">
-  {{range .groups}} {{if .groupName == .title}}
-  <a href="#!" class="current-group">{{.groupName}}</a>
-  {{else}}
-  <a href="/{{.username}}/{{.groupID}}">{{.groupName}}</a>
-  {{end}} {{end}}
+<section class="group-links">
+  {{range .groups}} 
+    <a href="#group{{.GroupID}}">{{.Name}}</a>
+  {{end}}
   <a href="#!" class="new-group-btn">+ New</a>
 </section>
 
-<section>
-  <div class="table">
-    {{range .participants}}
-    <div class="group-member">
-      <a href="{{.member-link}}">
-        <strong>{{.memberName}}</strong>
-      </a>
-      <a href="#!" class="del-btn">Remove</a>
+<section class="groups">
+
+  {{range .groups}}
+  <div class="list">
+
+    <header class="list-title">
+      <h3>{{.Name}}</h3>
+    </header>
+
+    <div id="{{.GroupID}}">
+      {{range .Members}}
+      <div class="group-member list-item">
+
+        <a href="/profile/{{.LeaderID}}">
+          <strong>{{.Firstname}} {{.Lastname}}</strong>
+        </a>
+
+        <form method="post">
+          <input type="hidden" name="del-id" value="{{.LeaderID}}">
+          <input type="submit" value="Remove" name="remove" class="submit btn cta-btn-orange">
+        </form>
+
+      </div>
+      {{end}}
     </div>
-    {{end}}
+
   </div>
+  {{end}}
+
 </section>
+
+{{end}}

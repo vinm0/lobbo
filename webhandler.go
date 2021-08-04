@@ -73,10 +73,10 @@ func launch() {
 	http.HandleFunc("/lobby/", lobbyHandler)
 	http.HandleFunc("/lobbies/", lobbiesHandler)
 	http.HandleFunc("/lobbies-in/", lobbiesHandler)
+	http.HandleFunc("/groups/", groupsHandler)
 	http.HandleFunc("/edit/", lobbyFormHandler)
 	http.HandleFunc("/new/", lobbyFormHandler)
 	http.HandleFunc("/join/", joinHandler)
-	http.HandleFunc("/groups/", groupsHandler)
 	http.HandleFunc("/", homeHandler)
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
@@ -173,10 +173,16 @@ func groupsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	ldr := sessionLeader(session)
+	grp := ldr.Groups()
+
 	p := &Page{
-		"leader": sessionLeader(session),
+		"title":  "Groups",
+		"leader": ldr,
+		"groups": grp,
 	}
 
+	fmt.Println(grp)
 	servePage(w, p, BASE_TEMPL, GROUPS_TEMPL)
 }
 
@@ -225,6 +231,7 @@ func lobbyHandler(w http.ResponseWriter, r *http.Request) {
 		"leader_id": session[LDR_ID],
 	}
 
+	// TODO: 404 if loby doesn't exist
 	servePage(w, p, BASE_TEMPL, LOBBY_TEMPL)
 }
 
@@ -362,11 +369,7 @@ func signoutHandler(w http.ResponseWriter, r *http.Request) {
 func servePage(w http.ResponseWriter, p *Page, templ ...string) {
 	// fmt.Println("Parsing templates")
 	t := template.Must(template.ParseFiles(templ...))
-	// fmt.Println((*t).Tree)
-	// if err != nil {
-	// 	log.Println("Unable to parse file:", templ)
-	// 	log.Println(err.Error())
-	// }
+
 	fmt.Println("Executing templates")
 	err := t.Execute(w, p)
 	if err != nil {

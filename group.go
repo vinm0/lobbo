@@ -1,6 +1,8 @@
 package main
 
 type Group struct {
+	GroupID int
 	OwnerID int
-	Members []*Leader
+	Name    string
+	Members []Leader
 }

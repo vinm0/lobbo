@@ -505,10 +505,64 @@ func UpdateLobbyDB(form url.Values, lobby_id int) {
 	Check(err, "Unable to update lobby ", lobby_id)
 }
 
+func GroupsDB(owner_id int) []Group {
+	db, err := ConnectDB()
+	Check(err, CONN_FAIL)
+	defer db.Close()
+
+	cols := []string{
+		"g.group_id", "groupname", "owner_id",
+		"leader_id", "fname", "lname", "usrname",
+	}
+
+	table := "groups g JOIN group_members gm ON (g.group_id = gm.group_id) " +
+		"JOIN leaders ON (member_id = leader_id)"
+
+	condition := "owner_id = ? ORDER BY g.group_id"
+
+	rows, err := db.Select(table, cols, condition, owner_id)
+	Check(err, "Unable to select groups for ", owner_id)
+
+	return loadGroups(rows)
+}
+
+func loadGroups(rows *sql.Rows) []Group {
+	defer rows.Close()
+
+	groups := []Group{}
+
+	var g Group
+	currGID := 0
+
+	for rows.Next() {
+		var gID, ownID int
+		var gName string
+		ldr := Leader{}
+
+		rows.Scan(&gID, &gName, &ownID,
+			&ldr.LeaderID, &ldr.Firstname, &ldr.Lastname, &ldr.Username)
+
+		// new group scanned
+		if gID != currGID {
+			if currGID != 0 {
+				groups = append(groups, g)
+			}
+
+			g = Group{GroupID: gID, Name: gName, OwnerID: ownID}
+		}
+
+		g.Members = append(g.Members, ldr)
+		currGID = g.GroupID
+	}
+
+	groups = append(groups, g)
+	return groups
+}
+
 func newLobbyValues(cols []string, form url.Values) (vals []interface{}) {
 	vals = []interface{}{}
 	for _, v := range cols {
-		fmt.Printf("%s: (%s) type %T\n", v, form[v], form[v][0])
+		// fmt.Printf("%s: (%s) type %T\n", v, form[v], form[v][0])
 		vals = append(vals, form[v][0])
 	}
 	return vals

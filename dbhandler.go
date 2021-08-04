@@ -91,7 +91,7 @@ func (db *DB) Insert(table string, cols []string, vals ...interface{}) (sql.Resu
 }
 
 func (db *DB) Update(table string, cols []string, condition string, vals ...interface{}) (sql.Result, error) {
-
+	cols = sanatizeCols(cols)
 	return db.sqlGeneric(UPD, table, cols, vals, condition, nil)
 }
 
@@ -106,6 +106,13 @@ func Cols(columns ...string) []string {
 
 func Vals(values ...interface{}) []interface{} {
 	return values
+}
+
+func sanatizeCols(cols []string) []string {
+	for i, v := range cols {
+		cols[i] = v + " = ?"
+	}
+	return cols
 }
 
 func (db *DB) sqlGeneric(crud int, table string, cols []string,
@@ -479,23 +486,23 @@ func CreateLobbyDB(form url.Values) (newLobbyID int) {
 	return newLobbyID
 }
 
-func UpdateLobbyDB(form url.Values, leaderID int) {
+func UpdateLobbyDB(form url.Values, lobby_id int) {
 	db, err := ConnectDB()
 	Check(err, CONN_FAIL)
 	defer db.Close()
 
 	cols := []string{
-		"title = ?", "summary = ?", "meet_time = ?", "meet_loc = ?",
-		"loc_link = ?", "capacity = ?", "visibility = ?",
+		"title", "summary", "meet_time", "meet_loc",
+		"loc_link", "capacity", "visibility",
 	}
 
 	vals := newLobbyValues(cols, form)
-	vals = append(vals, form["lobby_id"][0])
+	vals = append(vals, lobby_id)
 
 	condition := "lobby_id = ?"
 
 	_, err = db.Update("lobbies", cols, condition, vals...)
-	Check(err, "Unable to update lobby ", form["lobby_id"][0])
+	Check(err, "Unable to update lobby ", lobby_id)
 }
 
 func newLobbyValues(cols []string, form url.Values) (vals []interface{}) {

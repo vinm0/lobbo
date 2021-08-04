@@ -127,8 +127,7 @@ func lobbyFormHandler(w http.ResponseWriter, r *http.Request) {
 
 		r.ParseForm()
 		r.PostForm["meet_time"][0] = r.PostForm["meet_date"][0] + " " + r.PostForm["meet_time"][0]
-		fmt.Println("New Date format", r.PostForm["meet_date"][0])
-		newID := updateLobby(r.PostForm, ldr.LeaderID, new)
+		newID := updateLobby(r.PostForm, id, new)
 
 		if newID != 0 {
 			id = strconv.Itoa(newID)
@@ -144,6 +143,7 @@ func lobbyFormHandler(w http.ResponseWriter, r *http.Request) {
 			"lobby":     &Lobby{},
 			"leader_id": ldr.LeaderID,
 		}
+		fmt.Println("Session LeaderID: ", session[LDR_ID])
 		servePage(w, p, BASE_TEMPL, LOBBY_FORM_TEMPL)
 		return
 	}
@@ -156,8 +156,9 @@ func lobbyFormHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	p := &Page{
-		"title": lby.Title,
-		"lobby": lby,
+		"title":     lby.Title,
+		"lobby":     lby,
+		"leader_id": ldr.LeaderID,
 	}
 
 	servePage(w, p, BASE_TEMPL, LOBBY_FORM_TEMPL)
@@ -390,12 +391,13 @@ func sessionLeader(session map[interface{}]interface{}) *Leader {
 		Lastname:  ln}
 }
 
-func updateLobby(form url.Values, leaderID int, new bool) (newID int) {
+func updateLobby(form url.Values, lobbyID string, new bool) (newID int) {
 	if new {
 		newID = CreateLobbyDB(form)
 		return newID
 	}
-	UpdateLobbyDB(form, leaderID)
+	id, _ := strconv.Atoi(lobbyID)
+	UpdateLobbyDB(form, id)
 	return 0
 }
 

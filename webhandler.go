@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"regexp"
 	"strconv"
@@ -18,15 +19,15 @@ const (
 	PORT = ":8080"
 
 	// templates
-	TEMPL_DIR       = "templates/"
-	HOME_TEMPL      = TEMPL_DIR + "index.html"
-	SIGNIN_TEMPL    = TEMPL_DIR + "signin.html"
-	LOBBY_TEMPL     = TEMPL_DIR + "lobby.html"
-	PROFILE_TEMPL   = TEMPL_DIR + "profile.html"
-	LOBBIES_TEMPL   = TEMPL_DIR + "lobbies.html"
-	GROUPS_TEMPL    = TEMPL_DIR + "groups.html"
-	NEW_LOBBY_TEMPL = TEMPL_DIR + "lobbyform.html"
-	BASE_TEMPL      = TEMPL_DIR + "base.html"
+	TEMPL_DIR        = "templates/"
+	HOME_TEMPL       = TEMPL_DIR + "index.html"
+	SIGNIN_TEMPL     = TEMPL_DIR + "signin.html"
+	LOBBY_TEMPL      = TEMPL_DIR + "lobby.html"
+	PROFILE_TEMPL    = TEMPL_DIR + "profile.html"
+	LOBBIES_TEMPL    = TEMPL_DIR + "lobbies.html"
+	GROUPS_TEMPL     = TEMPL_DIR + "groups.html"
+	LOBBY_FORM_TEMPL = TEMPL_DIR + "lobbyform.html"
+	BASE_TEMPL       = TEMPL_DIR + "base.html"
 
 	SITE_TITLE      = "Lobbo"
 	SIGNIN_TITLE    = "Sign-in"
@@ -69,10 +70,13 @@ func launch() {
 	http.HandleFunc("/signin/", signinHandler)
 	http.HandleFunc("/signout/", signoutHandler)
 	http.HandleFunc("/profile/", profileHandler)
+	http.HandleFunc("/lobby/", lobbyHandler)
 	http.HandleFunc("/lobbies/", lobbiesHandler)
 	http.HandleFunc("/lobbies-in/", lobbiesHandler)
-	http.HandleFunc("/lobby/", lobbyHandler)
+	http.HandleFunc("/edit/", lobbyFormHandler)
+	http.HandleFunc("/new/", lobbyFormHandler)
 	http.HandleFunc("/join/", joinHandler)
+	http.HandleFunc("/groups/", groupsHandler)
 	http.HandleFunc("/", homeHandler)
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
@@ -93,6 +97,86 @@ func launch() {
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	p := &Page{"title": SITE_TITLE}
 	servePage(w, p, HOME_TEMPL)
+}
+
+func lobbyFormHandler(w http.ResponseWriter, r *http.Request) {
+	_, session := session(r)
+
+	path := r.URL.Path
+
+	if auth, _ := session["authenticated"].(bool); !auth {
+		http.Redirect(w, r, "/signin"+path, http.StatusFound)
+		return
+	}
+
+	new := path == "/new/"
+
+	var id string
+	if !new {
+		//["", "new|edit", "lobby", "id"]
+		id = strings.Split(path, "/")[3]
+	}
+
+	ldr := sessionLeader(session)
+
+	if r.Method == http.MethodPost {
+		if !new && r.PostFormValue("owner_id") != strconv.Itoa(ldr.LeaderID) {
+			fmt.Fprintln(w, "Not authorized to edit lobby: ", id)
+			return
+		}
+
+		r.ParseForm()
+		r.PostForm["meet_time"][0] = r.PostForm["meet_date"][0] + " " + r.PostForm["meet_time"][0]
+		fmt.Println("New Date format", r.PostForm["meet_date"][0])
+		newID := updateLobby(r.PostForm, ldr.LeaderID, new)
+
+		if newID != 0 {
+			id = strconv.Itoa(newID)
+		}
+
+		http.Redirect(w, r, "/lobby/"+id, http.StatusFound)
+		return
+	}
+
+	if new {
+		p := &Page{
+			"title":     "New Lobby",
+			"lobby":     &Lobby{},
+			"leader_id": ldr.LeaderID,
+		}
+		servePage(w, p, BASE_TEMPL, LOBBY_FORM_TEMPL)
+		return
+	}
+
+	lby := lobby(id)
+
+	if lby.LobbyID == 0 || !ldr.isOwner(lby) {
+		fmt.Fprintln(w, "Unable to edit lobby: ", id)
+		return
+	}
+
+	p := &Page{
+		"title": lby.Title,
+		"lobby": lby,
+	}
+
+	servePage(w, p, BASE_TEMPL, LOBBY_FORM_TEMPL)
+}
+
+// TODO: load groups data. Update database
+func groupsHandler(w http.ResponseWriter, r *http.Request) {
+	_, session := session(r)
+
+	if auth, _ := session["authenticated"].(bool); !auth {
+		http.Redirect(w, r, "/signin/groups", http.StatusFound)
+		return
+	}
+
+	p := &Page{
+		"leader": sessionLeader(session),
+	}
+
+	servePage(w, p, BASE_TEMPL, GROUPS_TEMPL)
 }
 
 func joinHandler(w http.ResponseWriter, r *http.Request) {
@@ -183,8 +267,6 @@ func lobbiesHandler(w http.ResponseWriter, r *http.Request) {
 func profileHandler(w http.ResponseWriter, r *http.Request) {
 	_, session := session(r)
 
-	fmt.Println("session:", session)
-
 	if auth, _ := session["authenticated"].(bool); !auth {
 		http.Redirect(w, r, "/signin", http.StatusFound)
 		return
@@ -199,26 +281,21 @@ func profileHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println("Loading user info")
-	ldr := sessionLeader(session)
+	path := strings.TrimPrefix(r.URL.Path, "/profile/")
+
+	ldr := LeaderProfile(session, path)
 
 	// session.Values[]
-	fmt.Println("Loading Page context")
 	p := &Page{
 		"title":        PROFILE_TITLE,
 		"leader":       ldr,
+		"leader_id":    session[LDR_ID],
 		"ownedLobbies": ownedLobbies(ldr.LeaderID, 10),
 		"inLobbies":    inLobbies(ldr.LeaderID, 10),
 		"colleagues":   colleagues(ldr.LeaderID, 10),
 	}
 
-	fmt.Println("serving page")
 	servePage(w, p, BASE_TEMPL, PROFILE_TEMPL)
-	fmt.Println("Page served:", PROFILE_TEMPL, BASE_TEMPL)
-
-	// for k, v := range session.Values {
-	// 	fmt.Println("key:", k, "\nvalue: ", v)
-	// }
 }
 
 func signinHandler(w http.ResponseWriter, r *http.Request) {
@@ -313,8 +390,27 @@ func sessionLeader(session map[interface{}]interface{}) *Leader {
 		Lastname:  ln}
 }
 
+func updateLobby(form url.Values, leaderID int, new bool) (newID int) {
+	if new {
+		newID = CreateLobbyDB(form)
+		return newID
+	}
+	UpdateLobbyDB(form, leaderID)
+	return 0
+}
+
 func joinLobby(lobbyID int, leaderID int) {
 	JoinLobbyDB(lobbyID, leaderID)
+}
+
+func LeaderProfile(session map[interface{}]interface{}, path string) *Leader {
+	id, _ := strconv.Atoi(path)
+
+	if path == "" || id == session["leader-id"] {
+		return sessionLeader(session)
+	}
+
+	return LeaderDB(id)
 }
 
 func loadLobbies(r *http.Request, leaderID int) []*Lobby {

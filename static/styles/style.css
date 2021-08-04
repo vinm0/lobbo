@@ -81,6 +81,8 @@ a,
 li,
 label,
 input,
+textarea,
+select,
 span,
 pre,
 strong {
@@ -205,8 +207,8 @@ form .text {
 form .text:focus {
   outline: none;
   background-color: transparent;
-  -webkit-box-shadow: inset 0 -0.3rem 0 -0.1rem #39afbf;
-          box-shadow: inset 0 -0.3rem 0 -0.1rem #39afbf;
+  -webkit-box-shadow: inset 0 0 0.4rem 0 black;
+          box-shadow: inset 0 0 0.4rem 0 black;
 }
 
 form .submit {
@@ -222,6 +224,11 @@ form .submit:hover {
   -webkit-box-shadow: inset 0 0 0 0.2rem #39afbf;
           box-shadow: inset 0 0 0 0.2rem #39afbf;
   cursor: pointer;
+}
+
+form textarea {
+  max-width: 32rem;
+  resize: none;
 }
 
 /* 
@@ -307,18 +314,14 @@ form .submit:hover {
   font-weight: 700;
   line-height: 1;
   background-color: #018fa1;
-  -webkit-box-shadow: 0 0 0 1.6rem #018fa1;
-          box-shadow: 0 0 0 1.6rem #018fa1;
+  -webkit-box-shadow: 0 0 0 1.6rem #018fa1, 0 0.8rem 0 1.6rem #018fa1;
+          box-shadow: 0 0 0 1.6rem #018fa1, 0 0.8rem 0 1.6rem #018fa1;
 }
 
 .sm-lobby-card .lobby-id {
   position: absolute;
   bottom: 1rem;
   left: 1rem;
-}
-
-.sm-lobby-title {
-  background-color: #018fa1;
 }
 
 .list {
@@ -418,6 +421,7 @@ form input.btn {
   min-width: 25rem;
   border-radius: 5px;
   text-decoration: none;
+  font-weight: 700;
 }
 
 .cta-btn-blue {
@@ -616,5 +620,36 @@ a h4.lobby-title:hover {
   padding: 0.8rem 1.6rem;
   font-size: 1.6rem;
   font-weight: 700;
+}
+
+/* 
+ * **************************************************
+ * ******************* Edit Page ********************
+ * **************************************************
+ */
+.page-title {
+  margin-left: 2rem;
+}
+
+.lobby-form {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  gap: 2rem;
+  width: 85%;
+  margin: auto;
+}
+
+.lobby-form label {
+  display: block;
+  line-height: 2;
+}
+
+.lobby-form input {
+  margin-bottom: 0.8rem;
 }
 /*# sourceMappingURL=style.css.map */

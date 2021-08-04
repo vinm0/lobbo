@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"net/url"
 	"strings"
 	"time"
 
@@ -23,6 +24,8 @@ const (
 
 	// Error Messages
 	CONN_FAIL = "Unable to connect to Database."
+
+	TIME_FORMAT = "2006-01-02 15:04"
 )
 
 var (
@@ -87,7 +90,7 @@ func (db *DB) Insert(table string, cols []string, vals ...interface{}) (sql.Resu
 	return db.sqlGeneric(INS, table, cols, vals, "", nil)
 }
 
-func (db *DB) Update(table string, cols []string, condition string, vals []interface{}) (sql.Result, error) {
+func (db *DB) Update(table string, cols []string, condition string, vals ...interface{}) (sql.Result, error) {
 
 	return db.sqlGeneric(UPD, table, cols, vals, condition, nil)
 }
@@ -299,7 +302,7 @@ func loadOwnedLobbies(rows *sql.Rows) []*Lobby {
 		rows.Scan(&l.LobbyID, &l.Title, &l.Description, &meetTime, &l.Location)
 
 		if meetTime != "" {
-			t, err := time.Parse(time.RFC822, meetTime)
+			t, err := time.Parse(TIME_FORMAT, meetTime)
 			Check(err, "Unable to parse meeting time:", meetTime)
 
 			l.MeetTime = t
@@ -322,7 +325,7 @@ func loadInLobbies(rows *sql.Rows) []*Lobby {
 			&l.Description, &meetTime, &l.Location)
 
 		if meetTime != "" {
-			t, err := time.Parse(time.RFC822, meetTime)
+			t, err := time.Parse(TIME_FORMAT, meetTime)
 			Check(err, "Unable to parse meeting time:", meetTime)
 
 			l.MeetTime = t
@@ -395,7 +398,7 @@ func loadLobby(rows *sql.Rows) *Lobby {
 	}
 
 	if meetTime != "" {
-		t, err := time.Parse(time.RFC822, meetTime)
+		t, err := time.Parse(TIME_FORMAT, meetTime)
 		Check(err, "Unable to parse meeting time:", meetTime)
 
 		l.MeetTime = t
@@ -453,6 +456,55 @@ func JoinLobbyDB(lobbyID int, leaderID int) {
 	_, err = db.Insert("lobby_members", cols, lobbyID, leaderID)
 	Check(err, "Unable to add leader to lobby ", lobbyID)
 
+}
+
+func CreateLobbyDB(form url.Values) (newLobbyID int) {
+	db, err := ConnectDB()
+	Check(err, CONN_FAIL)
+	defer db.Close()
+
+	cols := []string{
+		"owner_id", "title", "summary", "meet_time",
+		"meet_loc", "loc_link", "capacity", "visibility",
+	}
+
+	vals := newLobbyValues(cols, form)
+
+	res, err := db.Insert("lobbies", cols, vals...)
+	Check(err, "Unable to create lobby ", form["lobby_id"])
+
+	id, _ := res.LastInsertId()
+	newLobbyID = int(id)
+
+	return newLobbyID
+}
+
+func UpdateLobbyDB(form url.Values, leaderID int) {
+	db, err := ConnectDB()
+	Check(err, CONN_FAIL)
+	defer db.Close()
+
+	cols := []string{
+		"title = ?", "summary = ?", "meet_time = ?", "meet_loc = ?",
+		"loc_link = ?", "capacity = ?", "visibility = ?",
+	}
+
+	vals := newLobbyValues(cols, form)
+	vals = append(vals, form["lobby_id"][0])
+
+	condition := "lobby_id = ?"
+
+	_, err = db.Update("lobbies", cols, condition, vals...)
+	Check(err, "Unable to update lobby ", form["lobby_id"][0])
+}
+
+func newLobbyValues(cols []string, form url.Values) (vals []interface{}) {
+	vals = []interface{}{}
+	for _, v := range cols {
+		fmt.Printf("%s: (%s) type %T\n", v, form[v], form[v][0])
+		vals = append(vals, form[v][0])
+	}
+	return vals
 }
 
 // TODO: validate join permissions based on invite code.

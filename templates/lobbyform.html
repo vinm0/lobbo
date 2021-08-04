@@ -1,51 +1,49 @@
 {{define "content"}}
 
-<header>
-    <h1>New Lobby</h1>
+<header class="top-margin-sm">
+    <h3 class="page-title">{{.title}}</h3>
 </header>
 
-<form action="post">
+<form method="post" name="lobby-form" class="lobby-form">
     <div class="lobby-form-name">
-        <label for="lobbyname">Lobby Name</label>
-        <input type="text" name="lobbyname" id="lobbyname" required maxlength="30">
+        <label for="title">Lobby Name</label>
+        <input class="text" type="text" name="title" id="title" required value="{{.lobby.Title}}">
     </div>
     <div class="lobby-form-description">
-        <label for="lobbydescription">Description</label>
-        <textarea type="text" name="lobbydescription" id="lobbydescription" maxlength="250" cols="auto" rows="5">
+        <label for="summary">Summary</label>
+        <textarea class="text" name="summary" id="summary" maxlength="250" rows="5" cols="30"
+        >{{ .lobby.Description}}</textarea>
     </div>
     <div class="lobby-form-date">
         <label>
             <span>Activity Date</span><br>
-            <input type="date"><br>
-            <input type="time"> <br>
-            <input type="checkbox" value="Repeat">
-            <div class="weekdays-checkbox">
-                <input type="checkbox" class="weekday" value="M" name="weekday">
-                <input type="checkbox" class="weekday" value="T" name="weekday">
-                <input type="checkbox" class="weekday" value="W" name="weekday">
-                <input type="checkbox" class="weekday" value="Th" name="weekday">
-                <input type="checkbox" class="weekday" value="F" name="weekday">
-                <input type="checkbox" class="weekday" value="S" name="weekday">
-                <input type="checkbox" class="weekday" value="Su" name="weekday">
-            </div>
+            <input class="text" name="meet_date" type="date" value="{{.lobby.MeetTime.Format "01/02/2006"}}">&nbsp;
+            <input class="text" name="meet_time" type="time" value="{{.lobby.MeetTime.Format "03:04 AM"}}"> <br>
         </label>
-    </form>
-</div>
+    </div>
 <div class="lobby-form-location">
-    <label for="lobbylocation">Location</label>
-    <input type="text" name="lobbylocation" id="lobbylocation">
-</div>
+    <label for="meet_loc">Location</label>
+    <input class="text" type="text" name="meet_loc" id="meet_loc" value="{{.lobby.Location}}">
+    <input class="text" type="url" name="loc_link" id="loc_link" placeholder="(optional) link">
 </div>
 <div class="lobby-form-cap-priv">
-    <label for="lobbycapacity">Capacity</label>
-    <input type="text" name="lobbycapacity" id="lobbycapacity">
-    <label>Privacy</label>
-    <input type="radio" id="public" name="privacy" value="public" checked>
-    <label for="public">Public</label><br>
-    <input type="radio" id="private" name="privacy" value="private">
-    <label for="private">Private</label><br>
-    <input type="radio" id="inviteonly" name="privacy" value="inviteonly">
-    <label for="inviteonly">Invite Only</label>
+    <label for="capacity">Capacity</label>
+    <input class="text" type="number" max="50" name="capacity" id="lobbycapacity" value="{{or .lobby.Capacity 10}}">
+    
+    <label for="visibility">Privacy</label>
+    <select class="text" name="visibility" id="privacy" autocomplete="off">
+        {{with .lobby}}
+        <option value="public" {{or (ne .Privacy 0) "selected"}}>Public</option>
+        <option value="user" {{or (ne .Privacy 1) "selected"}}>Logged-in</option>
+        <option value="friend of friend"  {{or (ne .Privacy 2) "selected"}}>Friends of Friends</option>
+        <option value="friend"  {{or (ne .Privacy 3) "selected"}}>Friends</option>
+        <option value="private"  {{or (ne .Privacy 4) "selected"}}>Private</option>
+        {{end}}
+    </select>
 </div>
+
+<input type="hidden" name="owner_id" value="{{ .leader_id }}">
+<input type="submit" value="Create Lobby" class="submit cta-btn cta-btn-orange">
+</form>
 
 {{end}}

@@ -3,7 +3,11 @@
 <header>
   <div class="profile-name top-margin-sm">
     <h3>{{.leader.Firstname}} {{.leader.Lastname}}</h3>
-    <small><a href="/signout" class="signout">Sign-out</a></small>
+    {{if eq $.leader.LeaderID $.leader_id}}
+    <small>
+      <a href="/signout" class="signout">Sign-out</a>
+    </small>
+    {{end}}
   </div>
 
 </header>
@@ -15,9 +19,14 @@
       {{range .}}
         <div class="sm-lobby-card">
           <header class="sm-lobby-title">
-            <h4>{{.Title}}</h4>
+            <a href="/lobby/{{.LobbyID}}">
+              <h4 class="lobby-title">
+                {{.Title}}
+              </h4>
+            </a>
+            <small>{{$.leader.Firstname}} {{$.leader.Lastname}}</small>
           </header>
-          <br><br><br>
+          <br><br>
           <section class="sm-card-body">
             <div class="lobby-totals">
               <div class="time-loc">
@@ -40,7 +49,9 @@
     {{range .inLobbies}}
     <div class="sm-lobby-card">
       <header class="sm-lobby-title">
-        <h4>{{.Title}}</h4>
+        <a href="/lobby/{{.LobbyID}}">
+          <h4 class="lobby-title">{{.Title}}</h4>
+        </a>
         <small>{{.OwnerName}}</small>
       </header><br>
       <section class="sm-card-body">
@@ -72,10 +83,12 @@
         Profile
       </a>
 
+      {{if eq $.leader.LeaderID $.leader_id}}
       <form method="post">
         <input type="hidden" name="del-id" value="{{.LeaderID}}">
         <input type="submit" value="Delete" name="delete" class="submit btn cta-btn-orange">
       </form>
+      {{end}}
     </div>
 
     {{end}}

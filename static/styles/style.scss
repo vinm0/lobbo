@@ -141,3 +141,30 @@ a h4.lobby-title {
 		font-weight: 700;
 	}
 }
+
+/* 
+ * **************************************************
+ * ******************* Edit Page ********************
+ * **************************************************
+ */
+
+.page-title {
+	margin-left: 2rem;
+}
+
+.lobby-form {
+	display: flex;
+	flex-direction: column;
+	gap: 2rem;
+	width: 85%;
+	margin: auto;
+
+	label {
+		display: block;
+		line-height: 2;
+	}
+
+	input {
+		margin-bottom: 0.8rem;
+	}
+}

@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS lobbies (
 CREATE TABLE IF NOT EXISTS lobby_members (
 	lobby_id	INTEGER,
 	member_id	INTEGER,
-		PRIMARY KEY (lobby_id, member_id),
+		PRIMARY KEY (lobby_id, member_id) ON CONFLICT IGNORE,
 		CONSTRAINT lobby_members_lobby_fk FOREIGN KEY (lobby_id) 
 			REFERENCES lobbies(lobby_id) 
 			ON DELETE CASCADE,
@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS lobby_members (
 CREATE TABLE IF NOT EXISTS colleagues (
 	owner_id		INTEGER,
 	colleague_id	INTEGER,
-		PRIMARY KEY (owner_id, colleague_id),
+		PRIMARY KEY (owner_id, colleague_id) ON CONFLICT IGNORE,
 		CHECK(owner_id != colleague_id),
 		CONSTRAINT colleagues_owner_fk FOREIGN KEY (owner_id)
 			REFERENCES leaders(leader_id)
@@ -110,12 +110,13 @@ CREATE TABLE IF NOT EXISTS groups (
 			ON DELETE CASCADE,
 		CONSTRAINT groups_group_ck CHECK (group_id <> 0),
 		CONSTRAINT groups_groupname_ck CHECK (length(groupname) <= 25)
+			ON CONFLICT IGNORE
 );
 
 CREATE TABLE IF NOT EXISTS group_members (
 	group_id	INTEGER,
 	member_id	INTEGER,
-		PRIMARY KEY (group_id, member_id),
+		PRIMARY KEY (group_id, member_id) ON CONFLICT IGNORE,
 		CONSTRAINT group_members_group_fk FOREIGN KEY (group_id)
 			REFERENCES groups(group_id)
 			ON DELETE CASCADE,

@@ -67,7 +67,7 @@ func ConnectDB() (*DB, error) {
 // }
 
 func (db *DB) Select(table string, cols []string, condition string, vals ...interface{}) (*sql.Rows, error) {
-	prepStr := prepString(SEL, table, cols, condition)
+	prepStr := prepString(SEL, table, cols, condition, len(vals))
 
 	fmt.Println("String prepped:", prepStr)
 	stmt, err := db.Prepare(prepStr)
@@ -87,6 +87,11 @@ func (db *DB) Select(table string, cols []string, condition string, vals ...inte
 }
 
 func (db *DB) Insert(table string, cols []string, vals ...interface{}) (sql.Result, error) {
+
+	return db.sqlGeneric(INS, table, cols, vals, "", nil)
+}
+
+func (db *DB) InsertMany(table string, cols []string, vals ...interface{}) (sql.Result, error) {
 
 	return db.sqlGeneric(INS, table, cols, vals, "", nil)
 }
@@ -119,7 +124,7 @@ func sanatizeCols(cols []string) []string {
 func (db *DB) sqlGeneric(crud int, table string, cols []string,
 	vals []interface{}, condition string, rows *sql.Rows) (sql.Result, error) {
 
-	prepStr := prepString(crud, table, cols, condition)
+	prepStr := prepString(crud, table, cols, condition, len(vals))
 	fmt.Println("String prepped for insert")
 	fmt.Println(prepStr)
 
@@ -138,46 +143,7 @@ func (db *DB) sqlGeneric(crud int, table string, cols []string,
 	return res, err
 }
 
-// func (db *DB) sqlGeneric() func(int, string, []string, []interface{}, string, *sql.Rows) (sql.Result, error) {
-
-// 	return func(crud int, table string, cols []string,
-// 		vals []interface{}, condition string, rows *sql.Rows) (sql.Result, error) {
-
-// 		prepStr := prepString(crud, table, cols, condition)
-
-// 		stmt, err := db.Prepare(prepStr)
-// 		if err != nil {
-// 			dbFail(err.Error())
-// 		}
-
-// 		res, err := stmt.Exec(vals...)
-// 		if err != nil {
-// 			dbFail(err.Error())
-// 		}
-
-// 		return res, err
-// 	}
-// }
-
-// int, string, []string, []string, string
-
-// Helper Function: Returns an insert statment as a string.
-// func prepString(crud string, table string, cols []string) string {
-
-// 	return "INSERT INTO " + table +
-
-// 		"(" +
-// 		strings.Join(cols, ", ") +
-// 		") " +
-
-// 		"VALUES " +
-
-// 		"(" +
-// 		safeMarkers(len(cols)) +
-// 		") "
-// }
-
-func prepString(crud int, table string, cols []string, condition string) string {
+func prepString(crud int, table string, cols []string, condition string, valsLen int) string {
 	retStr := make([]string, CRUD_MAX)
 	copy(retStr, sqlCRUD[crud])
 
@@ -190,7 +156,7 @@ func prepString(crud int, table string, cols []string, condition string) string 
 	case INS:
 		// ["INSERT INTO", "", "VALUES", ""]
 		retStr[1] = table + " (" + colString + ")"
-		retStr[3] = safeMarkers(len(cols))
+		retStr[3] = safeMarkers(len(cols), valsLen)
 
 	case SEL:
 		// ["SELECT (", "", ") FROM", "", "WHERE", ""]
@@ -213,14 +179,19 @@ func prepString(crud int, table string, cols []string, condition string) string 
 	return strings.Join(retStr, "")
 }
 
-func safeMarkers(num int) string {
-	s := "("
-	for i := 0; i < num-1; i++ {
-		s += "?, "
-	}
-	s += "?)"
+func safeMarkers(colsLen int, valsLen int) string {
+	b := strings.Builder{}
 
-	return s
+	for row := 0; row < (valsLen / colsLen); row++ {
+		b.WriteString("(")
+
+		for i := 1; i < colsLen; i++ {
+			b.WriteString("?,")
+		}
+		b.WriteString("?),")
+	}
+
+	return strings.TrimSuffix(b.String(), ",")
 }
 
 // func toInterfaceSlice(sli []string) []interface{} {
@@ -615,8 +586,6 @@ func CreateGroupDB(form url.Values) (newID int) {
 	res, err := db.Insert("groups", cols, id, name)
 	Check(err, "Unable to create group ", name)
 
-	// TODO: INSERT initial members from form into database
-
 	id64, _ := res.LastInsertId()
 
 	return int(id64)
@@ -636,6 +605,29 @@ func UpdateGroupDB(form url.Values, ownerID int) {
 
 	_, err = db.Update("groups", cols, condition, vals...)
 	Check(err, "Unable to update group ", form.Get("groupname"))
+}
+
+func AddGroupMembersDB(form url.Values, groupID int) {
+	db, err := ConnectDB()
+	Check(err, CONN_FAIL)
+	defer db.Close()
+
+	cols := Cols("group_id", "member_id")
+	vals := fromIDString(groupID, form["colleagues"])
+
+	_, err = db.InsertMany("group_members", cols, vals...)
+	Check(err, "Unable to add members to group_members")
+}
+
+func fromIDString(groupID int, ids []string) []interface{} {
+	s := make([]interface{}, len(ids))
+	for _, v := range ids {
+		s = append(s, groupID)
+		num, _ := strconv.Atoi(v)
+		s = append(s, num)
+	}
+
+	return s
 }
 
 // TODO: validate join permissions based on invite code.

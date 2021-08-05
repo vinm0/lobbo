@@ -127,6 +127,7 @@ func newHandler(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, newPath, http.StatusFound)
 			return
 		case "groups":
+			fmt.Println("Post form\n", r.PostForm)
 			updateGroup(r.PostForm, "", true)
 			http.Redirect(w, r, "/groups", http.StatusFound)
 			return
@@ -479,11 +480,15 @@ func updateLobby(form url.Values, lobbyID string, new bool) (newID int) {
 
 func updateGroup(form url.Values, groupID string, new bool) (newID int) {
 	if new {
-		return CreateGroupDB(form)
+		newID = CreateGroupDB(form)
+		AddGroupMembersDB(form, newID)
+		return newID
 	}
 
 	id, _ := strconv.Atoi(groupID)
 	UpdateGroupDB(form, id)
+	AddGroupMembersDB(form, id)
+
 	return 0
 }
 

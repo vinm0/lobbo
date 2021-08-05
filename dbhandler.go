@@ -477,6 +477,30 @@ func UpdateLobbyDB(form url.Values, lobby_id int) {
 	Check(err, "Unable to update lobby ", lobby_id)
 }
 
+func GroupNameDB(groupID int) string {
+	db, err := ConnectDB()
+	Check(err, CONN_FAIL)
+	defer db.Close()
+
+	cols := Cols("groupname")
+
+	rows, err := db.Select("groups", cols, "group_id = ?", groupID)
+	Check(err, "Unable to select groupname for group ", groupID)
+
+	return loadGroupName(rows)
+}
+
+func loadGroupName(rows *sql.Rows) string {
+	defer rows.Close()
+
+	var name string
+	if rows.Next() {
+		rows.Scan(&name)
+	}
+
+	return name
+}
+
 func GroupsDB(owner_id int) []Group {
 	db, err := ConnectDB()
 	Check(err, CONN_FAIL)
@@ -620,7 +644,7 @@ func AddGroupMembersDB(form url.Values, groupID int) {
 }
 
 func fromIDString(groupID int, ids []string) []interface{} {
-	s := make([]interface{}, len(ids))
+	s := make([]interface{}, len(ids)*2)
 	for _, v := range ids {
 		s = append(s, groupID)
 		num, _ := strconv.Atoi(v)

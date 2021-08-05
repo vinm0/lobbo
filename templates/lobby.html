@@ -26,6 +26,10 @@
         {{.Description}}
       </p>
 
+      {{if eq $.leader_id $.lobby.OwnerID}}
+      <a href="/edit/lobby/{{.LobbyID}}" class="edit btn cta-btn-orange">edit</a>
+      {{end}}
+
     </div>
   </section> <br /><br />
 

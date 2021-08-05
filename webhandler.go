@@ -75,7 +75,7 @@ func launch() {
 	http.HandleFunc("/lobbies/", lobbiesHandler)
 	http.HandleFunc("/lobbies-in/", lobbiesHandler)
 	http.HandleFunc("/groups/", groupsHandler)
-	http.HandleFunc("/edit/", lobbyFormHandler)
+	http.HandleFunc("/edit/", editHandler)
 	http.HandleFunc("/new/", newHandler)
 	http.HandleFunc("/join/", joinHandler)
 	http.HandleFunc("/", homeHandler)
@@ -100,6 +100,71 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	servePage(w, p, HOME_TEMPL)
 }
 
+func editHandler(w http.ResponseWriter, r *http.Request) {
+	_, session := session(r)
+
+	path := r.URL.Path
+	if auth, _ := session["authenticated"].(bool); !auth {
+		http.Redirect(w, r, "/signin"+path, http.StatusFound)
+		return
+	}
+
+	// ["", "edit", "lobby|group", "id"]
+	pathSlice := strings.Split(path, "/")
+
+	if len(pathSlice) < 4 {
+		fmt.Fprintf(w, "Url not found: %s", path)
+		return
+	}
+
+	category := pathSlice[2]
+	id := pathSlice[3]
+	ldr := sessionLeader(session)
+
+	if r.Method == http.MethodPost {
+		// field owner_id must be session leader id
+		if r.PostFormValue("owner_id") != strconv.Itoa(ldr.LeaderID) {
+			http.Redirect(w, r, path, http.StatusFound)
+			return
+		}
+
+		switch category {
+		case "lobby":
+			updateLobby(r.PostForm, id)
+			http.Redirect(w, r, strings.TrimPrefix(path, "/edit"), http.StatusFound)
+			return
+
+		case "groups":
+			updateGroup(r.PostForm, id)
+			http.Redirect(w, r, "/groups", http.StatusFound)
+			return
+		}
+
+	}
+
+	p := &Page{
+		"title":  "Edit " + strings.Title(category),
+		"leader": ldr,
+	}
+
+	var tmpl string
+
+	switch category {
+	case "lobby":
+		(*p)[category] = lobby(id)
+		tmpl = LOBBY_FORM_TEMPL
+
+	case "groups":
+		(*p)["colleagues"] = ldr.ColleaguesAll()
+		// TODO: Load target group instead of all groups
+		(*p)["groupname"] = session["groupname"]
+		session["groupname"] = nil
+		tmpl = GROUP_FORM_TEMPL
+	}
+
+	servePage(w, p, BASE_TEMPL, tmpl)
+}
+
 func newHandler(w http.ResponseWriter, r *http.Request) {
 	_, session := session(r)
 
@@ -121,14 +186,14 @@ func newHandler(w http.ResponseWriter, r *http.Request) {
 		var newID int
 		switch category {
 		case "lobby":
-			newID = updateLobby(r.PostForm, "", true)
+			newID = updateLobby(r.PostForm, "")
 
 			newPath := fmt.Sprintf("/%s/%d", category, newID)
 			http.Redirect(w, r, newPath, http.StatusFound)
 			return
 		case "groups":
 			fmt.Println("Post form\n", r.PostForm)
-			updateGroup(r.PostForm, "", true)
+			updateGroup(r.PostForm, "")
 			http.Redirect(w, r, "/groups", http.StatusFound)
 			return
 		}
@@ -156,74 +221,74 @@ func newHandler(w http.ResponseWriter, r *http.Request) {
 	servePage(w, p, BASE_TEMPL, tmpl)
 }
 
-func lobbyFormHandler(w http.ResponseWriter, r *http.Request) {
-	_, session := session(r)
+// func lobbyFormHandler(w http.ResponseWriter, r *http.Request) {
+// 	_, session := session(r)
 
-	path := r.URL.Path
+// 	path := r.URL.Path
 
-	if auth, _ := session["authenticated"].(bool); !auth {
-		http.Redirect(w, r, "/signin"+path, http.StatusFound)
-		return
-	}
+// 	if auth, _ := session["authenticated"].(bool); !auth {
+// 		http.Redirect(w, r, "/signin"+path, http.StatusFound)
+// 		return
+// 	}
 
-	new := path == "/new/"
+// 	new := path == "/new/"
 
-	var id string
-	if !new {
-		//["", "new|edit", "lobby", "id"]
-		id = strings.Split(path, "/")[3]
-	}
+// 	var id string
+// 	if !new {
+// 		//["", "new|edit", "lobby", "id"]
+// 		id = strings.Split(path, "/")[3]
+// 	}
 
-	ldr := sessionLeader(session)
+// 	ldr := sessionLeader(session)
 
-	if r.Method == http.MethodPost {
-		if !new && r.PostFormValue("owner_id") != strconv.Itoa(ldr.LeaderID) {
-			fmt.Fprintln(w, "Not authorized to edit lobby: ", id)
-			return
-		}
+// 	if r.Method == http.MethodPost {
+// 		if !new && r.PostFormValue("owner_id") != strconv.Itoa(ldr.LeaderID) {
+// 			fmt.Fprintln(w, "Not authorized to edit lobby: ", id)
+// 			return
+// 		}
 
-		r.ParseForm()
-		r.PostForm["meet_time"][0] = r.PostForm["meet_date"][0] + " " + r.PostForm["meet_time"][0]
-		newID := updateLobby(r.PostForm, id, new)
+// 		r.ParseForm()
+// 		r.PostForm["meet_time"][0] = r.PostForm["meet_date"][0] + " " + r.PostForm["meet_time"][0]
+// 		newID := updateLobby(r.PostForm, id, new)
 
-		if newID != 0 {
-			id = strconv.Itoa(newID)
-		}
+// 		if newID != 0 {
+// 			id = strconv.Itoa(newID)
+// 		}
 
-		http.Redirect(w, r, "/lobby/"+id, http.StatusFound)
-		return
-	}
+// 		http.Redirect(w, r, "/lobby/"+id, http.StatusFound)
+// 		return
+// 	}
 
-	if new {
-		p := &Page{
-			"title":     "New Lobby",
-			"lobby":     &Lobby{},
-			"leader_id": ldr.LeaderID,
-		}
-		fmt.Println("Session LeaderID: ", session[LDR_ID])
-		servePage(w, p, BASE_TEMPL, LOBBY_FORM_TEMPL)
-		return
-	}
+// 	if new {
+// 		p := &Page{
+// 			"title":     "New Lobby",
+// 			"lobby":     &Lobby{},
+// 			"leader_id": ldr.LeaderID,
+// 		}
+// 		fmt.Println("Session LeaderID: ", session[LDR_ID])
+// 		servePage(w, p, BASE_TEMPL, LOBBY_FORM_TEMPL)
+// 		return
+// 	}
 
-	lby := lobby(id)
+// 	lby := lobby(id)
 
-	if lby.LobbyID == 0 || !ldr.isOwner(lby) {
-		fmt.Fprintln(w, "Unable to edit lobby: ", id)
-		return
-	}
+// 	if lby.LobbyID == 0 || !ldr.isOwner(lby) {
+// 		fmt.Fprintln(w, "Unable to edit lobby: ", id)
+// 		return
+// 	}
 
-	p := &Page{
-		"title":     lby.Title,
-		"lobby":     lby,
-		"leader_id": ldr.LeaderID,
-	}
+// 	p := &Page{
+// 		"title":     lby.Title,
+// 		"lobby":     lby,
+// 		"leader_id": ldr.LeaderID,
+// 	}
 
-	servePage(w, p, BASE_TEMPL, LOBBY_FORM_TEMPL)
-}
+// 	servePage(w, p, BASE_TEMPL, LOBBY_FORM_TEMPL)
+// }
 
 // TODO: load groups data. Update database
 func groupsHandler(w http.ResponseWriter, r *http.Request) {
-	_, session := session(r)
+	cookie, session := session(r)
 
 	if auth, _ := session["authenticated"].(bool); !auth {
 		http.Redirect(w, r, "/signin/groups", http.StatusFound)
@@ -233,18 +298,29 @@ func groupsHandler(w http.ResponseWriter, r *http.Request) {
 	ldr := sessionLeader(session)
 
 	if r.Method == http.MethodPost {
-		id, _ := strconv.Atoi(r.PostFormValue("del_id"))
-		gid := r.PostFormValue("grp_id")
-		groupID, _ := strconv.Atoi(gid)
+		delID := r.PostFormValue("del_id")
+		if delID != "" {
+			id, _ := strconv.Atoi(delID)
+			gid := r.PostFormValue("grp_id")
+			groupID, _ := strconv.Atoi(gid)
 
-		if !ldr.ownsGroup(groupID) {
-			fmt.Fprintln(w, "Unauthorized to remove members from group: ", groupID)
+			if !ldr.ownsGroup(groupID) {
+				fmt.Fprintln(w, "Unauthorized to edit group: ", groupID)
+			}
+
+			deleteGroupMember(groupID, id)
+
+			http.Redirect(w, r, "/groups/#grp"+gid, http.StatusFound)
+			return
 		}
 
-		deleteGroupMember(groupID, id)
-
-		http.Redirect(w, r, "/groups/#grp"+gid, http.StatusFound)
-		return
+		gpID := r.PostFormValue("group_id")
+		if gpID != "" {
+			session["groupname"] = r.PostFormValue("groupname")
+			cookie.Save(r, w)
+			http.Redirect(w, r, "/edit/groups/"+gpID, http.StatusFound)
+			return
+		}
 	}
 
 	grp := ldr.Groups()
@@ -467,9 +543,9 @@ func sessionLeader(session map[interface{}]interface{}) *Leader {
 		Lastname:  ln}
 }
 
-func updateLobby(form url.Values, lobbyID string, new bool) (newID int) {
-	form["meet_time"][0] = form["meet_date"][0] + " " + form["meet_time"][0]
-	if new {
+func updateLobby(form url.Values, lobbyID string) (newID int) {
+	form["meet_time"][0] = form.Get("meet_date") + " " + form.Get("meet_time")
+	if lobbyID == "" {
 		return CreateLobbyDB(form)
 	}
 
@@ -478,8 +554,8 @@ func updateLobby(form url.Values, lobbyID string, new bool) (newID int) {
 	return 0
 }
 
-func updateGroup(form url.Values, groupID string, new bool) (newID int) {
-	if new {
+func updateGroup(form url.Values, groupID string) (newID int) {
+	if groupID == "" {
 		newID = CreateGroupDB(form)
 		AddGroupMembersDB(form, newID)
 		return newID

@@ -19,7 +19,12 @@
 
     <header class="list-title">
       <h3>{{.Name}}</h3>
-      <a href="/edit/groups/{{$gid}}" class="edit-group submit btn cta-btn-orange">+</a>
+      <form method="post">
+        <input type="hidden" name="groupname" value="{{.Name}}">
+        <input type="hidden" name="group_id" value="{{$gid}}">
+        <input type="submit" value="+" class="edit-group submit btn cta-btn-orange">
+      </form>
+      <!-- <a href="/edit/groups/{{$gid}}" class="edit-group submit btn cta-btn-orange">+</a> -->
     </header>
 
     <div>

@@ -22,6 +22,11 @@ func (ldr *Leader) Groups() []Group {
 	return GroupsDB(ldr.LeaderID)
 }
 
+func (ldr *Leader) GroupName(groupID string) string {
+	id, _ := strconv.Atoi(groupID)
+	return GroupNameDB(id)
+}
+
 func (ldr *Leader) Colleagues(limit int) []*Leader {
 	return ColleaguesDB(ldr.LeaderID, " Limit "+strconv.Itoa(limit))
 }

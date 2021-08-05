@@ -27,6 +27,7 @@ const (
 	LOBBIES_TEMPL    = TEMPL_DIR + "lobbies.html"
 	GROUPS_TEMPL     = TEMPL_DIR + "groups.html"
 	LOBBY_FORM_TEMPL = TEMPL_DIR + "lobbyform.html"
+	GROUP_FORM_TEMPL = TEMPL_DIR + "groupform.html"
 	BASE_TEMPL       = TEMPL_DIR + "base.html"
 
 	SITE_TITLE      = "Lobbo"
@@ -51,7 +52,7 @@ const (
 	COMMUNITY          = 1
 	FRIENDS_OF_FRIENDS = 2
 	FRIENDS            = 3
-	PRIVATE
+	PRIVATE            = 4
 
 	MIN_PWD_LEN = 8
 )
@@ -75,7 +76,7 @@ func launch() {
 	http.HandleFunc("/lobbies-in/", lobbiesHandler)
 	http.HandleFunc("/groups/", groupsHandler)
 	http.HandleFunc("/edit/", lobbyFormHandler)
-	http.HandleFunc("/new/", lobbyFormHandler)
+	http.HandleFunc("/new/", newHandler)
 	http.HandleFunc("/join/", joinHandler)
 	http.HandleFunc("/", homeHandler)
 
@@ -97,6 +98,61 @@ func launch() {
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	p := &Page{"title": SITE_TITLE}
 	servePage(w, p, HOME_TEMPL)
+}
+
+func newHandler(w http.ResponseWriter, r *http.Request) {
+	_, session := session(r)
+
+	path := r.URL.Path
+	if auth, _ := session["authenticated"].(bool); !auth {
+		http.Redirect(w, r, "/signin"+path, http.StatusFound)
+		return
+	}
+
+	category := strings.TrimPrefix(path, "/new/")
+	ldr := sessionLeader(session)
+
+	if r.Method == http.MethodPost {
+		// field owner_id must be session leader id
+		if r.PostFormValue("owner_id") != strconv.Itoa(ldr.LeaderID) {
+			http.Redirect(w, r, path, http.StatusFound)
+		}
+
+		var newID int
+		switch category {
+		case "lobby":
+			newID = updateLobby(r.PostForm, "", true)
+
+			newPath := fmt.Sprintf("/%s/%d", category, newID)
+			http.Redirect(w, r, newPath, http.StatusFound)
+			return
+		case "groups":
+			updateGroup(r.PostForm, "", true)
+			http.Redirect(w, r, "/groups", http.StatusFound)
+			return
+		}
+
+	}
+
+	p := &Page{
+		"title":      "New " + strings.Title(category),
+		"leader":     ldr,
+		"colleagues": ldr.ColleaguesAll(),
+	}
+
+	var tmpl string
+
+	switch category {
+	case "lobby":
+		(*p)[category] = &Lobby{}
+		tmpl = LOBBY_FORM_TEMPL
+
+	case "groups":
+		(*p)[category] = &Group{}
+		tmpl = GROUP_FORM_TEMPL
+	}
+
+	servePage(w, p, BASE_TEMPL, tmpl)
 }
 
 func lobbyFormHandler(w http.ResponseWriter, r *http.Request) {
@@ -174,6 +230,22 @@ func groupsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ldr := sessionLeader(session)
+
+	if r.Method == http.MethodPost {
+		id, _ := strconv.Atoi(r.PostFormValue("del_id"))
+		gid := r.PostFormValue("grp_id")
+		groupID, _ := strconv.Atoi(gid)
+
+		if !ldr.ownsGroup(groupID) {
+			fmt.Fprintln(w, "Unauthorized to remove members from group: ", groupID)
+		}
+
+		deleteGroupMember(groupID, id)
+
+		http.Redirect(w, r, "/groups/#grp"+gid, http.StatusFound)
+		return
+	}
+
 	grp := ldr.Groups()
 
 	p := &Page{
@@ -300,7 +372,7 @@ func profileHandler(w http.ResponseWriter, r *http.Request) {
 		"leader_id":    session[LDR_ID],
 		"ownedLobbies": ownedLobbies(ldr.LeaderID, 10),
 		"inLobbies":    inLobbies(ldr.LeaderID, 10),
-		"colleagues":   colleagues(ldr.LeaderID, 10),
+		"colleagues":   ldr.Colleagues(10),
 	}
 
 	servePage(w, p, BASE_TEMPL, PROFILE_TEMPL)
@@ -395,12 +467,23 @@ func sessionLeader(session map[interface{}]interface{}) *Leader {
 }
 
 func updateLobby(form url.Values, lobbyID string, new bool) (newID int) {
+	form["meet_time"][0] = form["meet_date"][0] + " " + form["meet_time"][0]
 	if new {
-		newID = CreateLobbyDB(form)
-		return newID
+		return CreateLobbyDB(form)
 	}
+
 	id, _ := strconv.Atoi(lobbyID)
 	UpdateLobbyDB(form, id)
+	return 0
+}
+
+func updateGroup(form url.Values, groupID string, new bool) (newID int) {
+	if new {
+		return CreateGroupDB(form)
+	}
+
+	id, _ := strconv.Atoi(groupID)
+	UpdateGroupDB(form, id)
 	return 0
 }
 
@@ -442,10 +525,6 @@ func inLobbiesAll(memberID int) []*Lobby {
 	return inLobbiesDB(memberID, "")
 }
 
-func colleagues(ownerID int, limit int) []*Leader {
-	return ColleaguesDB(ownerID, " Limit "+strconv.Itoa(limit))
-}
-
 func deleteColleague(ownerID int, colleagueID int) {
 	DeleteColleagueDB(ownerID, colleagueID)
 }
@@ -465,6 +544,10 @@ func lobbyOwner(session map[interface{}]interface{}, ownerID int) *Leader {
 	}
 
 	return LeaderDB(ownerID)
+}
+
+func deleteGroupMember(groupID int, memberID int) {
+	DeleteGroupMemberDB(groupID, memberID)
 }
 
 func validateSignin(usr string, pwd string) (valid bool, msg string) {

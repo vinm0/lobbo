@@ -1,0 +1,30 @@
+{{define "content"}}
+
+<header class="top-margin-sm">
+    <h3 class="page-title">{{.title}}</h3>
+</header>
+
+<form method="post" name="group-form" class="group-form">
+    <div class="group-form-name">
+        <label for="groupname">Group Name</label>
+        <input class="text" type="text" name="groupname" id="groupname" required value="{{.group.Name}}">
+    </div>
+
+    <fieldset class="group-form-colleagues">
+        <legend>Add Colleagues</legend>
+        {{range .colleagues}}
+        <div class="checkboxes-colleagues">
+            <div class="checkbox">
+                <input type="checkbox" name="colleagues" id="colleague{{.LeaderID}}" value="{{.LeaderID}}">
+            </div>
+            <label for="colleague{{.LeaderID}}">{{.Firstname}} {{.Lastname}}</label>  
+        </div>
+        {{end}}
+    </fieldset>
+
+
+<input type="hidden" name="owner_id" value="{{ .leader.LeaderID }}">
+<input type="submit" value="Create Group" class="submit cta-btn cta-btn-orange">
+</form>
+
+{{end}}

@@ -53,7 +53,7 @@ h4,
 h5,
 h6 {
   font-family: "Secular One", sans-serif;
-  text-shadow: 0 0.2rem 0.2rem black;
+  text-shadow: 0 0.1rem 0.2rem rgba(0, 0, 0, 0.8);
   font-weight: 400;
 }
 
@@ -80,6 +80,7 @@ p,
 a,
 li,
 label,
+legend,
 input,
 textarea,
 select,
@@ -98,22 +99,8 @@ small a {
 
 a {
   text-decoration: none;
-}
-
-a:not(.cta-btn) {
-  color: #68edff;
   -webkit-transition: opacity 0.2s ease-out;
   transition: opacity 0.2s ease-out;
-}
-
-a:not(.cta-btn):hover {
-  -webkit-box-shadow: inset 0 -0.4rem 0 -0.1rem #018fa1;
-          box-shadow: inset 0 -0.4rem 0 -0.1rem #018fa1;
-  opacity: 70%;
-}
-
-section h3 {
-  margin-left: 2rem;
 }
 
 footer a {
@@ -213,7 +200,7 @@ form .text:focus {
 
 form .submit {
   font-size: 2rem;
-  text-shadow: 0 0.2rem 0.2rem black;
+  text-shadow: 0 0.1rem 0.2rem rgba(0, 0, 0, 0.8);
   border: none;
   -webkit-transition: background 0.2s ease-out;
   transition: background 0.2s ease-out;
@@ -401,7 +388,15 @@ form textarea {
   color: white;
   padding: 1.6rem 0;
   cursor: pointer;
+  -webkit-box-shadow: inset 0 -0.1rem 0.3rem -0.2rem black;
+          box-shadow: inset 0 -0.1rem 0.3rem -0.2rem black;
   opacity: 40%;
+}
+
+.tab:hover {
+  -webkit-box-shadow: inset 0 -0.4rem 0 -0.1rem #018fa1;
+          box-shadow: inset 0 -0.4rem 0 -0.1rem #018fa1;
+  opacity: 100%;
 }
 
 .tab-active {
@@ -413,6 +408,12 @@ form input.btn {
   padding: 0.4rem 0.8rem;
   border-radius: 0.5rem;
   font-size: 1.4rem;
+}
+
+.btn {
+  padding: 0.8rem 1.6rem;
+  border-radius: 0.5rem;
+  text-shadow: 0 0.1rem 0.2rem rgba(0, 0, 0, 0.8);
 }
 
 .cta-btn {
@@ -445,12 +446,26 @@ form input.btn {
   padding: 1rem;
   border-radius: 0.5rem;
   text-decoration: none;
-  text-shadow: 0 0.2rem 0.2rem black;
+  text-shadow: 0 0.1rem 0.2rem rgba(0, 0, 0, 0.8);
 }
 
 .list-item .edit:hover {
   background-color: #39afbf;
   opacity: 100%;
+}
+
+.list-title {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  background-color: #4a4a4a;
+  padding: 0.8rem 1.6rem;
 }
 
 /* 
@@ -624,6 +639,37 @@ a h4.lobby-title:hover {
 
 /* 
  * **************************************************
+ * ****************** Groups Page *******************
+ * **************************************************
+ */
+.group-links {
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+}
+
+.group-links .tab {
+  color: white;
+  font-weight: 700;
+  text-align: center;
+  min-width: 30vw;
+  padding-left: 1.6rem;
+  padding-right: 1.6rem;
+}
+
+.group-links .new-group-btn {
+  opacity: 80%;
+}
+
+.group-links .new-group-btn:hover {
+  opacity: 100%;
+}
+
+.group-member a {
+  color: white;
+}
+
+/* 
+ * **************************************************
  * ******************* Edit Page ********************
  * **************************************************
  */
@@ -631,7 +677,8 @@ a h4.lobby-title:hover {
   margin-left: 2rem;
 }
 
-.lobby-form {
+.lobby-form,
+.group-form {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -644,12 +691,82 @@ a h4.lobby-title:hover {
   margin: auto;
 }
 
-.lobby-form label {
+.lobby-form label,
+.group-form label {
   display: block;
   line-height: 2;
 }
 
-.lobby-form input {
+.lobby-form input,
+.group-form input {
   margin-bottom: 0.8rem;
+}
+
+/* 
+ * **************************************************
+ * *************** New Group Page *******************
+ * **************************************************
+ */
+.group-form-colleagues {
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-columns: 1fr 1fr;
+      grid-template-columns: 1fr 1fr;
+  min-height: 27vh;
+  grid-auto-rows: 5rem;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  vertical-align: middle;
+  background-color: #4a4a4a;
+  overflow: scroll;
+  max-height: 50vh;
+  border: none;
+}
+
+.group-form-colleagues legend {
+  -webkit-transform: translateY(-1.6rem);
+          transform: translateY(-1.6rem);
+  margin-top: 2rem;
+}
+
+.group-form-colleagues label {
+  display: inline;
+}
+
+.checkboxes-colleagues {
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-columns: 0fr 1fr;
+      grid-template-columns: 0fr 1fr;
+  padding: 1rem;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.checkboxes-colleagues label {
+  line-height: 1.4;
+}
+
+.checkbox {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+input[type="checkbox"] {
+  -webkit-appearance: none;
+  background-color: #2d2d2d;
+  border: 0.1rem solid #4a4a4a;
+  -webkit-box-shadow: inset 0px 0px 0.9rem -0.6rem black;
+          box-shadow: inset 0px 0px 0.9rem -0.6rem black;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin: 0 0.4rem 0 0;
+}
+
+input[type="checkbox"]:checked {
+  background-color: rgba(250, 152, 40, 0.9);
+  border: 1px solid #adb8c0;
 }
 /*# sourceMappingURL=style.css.map */

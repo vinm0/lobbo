@@ -4,7 +4,7 @@
 $secular: "Secular One", sans-serif;
 $roboto: "Roboto", sans-serif;
 
-$text-shadow: 0 0.2rem 0.2rem black;
+$text-shadow: 0 0.1rem 0.2rem rgba(black, 0.8);
 
 // ****************************************
 // ************** Color *******************
@@ -19,3 +19,6 @@ $dkorange: rgb(224, 114, 13);
 
 $black: rgb(45, 45, 45);
 $dkgray: rgb(74, 74, 74);
+
+// use with box-shadow
+$blue-underline: inset 0 -0.4rem 0 -0.1rem $dkblue;

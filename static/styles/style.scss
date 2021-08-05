@@ -144,6 +144,37 @@ a h4.lobby-title {
 
 /* 
  * **************************************************
+ * ****************** Groups Page *******************
+ * **************************************************
+ */
+
+.group-links {
+	flex-wrap: wrap;
+
+	.tab {
+		color: white;
+		font-weight: 700;
+		text-align: center;
+		min-width: 30vw;
+		padding-left: 1.6rem;
+		padding-right: 1.6rem;
+	}
+
+	.new-group-btn {
+		opacity: 80%;
+
+		&:hover {
+			opacity: 100%;
+		}
+	}
+}
+
+.group-member a {
+	color: white;
+}
+
+/* 
+ * **************************************************
  * ******************* Edit Page ********************
  * **************************************************
  */
@@ -152,7 +183,8 @@ a h4.lobby-title {
 	margin-left: 2rem;
 }
 
-.lobby-form {
+.lobby-form,
+.group-form {
 	display: flex;
 	flex-direction: column;
 	gap: 2rem;
@@ -166,5 +198,64 @@ a h4.lobby-title {
 
 	input {
 		margin-bottom: 0.8rem;
+	}
+}
+
+/* 
+ * **************************************************
+ * *************** New Group Page *******************
+ * **************************************************
+ */
+
+.group-form-colleagues {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	min-height: 27vh;
+	grid-auto-rows: 5rem;
+	align-items: center;
+	vertical-align: middle;
+	background-color: $dkgray;
+	overflow: scroll;
+	max-height: 50vh;
+	border: none;
+
+	legend {
+		transform: translateY(-1.6rem);
+		margin-top: 2rem;
+	}
+
+	label {
+		display: inline;
+	}
+}
+
+.checkboxes-colleagues {
+	display: grid;
+	grid-template-columns: 0fr 1fr;
+	padding: 1rem;
+	align-items: center;
+
+	label {
+		line-height: 1.4;
+	}
+}
+
+.checkbox {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+input[type="checkbox"] {
+	-webkit-appearance: none;
+	background-color: $black;
+	border: 0.1rem solid $dkgray;
+	box-shadow: inset 0px 0px 0.9rem -0.6rem black;
+	padding: 1rem;
+	border-radius: 0.5rem;
+	margin: 0 0.4rem 0 0;
+
+	&:checked {
+		background-color: rgba($color: $orange, $alpha: 0.9);
+		border: 1px solid #adb8c0;
 	}
 }

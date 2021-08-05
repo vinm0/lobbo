@@ -1,34 +1,38 @@
 {{define "content"}}
-<header class="page-title">
-  <h3>Groups</h3>
+<header class="page-title top-margin-sm">
+  <h2>Groups</h2>
 </header>
 
-<section class="group-links">
+<section class="group-links tabs">
   {{range .groups}} 
-    <a href="#group{{.GroupID}}">{{.Name}}</a>
+    <a href="#grp{{.GroupID}}" class="tab">{{.Name}}</a>
   {{end}}
-  <a href="#!" class="new-group-btn">+ New</a>
+  <a href="/new/groups" class="new-group-btn tab">+ New</a>
 </section>
+<br><br>
 
 <section class="groups">
 
   {{range .groups}}
-  <div class="list">
+  {{$gid := .GroupID}}
+  <article class="list" id="grp{{$gid}}">
 
     <header class="list-title">
       <h3>{{.Name}}</h3>
+      <a href="/edit/groups/{{$gid}}" class="edit-group submit btn cta-btn-orange">+</a>
     </header>
 
-    <div id="{{.GroupID}}">
+    <div>
       {{range .Members}}
-      <div class="group-member list-item">
+      <div class="group-member list-item list-item-leader">
 
-        <a href="/profile/{{.LeaderID}}">
-          <strong>{{.Firstname}} {{.Lastname}}</strong>
+        <a href="/profile/{{.LeaderID}}" class="list-item-leader-name">
+          <strong >{{.Firstname}} {{.Lastname}}</strong>
         </a>
 
         <form method="post">
-          <input type="hidden" name="del-id" value="{{.LeaderID}}">
+          <input type="hidden" name="grp_id" value="{{$gid}}">
+          <input type="hidden" name="del_id" value="{{.LeaderID}}">
           <input type="submit" value="Remove" name="remove" class="submit btn cta-btn-orange">
         </form>
 
@@ -36,7 +40,7 @@
       {{end}}
     </div>
 
-  </div>
+  </article>
   {{end}}
 
 </section>

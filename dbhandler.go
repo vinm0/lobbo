@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
@@ -350,7 +351,7 @@ func ColleaguesDB(ownerID int, limit string) []*Leader {
 	defer db.Close()
 
 	cols := []string{"colleague_id", "fname", "lname", "usrname"}
-	condition := "owner_id = ?" + limit
+	condition := "owner_id = ? ORDER BY fname, lname " + limit
 	table := "colleagues JOIN leaders ON colleague_id = leader_id"
 	rows, err := db.Select(table, cols, condition, ownerID)
 	Check(err, "Unable to query lobbies owned for ownerID", ownerID)
@@ -475,7 +476,7 @@ func CreateLobbyDB(form url.Values) (newLobbyID int) {
 		"meet_loc", "loc_link", "capacity", "visibility",
 	}
 
-	vals := newLobbyValues(cols, form)
+	vals := formVals(cols, form)
 
 	res, err := db.Insert("lobbies", cols, vals...)
 	Check(err, "Unable to create lobby ", form["lobby_id"])
@@ -496,7 +497,7 @@ func UpdateLobbyDB(form url.Values, lobby_id int) {
 		"loc_link", "capacity", "visibility",
 	}
 
-	vals := newLobbyValues(cols, form)
+	vals := formVals(cols, form)
 	vals = append(vals, lobby_id)
 
 	condition := "lobby_id = ?"
@@ -551,7 +552,7 @@ func loadGroups(rows *sql.Rows) []Group {
 			g = Group{GroupID: gID, Name: gName, OwnerID: ownID}
 		}
 
-		g.Members = append(g.Members, ldr)
+		g.Members = append(g.Members, &ldr)
 		currGID = g.GroupID
 	}
 
@@ -559,13 +560,82 @@ func loadGroups(rows *sql.Rows) []Group {
 	return groups
 }
 
-func newLobbyValues(cols []string, form url.Values) (vals []interface{}) {
+func formVals(cols []string, form url.Values) (vals []interface{}) {
 	vals = []interface{}{}
 	for _, v := range cols {
 		// fmt.Printf("%s: (%s) type %T\n", v, form[v], form[v][0])
-		vals = append(vals, form[v][0])
+		vals = append(vals, form.Get(v))
 	}
 	return vals
+}
+
+func GroupOwnerDB(groupID int) (ownerID int) {
+	db, err := ConnectDB()
+	Check(err, CONN_FAIL)
+	defer db.Close()
+
+	cols := Cols("owner_id")
+
+	row, err := db.Select("groups", cols, "group_id = ?", groupID)
+	Check(err, "Unable to select owner from group ", groupID)
+
+	return loadLeaderID(row)
+}
+
+func loadLeaderID(row *sql.Rows) int {
+	defer row.Close()
+
+	var id int
+	if row.Next() {
+		row.Scan(&id)
+	}
+
+	return id
+}
+
+func DeleteGroupMemberDB(groupID int, memberID int) {
+	db, err := ConnectDB()
+	Check(err, CONN_FAIL)
+	defer db.Close()
+
+	condition := "group_id = ? AND member_id = ?"
+	_, err = db.Delete("group_members", condition, groupID, memberID)
+	Check(err, "Unable to delete member ", memberID, " from group ", groupID)
+}
+
+func CreateGroupDB(form url.Values) (newID int) {
+	db, err := ConnectDB()
+	Check(err, CONN_FAIL)
+	defer db.Close()
+
+	cols := Cols("owner_id", "groupname")
+	id, _ := strconv.Atoi(form.Get("owner_id"))
+	name := form.Get("groupname")
+
+	res, err := db.Insert("groups", cols, id, name)
+	Check(err, "Unable to create group ", name)
+
+	// TODO: INSERT initial members from form into database
+
+	id64, _ := res.LastInsertId()
+
+	return int(id64)
+}
+
+func UpdateGroupDB(form url.Values, ownerID int) {
+	db, err := ConnectDB()
+	Check(err, CONN_FAIL)
+	defer db.Close()
+
+	cols := Cols("groupname")
+
+	vals := formVals(cols, form)
+	vals = append(vals, ownerID)
+
+	condition := "owner_id = ?"
+
+	_, err = db.Update("groups", cols, condition, vals...)
+	Check(err, "Unable to update group ", form.Get("groupname"))
 }
 
 // TODO: validate join permissions based on invite code.

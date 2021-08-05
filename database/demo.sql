@@ -108,6 +108,7 @@ CREATE TABLE IF NOT EXISTS groups (
 		CONSTRAINT groups_owner_fk FOREIGN KEY (owner_id)
 			REFERENCES leaders(leader_id)
 			ON DELETE CASCADE,
+		CONSTRAINT groups_group_ck CHECK (group_id <> 0),
 		CONSTRAINT groups_groupname_ck CHECK (length(groupname) <= 25)
 );
 

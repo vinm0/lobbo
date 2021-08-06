@@ -2,3 +2,4 @@
 .env
 .vscode/
 *.exe
+*.db

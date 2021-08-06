@@ -139,8 +139,7 @@ func editHandler(w http.ResponseWriter, r *http.Request) {
 
 			delID := r.PostFormValue("del-id")
 			fmt.Println("del-id", "-"+delID+"-")
-			if r.PostFormValue("upd_lobby") != "" &&
-				(owner || delID == strconv.Itoa(ldr.LeaderID)) {
+			if owner || delID == strconv.Itoa(ldr.LeaderID) {
 				deleteLobbyMember(id, delID)
 			}
 
@@ -235,72 +234,6 @@ func newHandler(w http.ResponseWriter, r *http.Request) {
 	servePage(w, p, BASE_TEMPL, tmpl)
 }
 
-// func lobbyFormHandler(w http.ResponseWriter, r *http.Request) {
-// 	_, session := session(r)
-
-// 	path := r.URL.Path
-
-// 	if auth, _ := session["authenticated"].(bool); !auth {
-// 		http.Redirect(w, r, "/signin"+path, http.StatusFound)
-// 		return
-// 	}
-
-// 	new := path == "/new/"
-
-// 	var id string
-// 	if !new {
-// 		//["", "new|edit", "lobby", "id"]
-// 		id = strings.Split(path, "/")[3]
-// 	}
-
-// 	ldr := sessionLeader(session)
-
-// 	if r.Method == http.MethodPost {
-// 		if !new && r.PostFormValue("owner_id") != strconv.Itoa(ldr.LeaderID) {
-// 			fmt.Fprintln(w, "Not authorized to edit lobby: ", id)
-// 			return
-// 		}
-
-// 		r.ParseForm()
-// 		r.PostForm["meet_time"][0] = r.PostForm["meet_date"][0] + " " + r.PostForm["meet_time"][0]
-// 		newID := updateLobby(r.PostForm, id, new)
-
-// 		if newID != 0 {
-// 			id = strconv.Itoa(newID)
-// 		}
-
-// 		http.Redirect(w, r, "/lobby/"+id, http.StatusFound)
-// 		return
-// 	}
-
-// 	if new {
-// 		p := &Page{
-// 			"title":     "New Lobby",
-// 			"lobby":     &Lobby{},
-// 			"leader_id": ldr.LeaderID,
-// 		}
-// 		fmt.Println("Session LeaderID: ", session[LDR_ID])
-// 		servePage(w, p, BASE_TEMPL, LOBBY_FORM_TEMPL)
-// 		return
-// 	}
-
-// 	lby := lobby(id)
-
-// 	if lby.LobbyID == 0 || !ldr.isOwner(lby) {
-// 		fmt.Fprintln(w, "Unable to edit lobby: ", id)
-// 		return
-// 	}
-
-// 	p := &Page{
-// 		"title":     lby.Title,
-// 		"lobby":     lby,
-// 		"leader_id": ldr.LeaderID,
-// 	}
-
-// 	servePage(w, p, BASE_TEMPL, LOBBY_FORM_TEMPL)
-// }
-
-// TODO: load groups data. Update database
 func groupsHandler(w http.ResponseWriter, r *http.Request) {
 	cookie, session := session(r)
 
@@ -558,9 +491,6 @@ func sessionLeader(session map[interface{}]interface{}) *Leader {
 }
 
 func updateLobby(form url.Values, lobbyID string) (newID int) {
-	fmt.Println("date", "-"+form.Get("meet_date")+"-")
-	fmt.Println("time", "-"+form.Get("meet_time")+"-")
-	sanatizeTime(form)
 	form["meet_time"][0] = form.Get("meet_date") + " " + form.Get("meet_time")
 
 	if lobbyID == "" {
@@ -568,17 +498,9 @@ func updateLobby(form url.Values, lobbyID string) (newID int) {
 	}
 
 	id, _ := strconv.Atoi(lobbyID)
-	UpdateLobbyDB(form, id) // TODO Change to delete then insert lobby.
-	return 0
-}
+	UpdateLobbyDB(form, id)
 
-func sanatizeTime(form url.Values) {
-	if strings.HasPrefix(form.Get("meet_date"), "0001") {
-		form["meet_date"][0] = ""
-	}
-	if strings.HasPrefix(form.Get("meet_time"), "00") {
-		form["meet_time"][0] = ""
-	}
+	return 0
 }
 
 func updateGroup(form url.Values, groupID string) (newID int) {

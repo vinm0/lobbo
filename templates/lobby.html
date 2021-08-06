@@ -13,10 +13,11 @@
           {{$.owner.Firstname}} {{$.owner.Lastname}}
         </span>
       </a><br />
-
+      {{if ne (.MeetTime.Format "2006") "0001"}}
       <span class="date">
         {{.MeetTime.Format "Jan 02, 2006 - 3:04pm"}}
       </span><br />
+      {{end}}
 
       <span class="location">
         {{.Location}}

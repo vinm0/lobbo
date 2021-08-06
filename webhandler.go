@@ -10,6 +10,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gorilla/sessions"
 	"github.com/joho/godotenv"
@@ -128,13 +129,18 @@ func editHandler(w http.ResponseWriter, r *http.Request) {
 
 		switch category {
 		case "lobby":
-			owner := ldr.isOwner(id)
-			if r.PostFormValue("upd-lobby") != "" && owner {
+			owner := ldr.OwnsLobby(id)
+
+			fmt.Println("upd_lobby", "-"+r.PostFormValue("upd_lobby")+"-")
+
+			if r.PostFormValue("upd_lobby") != "" && owner {
 				updateLobby(r.PostForm, id)
 			}
 
 			delID := r.PostFormValue("del-id")
-			if owner || delID == strconv.Itoa(ldr.LeaderID) {
+			fmt.Println("del-id", "-"+delID+"-")
+			if r.PostFormValue("upd_lobby") != "" &&
+				(owner || delID == strconv.Itoa(ldr.LeaderID)) {
 				deleteLobbyMember(id, delID)
 			}
 
@@ -159,6 +165,7 @@ func editHandler(w http.ResponseWriter, r *http.Request) {
 	switch category {
 	case "lobby":
 		(*p)[category] = lobby(id)
+		(*p)["now"] = time.Now()
 		tmpl = LOBBY_FORM_TEMPL
 
 	case "groups":
@@ -551,14 +558,27 @@ func sessionLeader(session map[interface{}]interface{}) *Leader {
 }
 
 func updateLobby(form url.Values, lobbyID string) (newID int) {
+	fmt.Println("date", "-"+form.Get("meet_date")+"-")
+	fmt.Println("time", "-"+form.Get("meet_time")+"-")
+	sanatizeTime(form)
 	form["meet_time"][0] = form.Get("meet_date") + " " + form.Get("meet_time")
+
 	if lobbyID == "" {
 		return CreateLobbyDB(form)
 	}
 
 	id, _ := strconv.Atoi(lobbyID)
-	UpdateLobbyDB(form, id)
+	UpdateLobbyDB(form, id) // TODO Change to delete then insert lobby.
 	return 0
+}
+
+func sanatizeTime(form url.Values) {
+	if strings.HasPrefix(form.Get("meet_date"), "0001") {
+		form["meet_date"][0] = ""
+	}
+	if strings.HasPrefix(form.Get("meet_time"), "00") {
+		form["meet_time"][0] = ""
+	}
 }
 
 func updateGroup(form url.Values, groupID string) (newID int) {

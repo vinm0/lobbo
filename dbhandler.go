@@ -280,7 +280,7 @@ func loadOwnedLobbies(rows *sql.Rows) []*Lobby {
 
 		rows.Scan(&l.LobbyID, &l.Title, &l.Description, &meetTime, &l.Location)
 
-		if meetTime != "" {
+		if meetTime != " " {
 			t, err := time.Parse(TIME_FORMAT, meetTime)
 			Check(err, "Unable to parse meeting time:", meetTime)
 
@@ -303,7 +303,7 @@ func loadInLobbies(rows *sql.Rows) []*Lobby {
 		rows.Scan(&l.LobbyID, &l.OwnerName, &l.Title,
 			&l.Description, &meetTime, &l.Location)
 
-		if meetTime != "" {
+		if meetTime != " " {
 			t, err := time.Parse(TIME_FORMAT, meetTime)
 			Check(err, "Unable to parse meeting time:", meetTime)
 
@@ -376,7 +376,7 @@ func loadLobby(rows *sql.Rows) *Lobby {
 			&l.Visibility, &l.InviteOnly)
 	}
 
-	if meetTime != "" {
+	if meetTime != " " {
 		t, err := time.Parse(TIME_FORMAT, meetTime)
 		Check(err, "Unable to parse meeting time:", meetTime)
 

@@ -5,7 +5,7 @@
     <h3>{{.leader.Firstname}} {{.leader.Lastname}}</h3>
     {{if eq $.leader.LeaderID $.leader_id}}
     <small>
-      <a href="/signout" class="signout">Sign-out</a>
+      <a href="/signout" class="signout subtle-link">Sign-out</a>
     </small>
     {{end}}
   </div>
@@ -13,7 +13,7 @@
 </header>
 
 <section class="lobbies-owned top-margin-sm">
-  <h3>Lobbies Owned</h3>
+  <h3 class="page-title">Lobbies Owned</h3>
   <div class="carousel-cards">
     {{with .ownedLobbies}}
       {{range .}}
@@ -44,7 +44,7 @@
 </section>
 
 <section class="lobbies-in">
-  <h3>Lobbies In</h3>
+  <h3 class="page-title">Lobbies In</h3>
   <div class="carousel-cards">
     {{range .inLobbies}}
     <div class="sm-lobby-card">
@@ -69,18 +69,14 @@
 </section>
 
 <section class="colleagues">
-  <h3>Colleagues</h3>
+  <h3 class="page-title">Colleagues</h3>
 
   <div class="list">
     {{range .colleagues}}
 
-    <div class="list-item list-item-leader">
-      <span class="colleague-name">
-        {{.Firstname}} {{.Lastname}}
-      </span>
-
-      <a href="/profile?leader_id={{.LeaderID}}" class="profile-link">
-        Profile
+    <div class="group-member list-item list-item-leader">
+      <a href="/profile/{{.LeaderID}}" class="list-item-leader-name">
+        <span class="colleague-name">{{.Firstname}} {{.Lastname}}</span>
       </a>
 
       {{if eq $.leader.LeaderID $.leader_id}}

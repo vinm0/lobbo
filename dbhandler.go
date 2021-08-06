@@ -506,18 +506,39 @@ func GroupsDB(owner_id int) []Group {
 	Check(err, CONN_FAIL)
 	defer db.Close()
 
-	cols := []string{
-		"g.group_id", "groupname", "owner_id",
-		"leader_id", "fname", "lname", "usrname",
-	}
+	s := `SELECT group_id, groupname, owner_id, NULL, NULL, NULL, NULL
+	FROM groups
+	WHERE owner_id = ?
+	
+	UNION
+	
+	SELECT g.group_id, groupname, owner_id, leader_id, fname, lname, usrname 
+	FROM groups g 
+			JOIN group_members gm 
+				ON (g.group_id = gm.group_id) 
+			JOIN leaders 
+				ON (member_id = leader_id) 
+	WHERE owner_id = ? 
+	ORDER BY g.group_id;`
 
-	table := "groups g JOIN group_members gm ON (g.group_id = gm.group_id) " +
-		"JOIN leaders ON (member_id = leader_id)"
+	stmt, err := db.Prepare(s)
+	Check(err, "invalid statement", s)
 
-	condition := "owner_id = ? ORDER BY g.group_id"
+	rows, err := stmt.Query(owner_id, owner_id)
+	Check(err, "unable to query groups for user ", owner_id)
 
-	rows, err := db.Select(table, cols, condition, owner_id)
-	Check(err, "Unable to select groups for ", owner_id)
+	// cols := []string{
+	// 	"g.group_id", "groupname", "owner_id",
+	// 	"leader_id", "fname", "lname", "usrname",
+	// }
+
+	// table := "groups g JOIN group_members gm ON (g.group_id = gm.group_id) " +
+	// 	"JOIN leaders ON (member_id = leader_id)"
+
+	// condition := "owner_id = ? ORDER BY g.group_id"
+
+	// rows, err := db.Select(table, cols, condition, owner_id)
+	// Check(err, "Unable to select groups for ", owner_id)
 
 	return loadGroups(rows)
 }
@@ -615,7 +636,7 @@ func CreateGroupDB(form url.Values) (newID int) {
 	return int(id64)
 }
 
-func UpdateGroupDB(form url.Values, ownerID int) {
+func UpdateGroupDB(form url.Values, groupID int) {
 	db, err := ConnectDB()
 	Check(err, CONN_FAIL)
 	defer db.Close()
@@ -623,9 +644,9 @@ func UpdateGroupDB(form url.Values, ownerID int) {
 	cols := Cols("groupname")
 
 	vals := formVals(cols, form)
-	vals = append(vals, ownerID)
+	vals = append(vals, groupID)
 
-	condition := "owner_id = ?"
+	condition := "group_id = ?"
 
 	_, err = db.Update("groups", cols, condition, vals...)
 	Check(err, "Unable to update group ", form.Get("groupname"))
@@ -652,6 +673,18 @@ func fromIDString(groupID int, ids []string) []interface{} {
 	}
 
 	return s
+}
+
+func DeleteLobbyMemberDB(lobbyID int, memberID int) {
+	db, err := ConnectDB()
+	Check(err, CONN_FAIL)
+	defer db.Close()
+
+	fmt.Println("lobbyid: ", lobbyID)
+	fmt.Println("memberid: ", memberID)
+	condition := "lobby_id = ? AND member_id = ?"
+	_, err = db.Delete("lobby_members", condition, lobbyID, memberID)
+	Check(err, "Unable to delete member ", memberID, " from lobby ", lobbyID)
 }
 
 // TODO: validate join permissions based on invite code.

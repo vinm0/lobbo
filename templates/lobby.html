@@ -27,6 +27,7 @@
       </p>
 
       {{if eq $.leader_id $.lobby.OwnerID}}
+      <br><br>
       <a href="/edit/lobby/{{.LobbyID}}" class="edit btn cta-btn-orange">edit</a>
       {{end}}
 
@@ -49,21 +50,26 @@
 
     <div class="list">
     {{range $.members}}
-      <div class="list-item list-item-leader">
+      <div class="group-member list-item list-item-leader">
 
-        <span class="member-name">
+        <a href="/profile/{{.LeaderID}}" class="list-item-leader-name">
+        <strong class="member-name">
           {{.Firstname}} {{.Lastname}}
-        </span>
-
-        <a href="/profile/{{.LeaderID}}" class="profile-link">
-          Profile
+        </strong>
         </a>
 
-        {{if eq $.leader_id $.lobby.OwnerID}}
-        <form method="post">
+        {{if eq $.leader_id $.lobby.OwnerID }}
+        <form action="/edit/lobby/{{$.lobby.LobbyID}}" method="post">
           <input type="hidden" name="del-id" value="{{.LeaderID}}">
-          <input type="submit" value="Delete" name="delete" class="submit btn cta-btn-orange">
+          <input type="submit" value="Remove" name="delete" class="submit btn cta-btn-orange">
         </form>
+        {{else}}
+        {{if eq .LeaderID $.leader_id}}
+        <form action="/edit/lobby/{{$.lobby.LobbyID}}" method="post">
+          <input type="hidden" name="del-id" value="{{.LeaderID}}">
+          <input type="submit" value="Leave" name="delete" class="submit btn cta-btn-orange">
+        </form>
+        {{end}}
         {{end}}
 
       </div>

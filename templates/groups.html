@@ -27,8 +27,9 @@
       <!-- <a href="/edit/groups/{{$gid}}" class="edit-group submit btn cta-btn-orange">+</a> -->
     </header>
 
+    {{range .Members}}
+    {{if .LeaderID}}
     <div>
-      {{range .Members}}
       <div class="group-member list-item list-item-leader">
 
         <a href="/profile/{{.LeaderID}}" class="list-item-leader-name">
@@ -42,8 +43,9 @@
         </form>
 
       </div>
-      {{end}}
     </div>
+    {{end}}
+    {{end}}
 
   </article>
   {{end}}

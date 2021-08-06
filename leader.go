@@ -10,8 +10,9 @@ type Leader struct {
 	OwnedLobbies []*Lobby
 }
 
-func (ldr *Leader) isOwner(lby *Lobby) bool {
-	return ldr.LeaderID == lby.OwnerID
+func (ldr *Leader) isOwner(lbyID string) bool {
+	id, _ := strconv.Atoi(lbyID)
+	return ldr.LeaderID == LobbyDB(id).OwnerID
 }
 
 func (ldr *Leader) ownsGroup(groupID int) bool {

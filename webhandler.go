@@ -101,7 +101,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func editHandler(w http.ResponseWriter, r *http.Request) {
-	_, session := session(r)
+	cookie, session := session(r)
 
 	path := r.URL.Path
 	if auth, _ := session["authenticated"].(bool); !auth {
@@ -122,15 +122,22 @@ func editHandler(w http.ResponseWriter, r *http.Request) {
 	ldr := sessionLeader(session)
 
 	if r.Method == http.MethodPost {
+		fmt.Println("Post Method Sent: ", "-"+category+"-")
+		fmt.Print("-" + r.PostFormValue("del-id") + "-")
 		// field owner_id must be session leader id
-		if r.PostFormValue("owner_id") != strconv.Itoa(ldr.LeaderID) {
-			http.Redirect(w, r, path, http.StatusFound)
-			return
-		}
 
 		switch category {
 		case "lobby":
-			updateLobby(r.PostForm, id)
+			owner := ldr.isOwner(id)
+			if r.PostFormValue("upd-lobby") != "" && owner {
+				updateLobby(r.PostForm, id)
+			}
+
+			delID := r.PostFormValue("del-id")
+			if owner || delID == strconv.Itoa(ldr.LeaderID) {
+				deleteLobbyMember(id, delID)
+			}
+
 			http.Redirect(w, r, strings.TrimPrefix(path, "/edit"), http.StatusFound)
 			return
 
@@ -156,9 +163,9 @@ func editHandler(w http.ResponseWriter, r *http.Request) {
 
 	case "groups":
 		(*p)["colleagues"] = ldr.ColleaguesAll()
-		// TODO: Load target group instead of all groups
 		(*p)["groupname"] = session["groupname"]
 		session["groupname"] = nil
+		cookie.Save(r, w)
 		tmpl = GROUP_FORM_TEMPL
 	}
 
@@ -557,13 +564,17 @@ func updateLobby(form url.Values, lobbyID string) (newID int) {
 func updateGroup(form url.Values, groupID string) (newID int) {
 	if groupID == "" {
 		newID = CreateGroupDB(form)
-		AddGroupMembersDB(form, newID)
+		if form.Get("colleagues") != "" {
+			AddGroupMembersDB(form, newID)
+		}
 		return newID
 	}
 
 	id, _ := strconv.Atoi(groupID)
 	UpdateGroupDB(form, id)
-	AddGroupMembersDB(form, id)
+	if form.Get("colleagues") != "" {
+		AddGroupMembersDB(form, id)
+	}
 
 	return 0
 }
@@ -629,6 +640,12 @@ func lobbyOwner(session map[interface{}]interface{}, ownerID int) *Leader {
 
 func deleteGroupMember(groupID int, memberID int) {
 	DeleteGroupMemberDB(groupID, memberID)
+}
+
+func deleteLobbyMember(lobbyID string, memberID string) {
+	lID, _ := strconv.Atoi(lobbyID)
+	mID, _ := strconv.Atoi(memberID)
+	DeleteLobbyMemberDB(lID, mID)
 }
 
 func validateSignin(usr string, pwd string) (valid bool, msg string) {

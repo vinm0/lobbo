@@ -85,8 +85,9 @@
 }
 
 .time-loc {
-	background-color: #6e6e6e;
-	box-shadow: 0 0 0 0.8rem #6e6e6e, 0 0.3rem 0.5rem 0.4rem #000;
+	background-color: $gray;
+	box-shadow: -1rem 0 0 0.8rem $gray, 1rem 0 0 0.8rem $gray,
+		-1.5rem 0.3rem 0.7rem 0.4rem black, 1rem 0.3rem 0.7rem 0.4rem black;
 }
 
 /* 

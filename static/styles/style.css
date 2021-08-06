@@ -103,7 +103,17 @@ a {
   transition: opacity 0.2s ease-out;
 }
 
+a.subtle-link {
+  color: #68edff;
+  text-decoration: underline;
+  opacity: 80%;
+}
+
 footer a {
+  color: white;
+}
+
+footer .logo-type {
   color: white;
 }
 
@@ -149,6 +159,11 @@ footer a {
           align-items: center;
 }
 
+.home-logo .logo-img {
+  max-width: 50vw;
+  margin: 0;
+}
+
 .app-logo {
   display: -webkit-box;
   display: -ms-flexbox;
@@ -173,6 +188,11 @@ footer a {
   /* bottom: -1rem; */
   /* font-size: 5rem; */
   color: #fa9828;
+}
+
+.logo-img {
+  max-width: 20vw;
+  margin: 0.8rem;
 }
 
 /* 
@@ -204,13 +224,6 @@ form .submit {
   border: none;
   -webkit-transition: background 0.2s ease-out;
   transition: background 0.2s ease-out;
-}
-
-form .submit:hover {
-  background-color: rgba(57, 175, 191, 0.5);
-  -webkit-box-shadow: inset 0 0 0 0.2rem #39afbf;
-          box-shadow: inset 0 0 0 0.2rem #39afbf;
-  cursor: pointer;
 }
 
 form textarea {
@@ -299,10 +312,6 @@ form textarea {
 .sm-lobby-card header.sm-lobby-title h4 {
   font-family: "Roboto", sans-serif;
   font-weight: 700;
-  line-height: 1;
-  background-color: #018fa1;
-  -webkit-box-shadow: 0 0 0 1.6rem #018fa1, 0 0.8rem 0 1.6rem #018fa1;
-          box-shadow: 0 0 0 1.6rem #018fa1, 0 0.8rem 0 1.6rem #018fa1;
 }
 
 .sm-lobby-card .lobby-id {
@@ -391,6 +400,10 @@ form textarea {
   -webkit-box-shadow: inset 0 -0.1rem 0.3rem -0.2rem black;
           box-shadow: inset 0 -0.1rem 0.3rem -0.2rem black;
   opacity: 40%;
+  -webkit-transition: opacity 0.2s ease-out, -webkit-box-shadow 0.1s ease-out;
+  transition: opacity 0.2s ease-out, -webkit-box-shadow 0.1s ease-out;
+  transition: box-shadow 0.1s ease-out, opacity 0.2s ease-out;
+  transition: box-shadow 0.1s ease-out, opacity 0.2s ease-out, -webkit-box-shadow 0.1s ease-out;
 }
 
 .tab:hover {
@@ -414,6 +427,13 @@ form input.btn {
   padding: 0.8rem 1.6rem;
   border-radius: 0.5rem;
   text-shadow: 0 0.1rem 0.2rem rgba(0, 0, 0, 0.8);
+  -webkit-transition: background 0.1s ease-out;
+  transition: background 0.1s ease-out;
+}
+
+.btn:hover {
+  background-color: #39afbf;
+  cursor: pointer;
 }
 
 .cta-btn {
@@ -423,6 +443,10 @@ form input.btn {
   border-radius: 5px;
   text-decoration: none;
   font-weight: 700;
+}
+
+.cta-btn:hover {
+  opacity: 0.8;
 }
 
 .cta-btn-blue {
@@ -447,11 +471,6 @@ form input.btn {
   border-radius: 0.5rem;
   text-decoration: none;
   text-shadow: 0 0.1rem 0.2rem rgba(0, 0, 0, 0.8);
-}
-
-.list-item .edit:hover {
-  background-color: #39afbf;
-  opacity: 100%;
 }
 
 .list-title {
@@ -570,8 +589,8 @@ form input.btn {
 
 .time-loc {
   background-color: #6e6e6e;
-  -webkit-box-shadow: 0 0 0 0.8rem #6e6e6e, 0 0.3rem 0.5rem 0.4rem #000;
-          box-shadow: 0 0 0 0.8rem #6e6e6e, 0 0.3rem 0.5rem 0.4rem #000;
+  -webkit-box-shadow: -1rem 0 0 0.8rem #6e6e6e, 1rem 0 0 0.8rem #6e6e6e, -1.5rem 0.3rem 0.7rem 0.4rem black, 1rem 0.3rem 0.7rem 0.4rem black;
+          box-shadow: -1rem 0 0 0.8rem #6e6e6e, 1rem 0 0 0.8rem #6e6e6e, -1.5rem 0.3rem 0.7rem 0.4rem black, 1rem 0.3rem 0.7rem 0.4rem black;
 }
 
 /* 

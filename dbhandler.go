@@ -470,7 +470,7 @@ func UpdateLobbyDB(form url.Values, lobby_id int) {
 
 	vals := formVals(cols, form)
 	vals = append(vals, lobby_id)
-
+	fmt.Println("vals: ", vals)
 	condition := "lobby_id = ?"
 
 	_, err = db.Update("lobbies", cols, condition, vals...)
@@ -579,7 +579,11 @@ func loadGroups(rows *sql.Rows) []Group {
 func formVals(cols []string, form url.Values) (vals []interface{}) {
 	vals = []interface{}{}
 	for _, v := range cols {
-		// fmt.Printf("%s: (%s) type %T\n", v, form[v], form[v][0])
+		if v == "visibility" {
+			num, _ := strconv.Atoi(form.Get(v))
+			vals = append(vals, num)
+			continue
+		}
 		vals = append(vals, form.Get(v))
 	}
 	return vals
@@ -685,6 +689,40 @@ func DeleteLobbyMemberDB(lobbyID int, memberID int) {
 	condition := "lobby_id = ? AND member_id = ?"
 	_, err = db.Delete("lobby_members", condition, lobbyID, memberID)
 	Check(err, "Unable to delete member ", memberID, " from lobby ", lobbyID)
+}
+
+func AddColleagueDB(ownerID int, colleagueID int) {
+	db, err := ConnectDB()
+	Check(err, CONN_FAIL)
+	defer db.Close()
+
+	cols := Cols("owner_id", "colleague_id")
+
+	_, err = db.Insert("colleagues", cols, ownerID, colleagueID)
+	Check(err, "Unable to add colleague", colleagueID, " for ", ownerID)
+}
+
+func ColleagueDB(leaderID int, colleagueID int) *Leader {
+	db, err := ConnectDB()
+	Check(err, CONN_FAIL)
+	defer db.Close()
+
+	cols := Cols("leader_id", "fname", "lname", "usrname")
+	table := "colleagues JOIN leaders ON (colleague_id = leader_id)"
+	condition := "owner_id = ? AND colleague_id = ?"
+	row, err := db.Select(table, cols, condition, leaderID, colleagueID)
+	Check(err, "Unable to check for colleague ", colleagueID)
+
+	return loadLeader(row)
+}
+
+func DeleteLobbyDB(id int) {
+	db, err := ConnectDB()
+	Check(err, CONN_FAIL)
+	defer db.Close()
+
+	_, err = db.Delete("lobbies", "lobby_id = ?", id)
+	Check(err, "Unable to delete lobby ", id)
 }
 
 // TODO: validate join permissions based on invite code.

@@ -1,4 +1,12 @@
 {{define "content"}}
+
+{{if eq .lobby.OwnerID .leader.LeaderID }}
+<form action="/delete/lobby" method="post" class="add-colleague">
+  <input type="hidden" name="del-id" value="{{.lobby.LobbyID}}">
+  <input type="submit" name="del-lobby" value="Delete Lobby" class="submit btn cta-btn-orange">
+</form>
+{{end}}
+
 {{with .lobby}}
 
 <main class="lobby-page top-margin-sm">
@@ -27,7 +35,7 @@
         {{.Description}}
       </p>
 
-      {{if eq $.leader_id $.lobby.OwnerID}}
+      {{if eq $.leader.LeaderID $.lobby.OwnerID}}
       <br><br>
       <a href="/edit/lobby/{{.LobbyID}}" class="edit btn cta-btn-orange">edit</a>
       {{end}}
@@ -59,13 +67,13 @@
         </strong>
         </a>
 
-        {{if eq $.leader_id $.lobby.OwnerID }}
+        {{if eq $.leader.LeaderID $.lobby.OwnerID }}
         <form action="/edit/lobby/{{$.lobby.LobbyID}}" method="post">
           <input type="hidden" name="del-id" value="{{.LeaderID}}">
           <input type="submit" value="Remove" name="delete" class="submit btn cta-btn-orange">
         </form>
         {{else}}
-        {{if eq .LeaderID $.leader_id}}
+        {{if eq .LeaderID $.leader.LeaderID}}
         <form action="/edit/lobby/{{$.lobby.LobbyID}}" method="post">
           <input type="hidden" name="del-id" value="{{.LeaderID}}">
           <input type="submit" value="Leave" name="delete" class="submit btn cta-btn-orange">

@@ -79,6 +79,9 @@ func launch() {
 	http.HandleFunc("/edit/", editHandler)
 	http.HandleFunc("/new/", newHandler)
 	http.HandleFunc("/join/", joinHandler)
+	http.HandleFunc("/add/", addHandler)
+	http.HandleFunc("/delete/", deleteHandler)
+
 	http.HandleFunc("/", homeHandler)
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
@@ -99,6 +102,54 @@ func launch() {
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	p := &Page{"title": SITE_TITLE}
 	servePage(w, p, HOME_TEMPL)
+}
+
+func deleteHandler(w http.ResponseWriter, r *http.Request) {
+	_, session := session(r)
+
+	path := strings.TrimPrefix(r.URL.Path, "/delete")
+
+	if r.Method != http.MethodPost {
+		http.Redirect(w, r, path, http.StatusFound)
+	}
+	if auth, _ := session[AUTH].(bool); !auth {
+		http.Redirect(w, r, "/signin"+path, http.StatusFound)
+		return
+	}
+
+	id := r.PostFormValue("del-id")
+	lby := lobby(id)
+	ldr := sessionLeader(session)
+
+	if lby.OwnerID == ldr.LeaderID {
+		lby.Delete()
+	}
+
+	http.Redirect(w, r, "/profile", http.StatusFound)
+}
+
+func addHandler(w http.ResponseWriter, r *http.Request) {
+	_, session := session(r)
+
+	path := strings.TrimPrefix(r.URL.Path, "/add")
+
+	if r.Method != http.MethodPost {
+		http.Redirect(w, r, path, http.StatusFound)
+	}
+	if auth, _ := session[AUTH].(bool); !auth {
+		http.Redirect(w, r, "/signin"+path, http.StatusFound)
+		return
+	}
+
+	// ["", "profile", "id"]
+	pathSlice := strings.Split(path, "/")
+
+	id := pathSlice[2]
+	ldr := sessionLeader(session)
+
+	ldr.AddColleague(id)
+
+	http.Redirect(w, r, path, http.StatusFound)
 }
 
 func editHandler(w http.ResponseWriter, r *http.Request) {
@@ -134,6 +185,7 @@ func editHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("upd_lobby", "-"+r.PostFormValue("upd_lobby")+"-")
 
 			if r.PostFormValue("upd_lobby") != "" && owner {
+				fmt.Println("privacy:", r.PostFormValue("visibility"))
 				updateLobby(r.PostForm, id)
 			}
 
@@ -311,7 +363,15 @@ func lobbyHandler(w http.ResponseWriter, r *http.Request) {
 
 	lobbyID := strings.TrimPrefix(r.URL.Path, "/lobby/")
 	lby := lobby(lobbyID)
-	owner := lobbyOwner(session, lby.OwnerID)
+	ldr := sessionLeader(session)
+
+	var owner *Leader
+	isOwner := lby.OwnerID == ldr.LeaderID
+	if isOwner {
+		owner = ldr
+	} else {
+		owner = lby.Owner()
+	}
 
 	// TODO: Fix valid privacy verification
 	if lby.OwnerID != session["leader_id"] &&
@@ -320,11 +380,11 @@ func lobbyHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	p := &Page{
-		"title":     lby.Title,
-		"lobby":     lby,
-		"members":   members(lby.LobbyID),
-		"owner":     owner,
-		"leader_id": session[LDR_ID],
+		"title":   lby.Title,
+		"lobby":   lby,
+		"members": members(lby.LobbyID),
+		"owner":   owner,
+		"leader":  ldr,
 	}
 
 	// TODO: 404 if loby doesn't exist
@@ -387,16 +447,19 @@ func profileHandler(w http.ResponseWriter, r *http.Request) {
 
 	path := strings.TrimPrefix(r.URL.Path, "/profile/")
 
-	ldr := LeaderProfile(session, path)
+	prof := LeaderProfile(session, path)
+	ldr := sessionLeader(session)
+	isOwner := prof.LeaderID == ldr.LeaderID
 
 	// session.Values[]
 	p := &Page{
 		"title":        PROFILE_TITLE,
-		"leader":       ldr,
-		"leader_id":    session[LDR_ID],
-		"ownedLobbies": ownedLobbies(ldr.LeaderID, 10),
-		"inLobbies":    inLobbies(ldr.LeaderID, 10),
-		"colleagues":   ldr.Colleagues(10),
+		"leader":       prof,
+		"leader_id":    ldr.LeaderID,
+		"ownedLobbies": ownedLobbies(prof.LeaderID, 10),
+		"inLobbies":    inLobbies(prof.LeaderID, 10),
+		"colleagues":   prof.Colleagues(10),
+		"is_colleague": ldr.IsColleague(prof.LeaderID) || isOwner,
 	}
 
 	servePage(w, p, BASE_TEMPL, PROFILE_TEMPL)
@@ -570,14 +633,6 @@ func lobby(lobbyID string) *Lobby {
 
 func members(lobbyID int) []*Leader {
 	return MembersDB(lobbyID)
-}
-
-func lobbyOwner(session map[interface{}]interface{}, ownerID int) *Leader {
-	if session[LDR_ID] == ownerID {
-		return sessionLeader(session)
-	}
-
-	return LeaderDB(ownerID)
 }
 
 func deleteGroupMember(groupID int, memberID int) {

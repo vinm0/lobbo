@@ -30,14 +30,14 @@
     <label for="capacity">Capacity</label>
     <input class="text" type="number" max="50" name="capacity" id="lobbycapacity" value="{{or .lobby.Capacity 10}}">
     
-    <label for="visibility">Privacy</label>
-    <select class="text" name="visibility" id="privacy" autocomplete="off">
+    <label for="visibility">Visibility</label>
+    <select class="text" name="visibility" id="visibility" autocomplete="off">
         {{with .lobby}}
-        <option value="public" {{or (ne .Privacy 0) "selected"}}>Public</option>
-        <option value="user" {{or (ne .Privacy 1) "selected"}}>Logged-in</option>
-        <option value="friend of friend"  {{or (ne .Privacy 2) "selected"}}>Friends of Friends</option>
-        <option value="friend"  {{or (ne .Privacy 3) "selected"}}>Friends</option>
-        <option value="private"  {{or (ne .Privacy 4) "selected"}}>Private</option>
+        <option value="0" {{or (ne .Visibility 0) "selected"}}>Public</option>
+        <option value="1" {{or (ne .Visibility 1) "selected"}}>Logged-in</option>
+        <option value="2"  {{or (ne .Visibility 2) "selected"}}>Friends of Friends</option>
+        <option value="3"  {{or (ne .Visibility 3) "selected"}}>Friends</option>
+        <option value="4"  {{or (ne .Visibility 4) "selected"}}>Private</option>
         {{end}}
     </select>
 </div>

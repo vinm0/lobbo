@@ -1,4 +1,9 @@
 {{define "content"}}
+{{if not .is_colleague }}
+<form action="/add/profile/{{.leader.LeaderID}}" method="post" class="add-colleague">
+  <input type="submit" name="add-colleague" value="Add Colleague" class="submit btn cta-btn-orange">
+</form>
+{{end}}
 
 <header>
   <div class="profile-name top-margin-sm">

@@ -17,3 +17,11 @@ type Lobby struct {
 	InviteOnly  int
 	MeetTime    time.Time
 }
+
+func (l *Lobby) Owner() *Leader {
+	return LeaderDB(l.OwnerID)
+}
+
+func (l *Lobby) Delete() {
+	DeleteLobbyDB(l.LobbyID)
+}

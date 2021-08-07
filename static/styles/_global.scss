@@ -343,7 +343,6 @@ form {
 }
 
 form input.btn {
-	padding: 0.4rem 0.8rem;
 	border-radius: 0.5rem;
 	font-size: 1.4rem;
 }
@@ -359,6 +358,13 @@ form input.btn {
 		background-color: $blue;
 		cursor: pointer;
 	}
+}
+
+.btn-top-left {
+	position: absolute;
+	top: 0;
+	left: 0;
+	margin: 1.6rem;
 }
 
 .cta-btn {
@@ -389,10 +395,9 @@ form input.btn {
 	max-width: 40rem;
 }
 
-.list-item .edit {
+.edit {
 	color: white;
 	text-align: center;
-	padding: 1rem;
 	border-radius: 0.5rem;
 	text-decoration: none;
 	text-shadow: $text-shadow;
@@ -400,8 +405,9 @@ form input.btn {
 
 .list-title {
 	display: flex;
-	justify-content: space-between;
+	// justify-content: space-between;
+	gap: 1.6rem;
 	align-items: center;
-	background-color: $dkgray;
-	padding: 0.8rem 1.6rem;
+	// background-color: $dkgray;
+	padding: 0.8rem 0;
 }

@@ -3,7 +3,7 @@
 {{if eq .lobby.OwnerID .leader.LeaderID }}
 <form action="/delete/lobby" method="post" class="add-colleague">
   <input type="hidden" name="del-id" value="{{.lobby.LobbyID}}">
-  <input type="submit" name="del-lobby" value="Delete Lobby" class="submit btn cta-btn-orange">
+  <input type="submit" name="del-lobby" value="Delete" class="submit btn cta-btn-orange">
 </form>
 {{end}}
 
@@ -26,17 +26,23 @@
         {{.MeetTime.Format "Jan 02, 2006 - 3:04pm"}}
       </span><br />
       {{end}}
-
       <span class="location">
-        {{.Location}}
-      </span><br /><br /><br />
+        {{if .Link}}
+          <a href="{{.Link}}" class="subtle-link">
+          {{.Location}}
+          </a>
+        {{else}}
+          {{.Location}}
+        {{end}}
+      </span>
+      <br /><br /><br />
 
       <p class="summary">
         {{.Description}}
       </p>
 
       {{if eq $.leader.LeaderID $.lobby.OwnerID}}
-      <br><br>
+      <br><br><br>
       <a href="/edit/lobby/{{.LobbyID}}" class="edit btn cta-btn-orange">edit</a>
       {{end}}
 

@@ -8,7 +8,9 @@
 <header>
   <div class="profile-name top-margin-sm">
     <h3>{{.leader.Firstname}} {{.leader.Lastname}}</h3>
+    <span>{{.leader.Username}}</span>
     {{if eq $.leader.LeaderID $.leader_id}}
+    <br>
     <small>
       <a href="/signout" class="signout subtle-link">Sign-out</a>
     </small>

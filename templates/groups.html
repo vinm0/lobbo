@@ -29,8 +29,7 @@
 
     {{range .Members}}
     {{if .LeaderID}}
-    <div>
-      <div class="group-member list-item list-item-leader">
+    <div class=" list-item group-member list-item-leader">
 
         <a href="/profile/{{.LeaderID}}" class="list-item-leader-name">
           <strong >{{.Firstname}} {{.Lastname}}</strong>
@@ -42,10 +41,9 @@
           <input type="submit" value="Remove" name="remove" class="submit btn cta-btn-orange">
         </form>
 
-      </div>
     </div>
-    {{end}}
-    {{end}}
+      {{end}}
+      {{end}}
 
   </article>
   {{end}}

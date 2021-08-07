@@ -725,6 +725,15 @@ func DeleteLobbyDB(id int) {
 	Check(err, "Unable to delete lobby ", id)
 }
 
+func DeleteGroupDB(id int) {
+	db, err := ConnectDB()
+	Check(err, CONN_FAIL)
+	defer db.Close()
+
+	_, err = db.Delete("groups", "group_id = ?", id)
+	Check(err, "Unable to delete group ", id)
+}
+
 // TODO: validate join permissions based on invite code.
 // func JoinAllowed(lobbyID int, leaderID int, privacy int) bool {
 // 	db, err := ConnectDB()

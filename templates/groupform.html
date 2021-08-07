@@ -1,5 +1,10 @@
 {{define "content"}}
 
+<form action="/delete/group" method="post" class="add-colleague">
+    <input type="hidden" name="del-id" value="{{.group_id}}">
+    <input type="submit" name="del-group" value="Delete Group" class="submit btn cta-btn-orange">
+</form>
+
 <header class="top-margin-sm">
     <h3 class="page-title">{{.title}}</h3>
 </header>
@@ -24,7 +29,7 @@
 
 
 <input type="hidden" name="owner_id" value="{{ .leader.LeaderID }}">
-<input type="submit" value="Set Group" class="submit cta-btn cta-btn-orange">
+<input type="submit" name="upd-group" value="Set Group" class="submit cta-btn cta-btn-orange">
 </form>
 
 {{end}}

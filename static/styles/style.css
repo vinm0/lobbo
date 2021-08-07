@@ -418,7 +418,6 @@ form textarea {
 }
 
 form input.btn {
-  padding: 0.4rem 0.8rem;
   border-radius: 0.5rem;
   font-size: 1.4rem;
 }
@@ -435,6 +434,13 @@ form input.btn {
 .btn:hover {
   background-color: #39afbf;
   cursor: pointer;
+}
+
+.btn-top-left {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 1.6rem;
 }
 
 .cta-btn {
@@ -465,10 +471,9 @@ form input.btn {
   max-width: 40rem;
 }
 
-.list-item .edit {
+.edit {
   color: white;
   text-align: center;
-  padding: 1rem;
   border-radius: 0.5rem;
   text-decoration: none;
   text-shadow: 0 0.1rem 0.2rem rgba(0, 0, 0, 0.8);
@@ -478,14 +483,11 @@ form input.btn {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  -webkit-box-pack: justify;
-      -ms-flex-pack: justify;
-          justify-content: space-between;
+  gap: 1.6rem;
   -webkit-box-align: center;
       -ms-flex-align: center;
           align-items: center;
-  background-color: #4a4a4a;
-  padding: 0.8rem 1.6rem;
+  padding: 0.8rem 0;
 }
 
 /* 

@@ -17,7 +17,8 @@ func (ldr *Leader) OwnsLobby(lbyID string) bool {
 	return ldr.LeaderID == LobbyDB(id).OwnerID
 }
 
-func (ldr *Leader) ownsGroup(groupID int) bool {
+func (ldr *Leader) ownsGroup(id string) bool {
+	groupID, _ := strconv.Atoi(id)
 	return ldr.LeaderID == GroupOwnerDB(groupID)
 }
 

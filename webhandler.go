@@ -118,14 +118,26 @@ func deleteHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	id := r.PostFormValue("del-id")
-	lby := lobby(id)
 	ldr := sessionLeader(session)
 
-	if lby.OwnerID == ldr.LeaderID {
-		lby.Delete()
+	if r.PostFormValue("del-lobby") != "" {
+		lby := lobby(id)
+
+		if lby.OwnerID == ldr.LeaderID {
+			lby.Delete()
+		}
+
+		http.Redirect(w, r, "/profile", http.StatusFound)
 	}
 
-	http.Redirect(w, r, "/profile", http.StatusFound)
+	if r.PostFormValue("del-group") != "" {
+
+		if ldr.ownsGroup(id) {
+			deleteGroup(id)
+		}
+
+		http.Redirect(w, r, "/groups", http.StatusFound)
+	}
 }
 
 func addHandler(w http.ResponseWriter, r *http.Request) {
@@ -199,7 +211,13 @@ func editHandler(w http.ResponseWriter, r *http.Request) {
 			return
 
 		case "groups":
-			updateGroup(r.PostForm, id)
+			if r.PostFormValue("del-group") != "" {
+				deleteGroup(id)
+			}
+			if r.PostFormValue("upd-group") != "" {
+				updateGroup(r.PostForm, id)
+			}
+
 			http.Redirect(w, r, "/groups", http.StatusFound)
 			return
 		}
@@ -222,8 +240,12 @@ func editHandler(w http.ResponseWriter, r *http.Request) {
 	case "groups":
 		(*p)["colleagues"] = ldr.ColleaguesAll()
 		(*p)["groupname"] = session["groupname"]
+		(*p)["group_id"] = session["group_id"]
+
 		session["groupname"] = nil
+		session["group_id"] = nil
 		cookie.Save(r, w)
+
 		tmpl = GROUP_FORM_TEMPL
 	}
 
@@ -297,26 +319,25 @@ func groupsHandler(w http.ResponseWriter, r *http.Request) {
 	ldr := sessionLeader(session)
 
 	if r.Method == http.MethodPost {
-		delID := r.PostFormValue("del_id")
-		if delID != "" {
-			id, _ := strconv.Atoi(delID)
-			gid := r.PostFormValue("grp_id")
-			groupID, _ := strconv.Atoi(gid)
 
-			if !ldr.ownsGroup(groupID) {
-				fmt.Fprintln(w, "Unauthorized to edit group: ", groupID)
+		if delID := r.PostFormValue("del_id"); delID != "" {
+			gid := r.PostFormValue("grp_id")
+
+			if !ldr.ownsGroup(gid) {
+				fmt.Fprintln(w, "Unauthorized to edit group: ", gid)
 			}
 
-			deleteGroupMember(groupID, id)
+			deleteGroupMember(gid, delID)
 
 			http.Redirect(w, r, "/groups/#grp"+gid, http.StatusFound)
 			return
 		}
 
-		gpID := r.PostFormValue("group_id")
-		if gpID != "" {
+		if gpID := r.PostFormValue("group_id"); gpID != "" {
 			session["groupname"] = r.PostFormValue("groupname")
+			session["group_id"] = gpID
 			cookie.Save(r, w)
+			fmt.Println(strings.Split(r.URL.Path, "/"))
 			http.Redirect(w, r, "/edit/groups/"+gpID, http.StatusFound)
 			return
 		}
@@ -437,7 +458,7 @@ func profileHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == http.MethodPost && r.FormValue("delete") == "Delete" {
-		ownerID, _ := session["leader_id"].(int)
+		ownerID, _ := session[LDR_ID].(int)
 		colleagueID, _ := strconv.Atoi(r.FormValue("del-id"))
 
 		deleteColleague(ownerID, colleagueID)
@@ -553,6 +574,11 @@ func sessionLeader(session map[interface{}]interface{}) *Leader {
 		Lastname:  ln}
 }
 
+func deleteGroup(id string) {
+	groupID, _ := strconv.Atoi(id)
+	DeleteGroupDB(groupID)
+}
+
 func updateLobby(form url.Values, lobbyID string) (newID int) {
 	form["meet_time"][0] = form.Get("meet_date") + " " + form.Get("meet_time")
 
@@ -591,7 +617,7 @@ func joinLobby(lobbyID int, leaderID int) {
 func LeaderProfile(session map[interface{}]interface{}, path string) *Leader {
 	id, _ := strconv.Atoi(path)
 
-	if path == "" || id == session["leader-id"] {
+	if path == "" || id == session[LDR_ID] {
 		return sessionLeader(session)
 	}
 
@@ -635,8 +661,10 @@ func members(lobbyID int) []*Leader {
 	return MembersDB(lobbyID)
 }
 
-func deleteGroupMember(groupID int, memberID int) {
-	DeleteGroupMemberDB(groupID, memberID)
+func deleteGroupMember(groupID string, memberID string) {
+	gid, _ := strconv.Atoi(groupID)
+	mid, _ := strconv.Atoi(memberID)
+	DeleteGroupMemberDB(gid, mid)
 }
 
 func deleteLobbyMember(lobbyID string, memberID string) {

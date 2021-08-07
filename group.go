@@ -6,3 +6,7 @@ type Group struct {
 	Name    string
 	Members []*Leader
 }
+
+func (g *Group) Delete() {
+	DeleteGroupDB(g.GroupID)
+}

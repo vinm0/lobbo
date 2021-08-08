@@ -734,6 +734,66 @@ func DeleteGroupDB(id int) {
 	Check(err, "Unable to delete group ", id)
 }
 
+func SearchLobbiesDB(term string) []*Lobby {
+	db, err := ConnectDB()
+	Check(err, CONN_FAIL)
+	defer db.Close()
+
+	ownerName := "fname||' '||lname AS n"
+	cols := Cols("lobby_id", "owner_id", ownerName, "title t", "summary s",
+		"meet_time", "meet_loc", "capacity", "visibility", "invite_only",
+	)
+	condition := "INSTR(LOWER(t), ?) > 0 OR INSTR(LOWER(n), ?) OR INSTR(LOWER(usrname), ?) > 0 OR cast(lobby_id AS text) = ? OR INSTR(LOWER(s), ?)"
+	vals := Vals(term, term, term, term, term)
+	table := "lobbies JOIN leaders ON (owner_id = leader_id)"
+
+	rows, err := db.Select(table, cols, condition, vals...)
+	Check(err, "Unable to search for lobbies: ", term)
+
+	return loadLobbies(rows)
+}
+
+func loadLobbies(rows *sql.Rows) []*Lobby {
+	defer rows.Close()
+
+	lobbies := []*Lobby{}
+
+	for rows.Next() {
+		l := Lobby{}
+		var meetTime string
+		rows.Scan(&l.LobbyID, &l.OwnerID, &l.OwnerName, &l.Title, &l.Description,
+			&meetTime, &l.Location, &l.Capacity, &l.Visibility, &l.InviteOnly)
+
+		if meetTime != " " {
+			t, err := time.Parse(TIME_FORMAT, meetTime)
+			Check(err, "Unable to parse meeting time:", meetTime)
+
+			l.MeetTime = t
+		}
+
+		lobbies = append(lobbies, &l)
+	}
+
+	return lobbies
+}
+
+func SearchLeadersDB(term string) []*Leader {
+	db, err := ConnectDB()
+	Check(err, CONN_FAIL)
+	defer db.Close()
+
+	term = strings.ToLower(term)
+
+	cols := Cols("leader_id", "fname fn", "lname ln", "usrname us")
+	condition := "INSTR(LOWER(fn) ||' '||LOWER(ln), ?) > 0 OR INSTR(LOWER(us), ?) OR cast(leader_id AS text) = ?"
+	vals := Vals(term, term, term)
+
+	rows, err := db.Select("leaders", cols, condition, vals...)
+	Check(err, "Unable to search for leaders: ", term)
+
+	return loadLeaders(rows)
+}
+
 // TODO: validate join permissions based on invite code.
 // func JoinAllowed(lobbyID int, leaderID int, privacy int) bool {
 // 	db, err := ConnectDB()

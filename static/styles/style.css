@@ -231,6 +231,30 @@ form textarea {
   resize: none;
 }
 
+.search-form {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: nowrap;
+      flex-wrap: nowrap;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  width: 90%;
+  margin: auto;
+  gap: 0.8rem;
+}
+
+.searchbar {
+  -webkit-box-flex: 1;
+      -ms-flex-positive: 1;
+          flex-grow: 1;
+}
+
+.icon-search {
+  width: 5rem;
+}
+
 /* 
  * **************************************************
  * ****************** Components ********************

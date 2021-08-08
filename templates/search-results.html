@@ -1,0 +1,67 @@
+{{define "content"}}
+
+{{block "searchbar" .}}{{end}}
+<br><br>
+
+<main class="list-page">
+
+    <header><h3 class="category-title">{{.title}}</h3></header>
+
+    <div class="list">
+
+        {{if eq .category "leader"}}
+            {{block "leaderResults" .}}{{end}}
+        {{else}}
+            {{block "lobbyResults" .}}{{end}}
+        {{end}}
+
+    </div>
+
+</main>
+
+{{end}}
+
+{{define "lobbyResults"}}
+
+{{if (gt (len .results) 0)}}
+    {{range .results}}
+    <div class="list-item list-item-lobby">
+
+    <section class="card-body">
+        <a href="/lobby/{{.LobbyID}}">
+        <h4 class="lobby-title">{{.Title}}</h4>
+        </a>
+
+        <small>
+        {{.MeetTime.Format "Jan 02, 2006 - 3:04p"}} |
+        {{.Location}}
+        </small>
+    </section>
+
+    </div>
+    {{end}} 
+
+{{end}}
+
+{{end}}
+
+{{define "leaderResults"}}
+    {{range .results}}
+    <div class="list-item list-item-lobby">
+
+    <section class="card-body">
+        <a href="/profile/{{.LeaderID}}">
+        <h4 class="lobby-title">{{.Firstname}} {{.Lastname}}</h4>
+        </a>
+
+        <small>
+        {{.Username}}
+        </small>
+    </section>
+    
+    </div>
+    {{end}}
+
+
+
+{{end}}

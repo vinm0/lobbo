@@ -1,0 +1,9 @@
+{{define "searchbar"}}
+
+<br><br>
+<form action="/search/{{.category}}" method="POST" class="search-form top-margin-sm">
+    <input type="text" name="sch-term" placeholder="search for {{.category}}" class="searchbar text">
+    <input type="image" name="sch-{{.category}}" src="/images/icons/search-wht.svg" value="search" class="icon-search submit btn search-btn cta-btn-orange">
+</form>
+
+{{end}}

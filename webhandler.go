@@ -1,9 +1,11 @@
 package main
 
 import (
+	"encoding/gob"
 	"fmt"
 	"html/template"
 	"log"
+	"math"
 	"net/http"
 	"net/url"
 	"os"
@@ -29,6 +31,8 @@ const (
 	GROUPS_TEMPL     = TEMPL_DIR + "groups.html"
 	LOBBY_FORM_TEMPL = TEMPL_DIR + "lobbyform.html"
 	GROUP_FORM_TEMPL = TEMPL_DIR + "groupform.html"
+	SEARCHBAR_BLOCK  = TEMPL_DIR + "searchbar.html"
+	RESULTS_BLOCK    = TEMPL_DIR + "search-results.html"
 	BASE_TEMPL       = TEMPL_DIR + "base.html"
 
 	SITE_TITLE      = "Lobbo"
@@ -56,15 +60,26 @@ const (
 	PRIVATE            = 4
 
 	MIN_PWD_LEN = 8
+	MAX_SEARCH  = 10
+
+	BASE_PATH = iota
+	CATEGORY
+	ID
 )
 
 type Page map[string]interface{}
+
+type SearchResults struct {
+	Lobbies []*Lobby
+	Leaders []*Leader
+}
 
 var store *sessions.CookieStore
 
 func init() {
 	godotenv.Load(".env")
 	store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
+	gob.Register(SearchResults{})
 }
 
 func launch() {
@@ -80,6 +95,7 @@ func launch() {
 	http.HandleFunc("/new/", newHandler)
 	http.HandleFunc("/join/", joinHandler)
 	http.HandleFunc("/add/", addHandler)
+	http.HandleFunc("/search/", searchHandler)
 	http.HandleFunc("/delete/", deleteHandler)
 
 	http.HandleFunc("/", homeHandler)
@@ -102,6 +118,75 @@ func launch() {
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	p := &Page{"title": SITE_TITLE}
 	servePage(w, p, HOME_TEMPL)
+}
+
+func searchHandler(w http.ResponseWriter, r *http.Request) {
+	cookie, session := session(r)
+
+	category, _ := parsePath(CATEGORY, r.URL.Path)
+
+	if r.Method == http.MethodPost {
+		term := r.PostFormValue("sch-term")
+		fmt.Println("category", category)
+
+		results := SearchResults{}
+		switch category {
+		case "leader":
+			results.Leaders = searchLeaders(term)
+		default:
+			results.Lobbies = searchLobbies(term)
+
+		}
+
+		session["sch-results"] = results
+		cookie.Save(r, w)
+
+		http.Redirect(w, r, "/search/"+category+"/1", http.StatusFound)
+		return
+	}
+
+	results, _ := session["sch-results"].(SearchResults)
+
+	// Page number should be at end of url
+	pg := validResultsPage(r, &results)
+	if pg == 0 {
+		fmt.Fprintln(w, "Invalid search page ", pg)
+		return
+	}
+
+	p := &Page{
+		"title":    "Search Results",
+		"category": category,
+	}
+
+	switch category {
+	case "leader":
+		(*p)["results"] = resultsLeader(&results, pg)
+	default:
+		(*p)["results"] = resultsLobby(&results, pg)
+	}
+
+	servePage(w, p, BASE_TEMPL, RESULTS_BLOCK, SEARCHBAR_BLOCK)
+}
+
+func validResultsPage(r *http.Request, results *SearchResults) int {
+	pg := 1
+	id, _ := parsePath(ID, r.URL.Path)
+
+	pg, err := strconv.Atoi(id)
+	if err != nil {
+		return 0
+	}
+
+	lenLby := float64(len(results.Lobbies))
+	lenLdr := float64(len(results.Leaders))
+	count := int(math.Max(lenLby, lenLdr))
+
+	if pg < 1 || pg > count/MAX_SEARCH {
+		pg = 1
+	}
+
+	return pg
 }
 
 func deleteHandler(w http.ResponseWriter, r *http.Request) {
@@ -329,7 +414,7 @@ func groupsHandler(w http.ResponseWriter, r *http.Request) {
 
 			deleteGroupMember(gid, delID)
 
-			http.Redirect(w, r, "/groups/#grp"+gid, http.StatusFound)
+			http.Redirect(w, r, "/groups/#"+gid, http.StatusFound)
 			return
 		}
 
@@ -346,13 +431,14 @@ func groupsHandler(w http.ResponseWriter, r *http.Request) {
 	grp := ldr.Groups()
 
 	p := &Page{
-		"title":  "Groups",
-		"leader": ldr,
-		"groups": grp,
+		"title":    "Groups",
+		"leader":   ldr,
+		"groups":   grp,
+		"category": "leader",
 	}
 
 	fmt.Println(grp)
-	servePage(w, p, BASE_TEMPL, GROUPS_TEMPL)
+	servePage(w, p, BASE_TEMPL, GROUPS_TEMPL, SEARCHBAR_BLOCK)
 }
 
 func joinHandler(w http.ResponseWriter, r *http.Request) {
@@ -439,14 +525,15 @@ func lobbiesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ldr := sessionLeader(session)
-	lbys := loadLobbies(r, ldr.LeaderID)
+	lbys := lobbies(r, ldr.LeaderID)
 
 	p := &Page{
-		"title":   strings.Title(strings.Trim(r.URL.Path, "/")),
-		"lobbies": lbys,
+		"title":    strings.Title(strings.Trim(r.URL.Path, "/")),
+		"lobbies":  lbys,
+		"category": "lobbies",
 	}
 
-	servePage(w, p, BASE_TEMPL, LOBBIES_TEMPL)
+	servePage(w, p, BASE_TEMPL, LOBBIES_TEMPL, SEARCHBAR_BLOCK)
 }
 
 func profileHandler(w http.ResponseWriter, r *http.Request) {
@@ -574,6 +661,36 @@ func sessionLeader(session map[interface{}]interface{}) *Leader {
 		Lastname:  ln}
 }
 
+func parsePath(kind int, path string) (val string, ok bool) {
+	// ["", "BASE", "CATEGORY", "ID"]
+	s := strings.Split(path, "/")
+
+	switch kind {
+	case BASE_PATH:
+		return s[1], true
+	case CATEGORY:
+		if len(s) < 3 {
+			return "", false
+		}
+		return s[2], true
+	case ID:
+		if len(s) < 4 {
+			return "", false
+		}
+		return s[3], true
+	}
+
+	return "", false
+}
+
+func searchLobbies(term string) []*Lobby {
+	return SearchLobbiesDB(term)
+}
+
+func searchLeaders(term string) []*Leader {
+	return SearchLeadersDB(term)
+}
+
 func deleteGroup(id string) {
 	groupID, _ := strconv.Atoi(id)
 	DeleteGroupDB(groupID)
@@ -624,7 +741,7 @@ func LeaderProfile(session map[interface{}]interface{}, path string) *Leader {
 	return LeaderDB(id)
 }
 
-func loadLobbies(r *http.Request, leaderID int) []*Lobby {
+func lobbies(r *http.Request, leaderID int) []*Lobby {
 	if r.URL.Path == "/lobbies-in/" {
 		return inLobbiesAll(leaderID)
 	}
@@ -689,6 +806,28 @@ func joinAllowed(lobbyID int, leaderID int, inviteCode int) bool {
 	return inviteCode <= 2
 	// TODO verify permissions based on network
 	// return JoinAllowedDB(lobbyID, leaderID)
+}
+
+func resultsLobby(r *SearchResults, pg int) []*Lobby {
+	first := (pg - 1) * MAX_SEARCH
+	last := (pg + 1) * MAX_SEARCH
+
+	if len(r.Lobbies) < last {
+		last = len(r.Lobbies)
+	}
+
+	return r.Lobbies[first:last]
+}
+
+func resultsLeader(r *SearchResults, pg int) []*Leader {
+	first := (pg - 1) * MAX_SEARCH
+	last := (pg + 1) * MAX_SEARCH
+
+	if len(r.Leaders) < last {
+		last = len(r.Leaders)
+	}
+
+	return r.Leaders[first:last]
 }
 
 func isEmail(email string) bool {

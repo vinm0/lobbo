@@ -1,11 +1,24 @@
 {{define "content"}}
+
+{{block "searchbar" .}}
+{{end}}
+
+<!-- 
+
+
+  TODO: Create search feature for discovering colleagues.
+  ????  Search Block
+
+
+
+ -->
 <header class="page-title top-margin-sm">
   <h2>Groups</h2>
 </header>
 
 <section class="group-links tabs">
   {{range .groups}} 
-    <a href="#grp{{.GroupID}}" class="tab">{{.Name}}</a>
+    <a href="#{{.GroupID}}" class="tab">{{.Name}}</a>
   {{end}}
   <a href="/new/groups" class="new-group-btn tab">+ New</a>
 </section>
@@ -15,7 +28,7 @@
 
   {{range .groups}}
   {{$gid := .GroupID}}
-  <article class="list" id="grp{{$gid}}">
+  <article class="list" id="{{$gid}}">
 
     <header class="list-title">
       <h3>{{.Name}}</h3>

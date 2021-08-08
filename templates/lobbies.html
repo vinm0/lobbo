@@ -1,5 +1,12 @@
 {{define "content"}}
 
+{{block "searchbar" .}}
+{{end}}
+
+<!-- 
+  * TABS: My lobbies / Lobbies In 
+-->
+
 <form method="post" class="tabs">
   <input type="submit" name="lobby-type" class="tab my-lobbies {{if eq .title "Lobbies"}}tab-active{{end}}"
     value="My Lobbies">
@@ -9,24 +16,32 @@
   </input>
 </form>
 
+<!-- 
+  * END TABS
+ -->
+
 <br /><br />
 
 <main class="list-page">
+
   <header><h3 class="category-title">{{.title}}</h3></header>
+
   <div class="list">
     {{range .lobbies}}
     <div class="list-item list-item-lobby">
+
+
       <section class="card-body">
         <a href="/lobby/{{.LobbyID}}">
-          <h4 class="lobby-title">
-            {{.Title}}
-          </h4>
+          <h4 class="lobby-title">{{.Title}}</h4>
         </a>
+
         <small>
           {{.MeetTime.Format "Jan 02, 2006 - 3:04p"}} |
           {{.Location}}
         </small>
       </section>
+
 
       {{if eq $.title "Lobbies" }}
         <a href="/edit/lobby/{{.LobbyID}}" class="edit btn cta-btn-orange">edit</a>
@@ -35,6 +50,7 @@
     </div>
     {{end}} 
   </div>
+
 </main>
 
 {{end}}

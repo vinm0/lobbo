@@ -183,6 +183,23 @@ form {
 	}
 }
 
+.search-form {
+	display: flex;
+	flex-wrap: nowrap;
+	justify-content: space-between;
+	width: 90%;
+	margin: auto;
+	gap: 0.8rem;
+}
+
+.searchbar {
+	flex-grow: 1;
+}
+
+.icon-search {
+	width: 5rem;
+}
+
 /* 
  * **************************************************
  * ****************** Components ********************

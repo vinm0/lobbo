@@ -20,7 +20,10 @@
 </header>
 
 <section class="lobbies-owned top-margin-sm">
-  <h3 class="page-title">Lobbies Owned</h3>
+  <h3 class="page-title category-title">Lobbies</h3>
+  {{if (eq .leader_id .leader.LeaderID)}}
+  <a href="/new/lobby" class="edit-group submit btn cta-btn-orange">+</a>
+  {{end}}
   <div class="carousel-cards">
     {{with .ownedLobbies}}
       {{range .}}
@@ -51,7 +54,10 @@
 </section>
 
 <section class="lobbies-in">
-  <h3 class="page-title">Lobbies In</h3>
+  <h3 class="page-title category-title">Lobbies In</h3>
+  {{if eq $.leader.LeaderID $.leader_id}}
+  <a href="/lobbies-in" class="edit-group submit btn cta-btn-orange"><img src="/images/icons/search-wht.svg" alt="Search" class="icon icon-search"></a>
+  {{end}}
   <div class="carousel-cards">
     {{range .inLobbies}}
     <div class="sm-lobby-card">
@@ -76,7 +82,10 @@
 </section>
 
 <section class="colleagues">
-  <h3 class="page-title">Colleagues</h3>
+  <h3 class="page-title category-title">Colleagues</h3>
+  {{if eq $.leader.LeaderID $.leader_id}}
+  <a href="/groups" class="edit-group submit btn cta-btn-orange"><img src="/images/icons/search-wht.svg" alt="Search" class="icon icon-search"></a>
+  {{end}}
 
   <div class="list">
     {{range .colleagues}}

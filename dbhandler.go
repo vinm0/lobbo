@@ -209,7 +209,7 @@ func safeMarkers(colsLen int, valsLen int) string {
 // 	return log.Fatalln
 // }
 
-func Auth(usr string, pwd string) (user *Leader, err error) {
+func Auth(usr string, pwd string) (user *Leader, msg string) {
 	db, err := ConnectDB()
 	Check(err, CONN_FAIL)
 	defer db.Close()
@@ -218,8 +218,7 @@ func Auth(usr string, pwd string) (user *Leader, err error) {
 	prep := "SELECT leader_id, fname, lname, pwd FROM leaders WHERE usrname = ?"
 	stmt, err := db.Prepare(prep)
 	if err != nil {
-		dbFail(err.Error())
-		return nil, err
+		return nil, "Something went wrong. Unable to validate credentails"
 	}
 
 	l := Leader{Username: usr}
@@ -227,16 +226,16 @@ func Auth(usr string, pwd string) (user *Leader, err error) {
 
 	err = stmt.QueryRow(usr).Scan(&l.LeaderID, &l.Firstname, &l.Lastname, &pass)
 	if err != nil {
-		return nil, err
+		return nil, "Incorrect username or password"
 	}
 
 	salt := os.Getenv("SALT")
 	err = bcrypt.CompareHashAndPassword(pass, []byte(salt+pwd))
 	if err != nil {
-		return nil, err
+		return nil, "Incorrect username or password"
 	}
 
-	return &l, nil
+	return &l, ""
 }
 
 func OwnedLobbiesDB(ownerID int, limit string) []*Lobby {
@@ -526,19 +525,6 @@ func GroupsDB(owner_id int) []Group {
 	rows, err := stmt.Query(owner_id, owner_id)
 	Check(err, "unable to query groups for user ", owner_id)
 
-	// cols := []string{
-	// 	"g.group_id", "groupname", "owner_id",
-	// 	"leader_id", "fname", "lname", "usrname",
-	// }
-
-	// table := "groups g JOIN group_members gm ON (g.group_id = gm.group_id) " +
-	// 	"JOIN leaders ON (member_id = leader_id)"
-
-	// condition := "owner_id = ? ORDER BY g.group_id"
-
-	// rows, err := db.Select(table, cols, condition, owner_id)
-	// Check(err, "Unable to select groups for ", owner_id)
-
 	return loadGroups(rows)
 }
 
@@ -571,7 +557,10 @@ func loadGroups(rows *sql.Rows) []Group {
 		currGID = g.GroupID
 	}
 
-	groups = append(groups, g)
+	if currGID != 0 {
+		groups = append(groups, g)
+	}
+
 	return groups
 }
 

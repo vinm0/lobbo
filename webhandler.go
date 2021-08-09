@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -488,7 +487,7 @@ func lobbyHandler(w http.ResponseWriter, r *http.Request) {
 		owner = lby.Owner()
 	}
 
-	// TODO: Fix valid privacy verification
+	// TODO: Verify Privacy
 	if lby.OwnerID != session["leader_id"] &&
 		lby.Privacy > FRIENDS_OF_FRIENDS {
 		fmt.Fprint(w, "Access Denied")
@@ -502,7 +501,6 @@ func lobbyHandler(w http.ResponseWriter, r *http.Request) {
 		"leader":  ldr,
 	}
 
-	// TODO: 404 if loby doesn't exist
 	servePage(w, p, BASE_TEMPL, LOBBY_TEMPL)
 }
 
@@ -590,7 +588,16 @@ func signinHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		p := &Page{"title": SIGNIN_TITLE}
+		msg, _ := session["error"].(string)
+
+		p := &Page{
+			"title": SIGNIN_TITLE,
+			"error": msg,
+		}
+
+		session["error"] = nil
+		cookie.Save(r, w)
+
 		servePage(w, p, SIGNIN_TEMPL)
 		return
 	}
@@ -598,16 +605,10 @@ func signinHandler(w http.ResponseWriter, r *http.Request) {
 	usr := cleanString(r.PostFormValue(EMAIL))
 	pwd := cleanString(r.PostFormValue(PASS))
 
-	if valid, errMsg := validateSignin(usr, pwd); !valid {
-		session["error"] = errMsg
+	ldr, msg := validateSignin(usr, pwd)
+	if msg != "" {
+		session["error"] = msg
 		cookie.Save(r, w)
-		http.Redirect(w, r, "/signin", http.StatusFound)
-		return
-	}
-
-	ldr, err := Auth(usr, pwd)
-	if err != nil {
-		log.Println(err, "login error for user: ", usr)
 		http.Redirect(w, r, "/signin", http.StatusFound)
 		return
 	}
@@ -826,16 +827,12 @@ func deleteLobbyMember(lobbyID string, memberID string) {
 	DeleteLobbyMemberDB(lID, mID)
 }
 
-func validateSignin(usr string, pwd string) (valid bool, msg string) {
-	s := []string{}
-	if len(usr) < 1 && !isEmail(usr) {
-		s = append(s, "Please enter a valid email.")
-	}
+func validateSignin(usr string, pwd string) (ldr *Leader, msg string) {
 	if len(pwd) < MIN_PWD_LEN {
-		s = append(s, "Password must be 8 or more characters")
+		return nil, "Password must be 8 or more characters"
 	}
 
-	return len(s) == 0, strings.Join(s, "<br>")
+	return Auth(usr, pwd)
 }
 
 func joinAllowed(lobbyID int, leaderID int, inviteCode int) bool {
@@ -866,12 +863,12 @@ func resultsLeader(r *SearchResults, pg int) []*Leader {
 	return r.Leaders[first:last]
 }
 
-func isEmail(email string) bool {
-	valid, err := regexp.MatchString(`.{3,}@.+\..+$`, email)
-	Check(err, "Email match error:", email)
+// func isEmail(email string) bool {
+// 	valid, err := regexp.MatchString(`.{3,}@.+\..+$`, email)
+// 	Check(err, "Email match error:", email)
 
-	return valid
-}
+// 	return valid
+// }
 
 func cleanString(s string) string {
 	return strings.ToLower(strings.Trim(s, " "))

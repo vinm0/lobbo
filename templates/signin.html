@@ -19,19 +19,23 @@
         <img src="/images/logo-bubbles.svg" class="logo-img">
       </div>
 
+
+      <span class="warning">{{.error}}</span>
+
+
     <form method="post" class="acct-form">
-        <label for="email">Email</label>
+        <label for="email">Username</label>
         <input type="text" name="email" id="email" class="text" autofocus>
 
         <label for="pass">Password</label>
-        <input type="password" name="pass" id="pass" class="text">
+        <input type="password" name="pass" id="pass" class="text" placeholder="8 characters minimum">
 
         <input type="submit" value="Sign-in" class="submit cta-btn cta-btn-blue">
     </form>
 
     <div class="center">
         <small>Don't have an account?</small><br>
-        <a href="/signup" class="">Create an Account</a>
+        <a href="/signup" class="subtle-link">Create an Account</a>
     </div>
 </body>
 

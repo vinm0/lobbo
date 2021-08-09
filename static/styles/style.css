@@ -135,7 +135,18 @@ footer .logo-type {
 }
 
 .category-title {
-  margin-left: 1.6rem;
+  display: inline-block;
+  margin: 0 1.6rem;
+}
+
+.warning {
+  color: #68edff;
+  display: block;
+  text-align: center;
+}
+
+.success {
+  color: greenyellow;
 }
 
 /* 
@@ -226,6 +237,11 @@ form .submit {
   transition: background 0.2s ease-out;
 }
 
+form .submit:hover {
+  background-color: #39afbf;
+  cursor: pointer;
+}
+
 form textarea {
   max-width: 32rem;
   resize: none;
@@ -253,6 +269,11 @@ form textarea {
 
 .icon-search {
   width: 5rem;
+}
+
+img.icon-search {
+  -webkit-transform: translateY(20%);
+          transform: translateY(20%);
 }
 
 /* 
@@ -648,14 +669,14 @@ form input.btn {
           text-decoration-color: white;
 }
 
-a h4.lobby-title {
+.lobby-title {
   color: white;
   text-decoration: none;
   -webkit-box-shadow: none;
           box-shadow: none;
 }
 
-a h4.lobby-title:hover {
+.lobby-title:hover {
   opacity: 100%;
 }
 
@@ -728,6 +749,7 @@ a h4.lobby-title:hover {
  */
 .page-title {
   margin-left: 2rem;
+  color: white;
 }
 
 .lobby-form,

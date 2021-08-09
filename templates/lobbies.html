@@ -24,7 +24,12 @@
 
 <main class="list-page">
 
-  <header><h3 class="category-title">{{.title}}</h3></header>
+  <header class="">
+    <h3 class="category-title">{{.title}}</h3>
+    {{if (eq .title "Lobbies")}}
+      <a href="/new/lobby" class="edit-group submit btn cta-btn-orange">+</a>
+    {{end}}
+  </header>
 
   <div class="list">
     {{range .lobbies}}

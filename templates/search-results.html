@@ -17,6 +17,13 @@
 
     </div>
 
+    {{if (gt .prev 0)}}
+        <a href="/search/{{.category}}/{{.prev}}" class="btn cta-btn-blue submit search-prev">Prev</a>
+    {{end}}
+
+    {{if .more}}
+        <a href="/search/{{.category}}/{{.next}}" class="btn cta-btn-blue submit search-next">Next</a>
+    {{end}}
 </main>
 
 {{end}}

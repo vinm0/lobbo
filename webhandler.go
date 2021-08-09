@@ -184,13 +184,19 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 	p := &Page{
 		"title":    "Search Results",
 		"category": category,
+		"prev":     pg - 1,
+		"next":     pg + 1,
 	}
 
 	switch category {
 	case "leader":
-		(*p)["results"] = resultsLeader(&results, pg)
+		res, more := resultsLeader(&results, pg)
+		(*p)["results"] = res
+		(*p)["more"] = more
 	default:
-		(*p)["results"] = resultsLobby(&results, pg)
+		res, more := resultsLobby(&results, pg)
+		(*p)["results"] = res
+		(*p)["more"] = more
 	}
 
 	servePage(w, p, BASE_TEMPL, RESULTS_BLOCK, SEARCHBAR_BLOCK)
@@ -678,8 +684,7 @@ func sessionLeader(session map[interface{}]interface{}) *Leader {
 		Lastname:  ln}
 }
 
-func validResultsPage(r *http.Request, results *SearchResults) int {
-	pg := 1
+func validResultsPage(r *http.Request, results *SearchResults) (pg int) {
 	id, _ := parsePath(ID, r.URL.Path)
 
 	pg, err := strconv.Atoi(id)
@@ -689,9 +694,9 @@ func validResultsPage(r *http.Request, results *SearchResults) int {
 
 	lenLby := float64(len(results.Lobbies))
 	lenLdr := float64(len(results.Leaders))
-	count := int(math.Max(lenLby, lenLdr))
+	count := math.Max(lenLby, lenLdr)
 
-	if pg < 1 || pg > count/MAX_SEARCH {
+	if pg < 1 || float64(pg) > math.Ceil(count/MAX_SEARCH) {
 		pg = 1
 	}
 
@@ -841,26 +846,30 @@ func joinAllowed(lobbyID int, leaderID int, inviteCode int) bool {
 	// return JoinAllowedDB(lobbyID, leaderID)
 }
 
-func resultsLobby(r *SearchResults, pg int) []*Lobby {
+func resultsLobby(r *SearchResults, pg int) (lobbies []*Lobby, more bool) {
 	first := (pg - 1) * MAX_SEARCH
-	last := (pg + 1) * MAX_SEARCH
+	last := pg * MAX_SEARCH
+	more = true
 
-	if len(r.Lobbies) < last {
+	if len(r.Lobbies) <= last {
 		last = len(r.Lobbies)
+		more = false
 	}
 
-	return r.Lobbies[first:last]
+	return r.Lobbies[first:last], more
 }
 
-func resultsLeader(r *SearchResults, pg int) []*Leader {
+func resultsLeader(r *SearchResults, pg int) (leaders []*Leader, more bool) {
 	first := (pg - 1) * MAX_SEARCH
-	last := (pg + 1) * MAX_SEARCH
+	last := pg * MAX_SEARCH
+	more = true
 
-	if len(r.Leaders) < last {
+	if len(r.Leaders) <= last {
 		last = len(r.Leaders)
+		more = false
 	}
 
-	return r.Leaders[first:last]
+	return r.Leaders[first:last], more
 }
 
 // func isEmail(email string) bool {

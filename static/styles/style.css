@@ -274,6 +274,7 @@ form textarea {
 img.icon-search {
   -webkit-transform: translateY(20%);
           transform: translateY(20%);
+  width: 2rem;
 }
 
 /* 
@@ -843,5 +844,27 @@ input[type="checkbox"] {
 input[type="checkbox"]:checked {
   background-color: rgba(250, 152, 40, 0.9);
   border: 1px solid #adb8c0;
+}
+
+/* 
+ * **************************************************
+ * ****************** Search Page *******************
+ * **************************************************
+ */
+.list-page {
+  position: relative;
+}
+
+.search-next,
+.search-prev {
+  position: relative;
+}
+
+.search-next {
+  left: 70%;
+}
+
+.search-prev {
+  left: 10%;
 }
 /*# sourceMappingURL=style.css.map */

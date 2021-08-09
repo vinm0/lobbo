@@ -268,3 +268,26 @@ input[type="checkbox"] {
 		border: 1px solid #adb8c0;
 	}
 }
+
+/* 
+ * **************************************************
+ * ****************** Search Page *******************
+ * **************************************************
+ */
+
+.list-page {
+	position: relative;
+}
+
+.search-next,
+.search-prev {
+	position: relative;
+}
+
+.search-next {
+	left: 70%;
+}
+
+.search-prev {
+	left: 10%;
+}

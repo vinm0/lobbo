@@ -127,16 +127,16 @@ CREATE TABLE IF NOT EXISTS group_members (
 
 INSERT INTO leaders (usrname, pwd, fname, lname)
 VALUES
-	("jaynorth", "sledderconcerned", "Jason", "Northwood"),
-	("painterlaveer", "differangolan", "Pam", "Leer"),
-	("homesicksilk", "plinkponie", "Homer", "Slick"),
-	("toothquality", "possepeg", "Tabitha", "Lity"),
-	("poundbarely", "beautyelytra", "Pablo", "Barley"),
-	("supremeassertive", "velcroexhibition", "Savanna", "Serti"),
-	("chapterwitness", "wereenable", "Chap", "Wit"),
-	("toldearn", "sandpiperkey", "Todd", "Larn"),
-	("tagfuture", "whipstaffpastie", "Anselm", "Future"),
-	("edibleskit", "profitnancy", "Debbie", "Kitt")
+	("jaynorth", "$2a$10$j5LdtZpcxe4d4n1uUc1MO.hOVlZhO93SQU8FTckmLbNgzdqi4MQM6", "Jason", "Northwood"),
+	("painterlaveer", "$2a$10$as3Or8R.dxiFrW994IUBK.3dH7OwaqPvBl9g7eihBZGnl19ozj6XW", "Pam", "Leer"),
+	("homesicksilk", "$2a$10$L7LqkJ7E1e84HEj3ILoWHOH5L1t5yl34Ol/icoC4FR93XDOHGL66.", "Homer", "Slick"),
+	("toothquality", "$2a$10$wfDWbHI9/CjaOrw5Qi88AeLHSH37LlTXYrXNg3e7gb4qZEnb3gwBq", "Tabitha", "Lity"),
+	("poundbarely", "$2a$10$hp6tUa0UjaHXxxTz/4fmIuZpeBQOHbYQfA7PQBX19mq08WKuEBmva", "Pablo", "Barley"),
+	("supremeassertive", "$2a$10$eOE5OrLhb7KmrNp1BxnOL.C2A64P1kfKu85dAE6cAeECUHnauKssi", "Savanna", "Serti"),
+	("chapterwitness", "$2a$10$ZWr9uU2rGOV.0uk.jB.MXut4VSkaecRUcDe73fJVk8x.xA8gBwFti", "Chap", "Wit"),
+	("toldearn", "$2a$10$FBjtN55rI5nMGlZmfMZlEeuPQJvviDt/bvqzslZObPxg905aeVWN6", "Todd", "Larn"),
+	("tagfuture", "$2a$10$ga0V5uQxIEFqA3BLVmbdfegXoyGeTIOTIWUmaRWs2oxeGrH6VONyO", "Anselm", "Future"),
+	("edibleskit", "$2a$10$a2xYSKC/KQoqy7WfzXEWRu6jK6SWnXUWXYpB9foEJffpaEQtXNpZe", "Debbie", "Kitt")
 ;
 
 INSERT INTO lobbies (	

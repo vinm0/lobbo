@@ -10,6 +10,11 @@ type Leader struct {
 	Username  string
 	Firstname string
 	Lastname  string
+	Password  string
+}
+
+func (ldr *Leader) CreateAccount() {
+	AddLeaderDB(ldr)
 }
 
 func (ldr *Leader) OwnsLobby(lbyID string) bool {

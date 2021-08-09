@@ -9,25 +9,25 @@
       href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Secular+One&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="../static/styles/style.css" />
-    <title>Sign-in</title>
+    <link rel="stylesheet" href="/static/styles/style.css" />
+    <title>New Account</title>
 </head>
 <body>
 
     <div class="app-logo top-margin-med center">
         <h1 class="logo-type">Lobbo.io</h1>
-        <img src="../images/logo-bubbles.svg" class="logo-img">
+        <img src="/images/logo-bubbles.svg" class="logo-img">
       </div>
 
-    <form action="POST" class="acct-form">
+    <form method="POST" class="acct-form">
         <label for="fname">First name</label>
         <input type="text" name="fname" id="fname" class="text" autofocus>
 
         <label for="lname">Last name</label>
         <input type="text" name="lname" class="text" id="lname">
 
-        <label for="email">Email</label>
-        <input type="email" name="email" id="email" class="text">
+        <label for="usrname">Username</label>
+        <input type="text" name="usrname" id="usrname" class="text">
 
         <label for="pass">Password</label>
         <input type="password" name="pass" id="pass" class="text">
@@ -37,7 +37,7 @@
 
     <div class="center">
         <small>Already have an account?</small><br>
-        <a href="signin.html" class="">Sign-in</a>
+        <a href="/signin" class="">Sign-in</a>
     </div>
 </body>
 

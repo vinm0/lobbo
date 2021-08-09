@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
+	"golang.org/x/crypto/bcrypt"
 )
 
 const (
@@ -207,37 +209,34 @@ func safeMarkers(colsLen int, valsLen int) string {
 // 	return log.Fatalln
 // }
 
-func Auth(usr string, pwd string) (client *Leader, err error) {
+func Auth(usr string, pwd string) (user *Leader, err error) {
 	db, err := ConnectDB()
-	if err != nil {
-		dbFail("Cannot connect to database", err)
-		return nil, err
-	}
-
+	Check(err, CONN_FAIL)
 	defer db.Close()
+	fmt.Println("pass: ", pwd)
 
-	prep := "SELECT leader_id, fname, lname FROM leaders WHERE usrname = ? AND pwd = ?"
+	prep := "SELECT leader_id, fname, lname, pwd FROM leaders WHERE usrname = ?"
 	stmt, err := db.Prepare(prep)
 	if err != nil {
 		dbFail(err.Error())
 		return nil, err
 	}
 
-	var id int
-	var fname string
-	var lname string
+	l := Leader{Username: usr}
+	pass := []byte{}
 
-	if err = stmt.QueryRow(usr, pwd).
-		Scan(&id, &fname, &lname); err != nil {
-		dbFail(err.Error())
+	err = stmt.QueryRow(usr).Scan(&l.LeaderID, &l.Firstname, &l.Lastname, &pass)
+	if err != nil {
 		return nil, err
 	}
 
-	return &Leader{
-		LeaderID:  id,
-		Username:  usr,
-		Firstname: fname,
-		Lastname:  lname}, nil
+	salt := os.Getenv("SALT")
+	err = bcrypt.CompareHashAndPassword(pass, []byte(salt+pwd))
+	if err != nil {
+		return nil, err
+	}
+
+	return &l, nil
 }
 
 func OwnedLobbiesDB(ownerID int, limit string) []*Lobby {
@@ -792,6 +791,27 @@ func SearchLeadersDB(term string) []*Leader {
 	Check(err, "Unable to search for leaders: ", term)
 
 	return loadLeaders(rows)
+}
+
+func AddLeaderDB(ldr *Leader) {
+	db, err := ConnectDB()
+	Check(err, CONN_FAIL)
+	defer db.Close()
+
+	ldr.Password = hashPass(ldr.Password)
+
+	cols := Cols("fname", "lname", "usrname", "pwd")
+	vals := Vals(ldr.Firstname, ldr.Lastname, ldr.Username, ldr.Password)
+
+	_, err = db.Insert("leaders", cols, vals...)
+	Check(err, "Unable to add leader: ", ldr.Username)
+}
+
+func hashPass(pass string) string {
+	salt := os.Getenv("SALT")
+	p, _ := bcrypt.GenerateFromPassword([]byte(salt+pass), bcrypt.DefaultCost)
+
+	return string(p)
 }
 
 // TODO: validate join permissions based on invite code.

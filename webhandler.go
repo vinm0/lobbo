@@ -25,6 +25,7 @@ const (
 	TEMPL_DIR        = "templates/"
 	HOME_TEMPL       = TEMPL_DIR + "index.html"
 	SIGNIN_TEMPL     = TEMPL_DIR + "signin.html"
+	SIGNUP_TEMPL     = TEMPL_DIR + "signup.html"
 	LOBBY_TEMPL      = TEMPL_DIR + "lobby.html"
 	PROFILE_TEMPL    = TEMPL_DIR + "profile.html"
 	LOBBIES_TEMPL    = TEMPL_DIR + "lobbies.html"
@@ -85,6 +86,7 @@ func init() {
 func launch() {
 
 	http.HandleFunc("/signin/", signinHandler)
+	http.HandleFunc("/signup/", signupHandler)
 	http.HandleFunc("/signout/", signoutHandler)
 	http.HandleFunc("/profile/", profileHandler)
 	http.HandleFunc("/lobby/", lobbyHandler)
@@ -118,6 +120,32 @@ func launch() {
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	p := &Page{"title": SITE_TITLE}
 	servePage(w, p, HOME_TEMPL)
+}
+
+func signupHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		cookie, _ := session(r)
+		clearSession(w, r, cookie)
+		createAccount(r)
+
+		http.Redirect(w, r, "/signin", http.StatusFound)
+		return
+	}
+
+	servePage(w, nil, SIGNUP_TEMPL)
+}
+
+func createAccount(r *http.Request) {
+	r.ParseForm()
+	form := r.PostForm
+
+	l := Leader{}
+	l.Firstname = form.Get("fname")
+	l.Lastname = form.Get("lname")
+	l.Username = form.Get("usrname")
+	l.Password = form.Get("pass")
+
+	l.CreateAccount()
 }
 
 func searchHandler(w http.ResponseWriter, r *http.Request) {
@@ -167,26 +195,6 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	servePage(w, p, BASE_TEMPL, RESULTS_BLOCK, SEARCHBAR_BLOCK)
-}
-
-func validResultsPage(r *http.Request, results *SearchResults) int {
-	pg := 1
-	id, _ := parsePath(ID, r.URL.Path)
-
-	pg, err := strconv.Atoi(id)
-	if err != nil {
-		return 0
-	}
-
-	lenLby := float64(len(results.Lobbies))
-	lenLdr := float64(len(results.Leaders))
-	count := int(math.Max(lenLby, lenLdr))
-
-	if pg < 1 || pg > count/MAX_SEARCH {
-		pg = 1
-	}
-
-	return pg
 }
 
 func deleteHandler(w http.ResponseWriter, r *http.Request) {
@@ -598,7 +606,11 @@ func signinHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ldr, err := Auth(usr, pwd)
-	Check(err, "login err for user: ", usr)
+	if err != nil {
+		log.Println(err, "login error for user: ", usr)
+		http.Redirect(w, r, "/signin", http.StatusFound)
+		return
+	}
 
 	session[FNAME] = ldr.Firstname
 	session[LNAME] = ldr.Lastname
@@ -618,9 +630,8 @@ func signinHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func signoutHandler(w http.ResponseWriter, r *http.Request) {
-	session, _ := store.Get(r, SESSION)
-	session.Values = make(map[interface{}]interface{})
-	session.Save(r, w)
+	cookie, _ := session(r)
+	clearSession(w, r, cookie)
 
 	http.Redirect(w, r, "/signin", http.StatusFound)
 }
@@ -649,6 +660,11 @@ func session(r *http.Request) (cookie *sessions.Session, session map[interface{}
 	return cookie, cookie.Values
 }
 
+func clearSession(w http.ResponseWriter, r *http.Request, cookie *sessions.Session) {
+	cookie.Values = make(map[interface{}]interface{})
+	cookie.Save(r, w)
+}
+
 func sessionLeader(session map[interface{}]interface{}) *Leader {
 	id, _ := session[LDR_ID].(int)
 	em, _ := session[EMAIL].(string)
@@ -659,6 +675,26 @@ func sessionLeader(session map[interface{}]interface{}) *Leader {
 		Username:  em,
 		Firstname: fn,
 		Lastname:  ln}
+}
+
+func validResultsPage(r *http.Request, results *SearchResults) int {
+	pg := 1
+	id, _ := parsePath(ID, r.URL.Path)
+
+	pg, err := strconv.Atoi(id)
+	if err != nil {
+		return 0
+	}
+
+	lenLby := float64(len(results.Lobbies))
+	lenLdr := float64(len(results.Leaders))
+	count := int(math.Max(lenLby, lenLdr))
+
+	if pg < 1 || pg > count/MAX_SEARCH {
+		pg = 1
+	}
+
+	return pg
 }
 
 func parsePath(kind int, path string) (val string, ok bool) {
@@ -803,7 +839,7 @@ func validateSignin(usr string, pwd string) (valid bool, msg string) {
 }
 
 func joinAllowed(lobbyID int, leaderID int, inviteCode int) bool {
-	return inviteCode <= 2
+	return inviteCode < 2
 	// TODO verify permissions based on network
 	// return JoinAllowedDB(lobbyID, leaderID)
 }

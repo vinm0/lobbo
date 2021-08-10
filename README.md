@@ -1,4 +1,4 @@
-# ![Lobbo.io](.\images\home-logo.png)
+# ![Lobbo.io](./images/home-logo.png)
 
 ## alpha (Draft)
 

@@ -122,6 +122,12 @@ footer {
 	color: greenyellow;
 }
 
+@media screen and (min-width: 800px) {
+	html {
+		font-size: 80%;
+	}
+}
+
 /* 
  * **************************************************
  * ********************* Logo ***********************

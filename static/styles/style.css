@@ -149,6 +149,12 @@ footer .logo-type {
   color: greenyellow;
 }
 
+@media screen and (min-width: 800px) {
+  html {
+    font-size: 80%;
+  }
+}
+
 /* 
  * **************************************************
  * ********************* Logo ***********************
@@ -560,35 +566,16 @@ form input.btn {
   width: 100%;
 }
 
-.textbox-left {
-  -ms-grid-column: 2;
-      grid-column-start: 2;
-}
-
-.textbox-right {
-  -ms-grid-column: 3;
-      grid-column-start: 3;
-}
-
-.intro-img-left {
-  -ms-grid-column: 2;
-      grid-column-start: 2;
-}
-
-.intro-img-right {
-  -ms-grid-column: 3;
-      grid-column-start: 3;
-}
-
 .intro {
+  width: 100%;
   margin: 5rem auto;
   text-align: center;
-  /* margin: 3rem; */
-  /* position: relative;
-  display: grid;
-  align-items: center;
-  grid-template-columns: 10% 1fr 1fr 10%;
-  column-gap: 3rem; */
+}
+
+.textbox,
+.intro-img {
+  max-width: 70rem;
+  margin: 0 auto;
 }
 
 .intro p {
@@ -598,9 +585,60 @@ form input.btn {
 
 .section-background {
   background-color: #39afbf;
-  width: 100%;
   min-height: 20rem;
   padding: 3rem 0;
+}
+
+@media screen and (min-width: 800px) {
+  .intro {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: space-evenly;
+        -ms-flex-pack: space-evenly;
+            justify-content: space-evenly;
+    width: 80%;
+    max-width: 120rem;
+    margin: 20rem auto;
+  }
+  .textbox {
+    margin: 0 4rem;
+  }
+  .textbox-left {
+    -webkit-box-ordinal-group: 1;
+        -ms-flex-order: 0;
+            order: 0;
+    -webkit-box-flex: 1;
+        -ms-flex-positive: 1;
+            flex-grow: 1;
+  }
+  .textbox-right {
+    -webkit-box-ordinal-group: 2;
+        -ms-flex-order: 1;
+            order: 1;
+    -webkit-box-flex: 1;
+        -ms-flex-positive: 1;
+            flex-grow: 1;
+  }
+  .intro-img-left {
+    -webkit-box-ordinal-group: 1;
+        -ms-flex-order: 0;
+            order: 0;
+    -webkit-box-flex: 1;
+        -ms-flex-positive: 1;
+            flex-grow: 1;
+  }
+  .intro-img-right {
+    -webkit-box-ordinal-group: 2;
+        -ms-flex-order: 1;
+            order: 1;
+    -webkit-box-flex: 1;
+        -ms-flex-positive: 1;
+            flex-grow: 1;
+  }
+  .intro p {
+    margin: 0;
+  }
 }
 
 /* 

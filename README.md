@@ -41,6 +41,9 @@ A Lobbo Leader can create lobbies and can contribute to lobbies of other Leaders
 -   Privacy is not observed
 -   All lobbies are public
 -   Styled for mobile only
+-   DB queried on each page load
+-   Source organization
+-   Templates parsed for each request
 
 ## Next Stages
 

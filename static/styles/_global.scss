@@ -24,6 +24,12 @@ footer {
 	padding: 3rem;
 }
 
+@media screen and (min-width: 800px) {
+	html {
+		font-size: 80%;
+	}
+}
+
 /* 
  * **************************************************
  * ****************** Typography ********************
@@ -122,12 +128,6 @@ footer {
 	color: greenyellow;
 }
 
-@media screen and (min-width: 800px) {
-	html {
-		font-size: 80%;
-	}
-}
-
 /* 
  * **************************************************
  * ********************* Logo ***********************
@@ -158,6 +158,23 @@ footer {
 .logo-img {
 	max-width: 20vw;
 	margin: 0.8rem;
+}
+
+@media screen and (min-width: 800px) {
+	.app-logo {
+		position: fixed;
+		left: 0;
+		top: 0;
+		margin: 0;
+		z-index: 101;
+		flex-direction: column-reverse;
+		transform: scale(0.6);
+		align-items: center;
+	}
+
+	.logo-type {
+		color: white;
+	}
 }
 
 /* 
@@ -227,11 +244,6 @@ img.icon-search {
  * **************************************************
  */
 
-// .home-logo {
-// 	@include flexCenter(column-reverse);
-// 	margin: 8rem auto 5rem auto;
-// }
-
 .navlinks {
 	display: flex;
 	justify-content: space-around;
@@ -244,7 +256,7 @@ img.icon-search {
 	z-index: 100;
 
 	a {
-		display: inline-block;
+		@include flexCenter(column);
 		color: white;
 		text-align: center;
 		text-decoration: none;
@@ -448,4 +460,45 @@ form input.btn {
 	align-items: center;
 	// background-color: $dkgray;
 	padding: 0.8rem 0;
+}
+
+@media screen and (min-width: 800px) {
+	.responsive-body {
+		display: flex;
+		flex-wrap: nowrap;
+
+		& > div {
+			flex-grow: 1;
+			margin-left: 20rem;
+		}
+	}
+
+	nav {
+		background-color: $dkblue;
+		height: 100vh;
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 20rem;
+	}
+
+	.navlinks {
+		left: 0;
+		top: 0;
+		bottom: unset;
+		// height: 100vh;
+		max-width: 20rem;
+		flex-direction: column;
+		justify-content: center;
+		align-items: flex-start;
+		gap: 3rem;
+		margin-top: 15rem;
+		padding-left: 3rem;
+
+		a {
+			font-size: 1.6rem;
+			flex-direction: row;
+			gap: 1rem;
+		}
+	}
 }

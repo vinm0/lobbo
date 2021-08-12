@@ -20,36 +20,36 @@
     </noscript>
     <title>{{.title}}</title>
   </head>
-  <body class="body-mobile">
+  <body class="responsive-body">
     <nav>
       <div class="navlinks">
         <div id="Profile-nav">
         <a href="/profile" >
-          <img src="/images/icons/profile-wht.svg" alt="Profile" class="icon"><br>
+          <img src="/images/icons/profile-wht.svg" alt="Profile" class="icon">
           Profile
         </a>
       </div>
       <div id="Lobbies-nav">
         <a href="/lobbies" >
-          <img src="/images/icons/grid-wht.svg" alt="Lobbies" class="icon"><br>
+          <img src="/images/icons/grid-wht.svg" alt="Lobbies" class="icon">
           Lobbies
         </a>
       </div>
       <div id="New-nav">
         <a href="/new/lobby" >
-          <img src="/images/icons/add-wht.svg" alt="Add" class="icon"><br>
+          <img src="/images/icons/add-wht.svg" alt="Add" class="icon">
           New Lobby
         </a>
       </div>
       <!-- <div id="Inbox-nav">
         <a href="/inbox" >
-          <img src="/images/icons/bell-alert.svg" alt="Add" class="icon"><br>
+          <img src="/images/icons/bell-alert.svg" alt="Add" class="icon">
           Inbox
         </a>
       </div> -->
       <div id="Groups-nav">
         <a href="/groups" >
-          <img src="/images/icons/people-wht.svg" alt="Groups" class="icon"><br>
+          <img src="/images/icons/people-wht.svg" alt="Groups" class="icon">
           Colleagues
         </a>
       </div>
@@ -62,6 +62,8 @@
       </div>
       {{end}}
     </nav>
+
+    <div>
 
     <!-- <div class="icon-settings">
       <img src="/images/icons/gear.svg" alt="Settings" class="icon">
@@ -76,6 +78,7 @@
     {{template "content" .}}
 
     <!-- TODO Create popup for for quick lobby creation -->
+  </div>
   </body>
   <script>
     // highlightCurrentNav({{.title}} + "-nav")

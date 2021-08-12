@@ -69,7 +69,7 @@
 	}
 
 	.intro p {
-		margin: 0;
+		padding: 0 1.6rem;
 	}
 }
 
@@ -83,14 +83,26 @@
 	display: grid;
 	grid-template-columns: 8.6rem 1fr;
 	align-items: end;
-	row-gap: 2rem;
+	row-gap: 3rem;
 	width: 80%;
 	margin: 3rem auto;
+
+	.submit {
+		margin: auto;
+	}
 }
 
 .submit {
 	grid-column-start: 1;
 	grid-column-end: 3;
+}
+
+@media screen and (min-width: 800px) {
+	.acct-form {
+		margin: 10rem auto;
+		row-gap: 5rem;
+		max-width: 70rem;
+	}
 }
 
 /* 
@@ -114,6 +126,12 @@
 	top: 0;
 	right: 0;
 	margin: 1.6rem;
+}
+
+@media screen and (min-width: 800px) {
+	.profile-name {
+		margin: inherit auto;
+	}
 }
 
 /* 

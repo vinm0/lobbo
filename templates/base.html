@@ -23,36 +23,36 @@
   <body class="responsive-body">
     <nav>
       <div class="navlinks">
+        <a href="/profile" class="navlink">
         <div id="Profile-nav">
-        <a href="/profile" >
           <img src="/images/icons/profile-wht.svg" alt="Profile" class="icon">
           Profile
-        </a>
-      </div>
+        </div>
+      </a>
+      <a href="/lobbies"  class="navlink">
       <div id="Lobbies-nav">
-        <a href="/lobbies" >
           <img src="/images/icons/grid-wht.svg" alt="Lobbies" class="icon">
           Lobbies
-        </a>
-      </div>
-      <div id="New-nav">
-        <a href="/new/lobby" >
+        </div>
+      </a>
+      <a href="/new/lobby" class="navlink">
+        <div id="New-nav">
           <img src="/images/icons/add-wht.svg" alt="Add" class="icon">
           New Lobby
-        </a>
-      </div>
-      <!-- <div id="Inbox-nav">
-        <a href="/inbox" >
+        </div>
+      </a>
+      <!-- <a href="/inbox" class="navlink">
+      <div id="Inbox-nav">
           <img src="/images/icons/bell-alert.svg" alt="Add" class="icon">
           Inbox
-        </a>
-      </div> -->
+        </div>
+      </a> -->
+      <a href="/groups" class="navlink">
       <div id="Groups-nav">
-        <a href="/groups" >
           <img src="/images/icons/people-wht.svg" alt="Groups" class="icon">
           Colleagues
-        </a>
-      </div>
+        </div>
+      </a>
       </div>
 
       {{if eq .title "Lobby"}}

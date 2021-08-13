@@ -90,6 +90,7 @@ small a {
 a {
 	text-decoration: none;
 	transition: opacity 0.2s ease-out;
+	// text-shadow: $text-shadow;
 
 	&.subtle-link {
 		color: $linkblue;
@@ -247,25 +248,37 @@ img.icon-search {
 .navlinks {
 	display: flex;
 	justify-content: space-around;
+	align-items: stretch;
 	position: fixed;
 	bottom: 0;
 	right: 0;
 	width: 100vw;
 	background-color: $dkblue;
-	padding: 0.8rem 0;
 	z-index: 100;
+	min-height: 6rem;
 
-	a {
+	div {
 		@include flexCenter(column);
 		color: white;
 		text-align: center;
 		text-decoration: none;
 		font-size: 1.2rem;
+		height: 100%;
 	}
 }
 
-.icon {
-	width: 2.5rem;
+.navlink {
+	flex-grow: 1;
+
+	.icon {
+		width: 2.5rem;
+	}
+
+	&:hover {
+		background-color: $blue;
+		box-shadow: inset 0 0.3rem 0.3rem -0.3rem $footerblue,
+			inset 0 -0.3rem 0.3rem -0.3rem $footerblue;
+	}
 }
 
 .icon-settings {
@@ -300,6 +313,7 @@ img.icon-search {
 .sm-lobby-card {
 	position: relative;
 	min-width: 25rem;
+	max-width: 35rem;
 	min-height: 27rem;
 	background-color: rgb(74, 74, 74);
 	padding: 1.6rem;
@@ -486,19 +500,22 @@ form input.btn {
 		left: 0;
 		top: 0;
 		bottom: unset;
-		// height: 100vh;
 		max-width: 20rem;
 		flex-direction: column;
 		justify-content: center;
 		align-items: flex-start;
-		gap: 3rem;
 		margin-top: 15rem;
-		padding-left: 3rem;
 
-		a {
+		div {
 			font-size: 1.6rem;
 			flex-direction: row;
 			gap: 1rem;
+			justify-content: flex-start;
+			padding: 2rem 0 2rem 2.5rem;
 		}
+	}
+
+	.navlink {
+		width: 100%;
 	}
 }

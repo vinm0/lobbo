@@ -12,6 +12,7 @@ html {
 body {
 	background-color: $black;
 	overflow-x: hidden;
+	min-height: 100vh;
 }
 
 .body-mobile {
@@ -171,10 +172,25 @@ footer {
 		flex-direction: column-reverse;
 		transform: scale(0.6);
 		align-items: center;
+
+		.logo-type {
+			color: white;
+		}
 	}
 
-	.logo-type {
-		color: white;
+	.home-logo {
+		flex-direction: row;
+		align-items: flex-end;
+		gap: 1rem;
+
+		.logo-type {
+			line-height: 1;
+			font-size: 7rem;
+		}
+
+		.logo-img {
+			width: 10rem;
+		}
 	}
 }
 
@@ -209,7 +225,7 @@ form {
 			background-color: $blue;
 			cursor: pointer;
 		}
-	} // TODO: simplify submit and button hover. Reference Lobbies page
+	}
 
 	textarea {
 		max-width: 32rem;
@@ -269,6 +285,7 @@ img.icon-search {
 
 .navlink {
 	flex-grow: 1;
+	line-height: 2;
 
 	.icon {
 		width: 2.5rem;
@@ -314,6 +331,7 @@ img.icon-search {
 	position: relative;
 	min-width: 25rem;
 	max-width: 35rem;
+	width: 40%;
 	min-height: 27rem;
 	background-color: rgb(74, 74, 74);
 	padding: 1.6rem;
@@ -380,6 +398,7 @@ img.icon-search {
 .tabs {
 	display: flex;
 	width: 90%;
+	max-width: 60rem;
 	margin: 2rem auto 0 auto;
 	box-shadow: inset 0 0 0.3rem -0.1rem black;
 }
@@ -438,9 +457,16 @@ form input.btn {
 	border-radius: 5px;
 	text-decoration: none;
 	font-weight: 700;
+	transition: background 0.2s ease-out, box-shadow 0.2s ease-out;
 
-	&:hover {
-		opacity: 0.8;
+	&.cta-btn-blue:hover {
+		background-color: rgba($blue, 0.8);
+		box-shadow: inset 0 0 0 0.2rem $blue, 0 0 0.5rem 0.2rem $blue;
+	}
+
+	&.cta-btn-orange:hover {
+		background-color: rgba($orange, 0.8);
+		box-shadow: inset 0 0 0 0.2rem $orange, 0 0 0.5rem 0.2rem $orange;
 	}
 }
 
@@ -483,16 +509,14 @@ form input.btn {
 
 		& > div {
 			flex-grow: 1;
-			margin-left: 20rem;
+			width: calc(100vw - 20rem);
+			margin-top: 10rem;
 		}
 	}
 
-	nav {
+	nav,
+	.nav-filler {
 		background-color: $dkblue;
-		height: 100vh;
-		position: fixed;
-		top: 0;
-		left: 0;
 		width: 20rem;
 	}
 

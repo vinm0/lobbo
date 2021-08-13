@@ -39,6 +39,11 @@
 }
 
 @media screen and (min-width: 800px) {
+	.signin-signup {
+		flex-direction: row;
+		margin-top: 5rem;
+	}
+
 	.intro {
 		display: flex;
 		justify-content: space-evenly;
@@ -130,7 +135,11 @@
 
 @media screen and (min-width: 800px) {
 	.profile-name {
-		margin: inherit auto;
+		margin: auto;
+
+		h3 {
+			font-size: 4rem;
+		}
 	}
 }
 
@@ -244,6 +253,12 @@
 
 	input {
 		margin-bottom: 0.8rem;
+	}
+}
+
+@media screen and (min-width: 800px) {
+	.page-title {
+		margin-left: 4rem;
 	}
 }
 

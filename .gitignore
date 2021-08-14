@@ -1,5 +1,3 @@
 .DS_Store
 .env
 .vscode/
-*.exe
-*.db

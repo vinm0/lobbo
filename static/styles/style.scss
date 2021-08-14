@@ -21,10 +21,15 @@
 	text-align: center;
 }
 
-.textbox,
-.intro-img {
+.textbox {
 	max-width: 70rem;
 	margin: 0 auto;
+}
+
+.intro-img {
+	min-width: 25rem;
+	width: 40vw;
+	max-width: 30rem;
 }
 
 .intro p {
@@ -33,7 +38,7 @@
 }
 
 .section-background {
-	background-color: $blue;
+	background-color: $dkblue;
 	min-height: 20rem;
 	padding: 3rem 0;
 }
@@ -47,13 +52,16 @@
 	.intro {
 		display: flex;
 		justify-content: space-evenly;
-		width: 80%;
+		gap: 2rem;
+		width: 85%;
 		max-width: 120rem;
-		margin: 20rem auto;
+		margin: 15rem auto;
 	}
 
 	.textbox {
-		margin: 0 4rem;
+		margin: 0;
+		width: 50%;
+		max-width: 40rem;
 	}
 
 	.textbox-left {
@@ -74,7 +82,8 @@
 	}
 
 	.intro p {
-		padding: 0 1.6rem;
+		padding: 0;
+		margin: 0;
 	}
 }
 
@@ -258,7 +267,7 @@
 
 @media screen and (min-width: 800px) {
 	.page-title {
-		margin-left: 4rem;
+		margin-left: 6rem;
 	}
 }
 

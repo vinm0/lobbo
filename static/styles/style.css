@@ -271,8 +271,8 @@ form .text {
 form .text:focus {
   outline: none;
   background-color: transparent;
-  -webkit-box-shadow: inset 0 0 0.4rem 0 black;
-          box-shadow: inset 0 0 0.4rem 0 black;
+  -webkit-box-shadow: inset 0 0 0.4rem -0.1rem black;
+          box-shadow: inset 0 0 0.4rem -0.1rem black;
 }
 
 form .submit {
@@ -445,6 +445,7 @@ img.icon-search {
 
 .list {
   width: 90%;
+  max-width: 50rem;
   margin: 1.6rem auto 4rem auto;
 }
 
@@ -678,6 +679,13 @@ form input.btn {
   .navlink {
     width: 100%;
   }
+  .carousel-cards .sm-lobby-card:first-child {
+    margin-left: 5rem;
+  }
+  .list {
+    margin-left: 5rem;
+    margin-right: 3rem;
+  }
 }
 
 /* 
@@ -710,10 +718,15 @@ form input.btn {
   text-align: center;
 }
 
-.textbox,
-.intro-img {
+.textbox {
   max-width: 70rem;
   margin: 0 auto;
+}
+
+.intro-img {
+  min-width: 25rem;
+  width: 40vw;
+  max-width: 30rem;
 }
 
 .intro p {
@@ -722,7 +735,7 @@ form input.btn {
 }
 
 .section-background {
-  background-color: #39afbf;
+  background-color: #018fa1;
   min-height: 20rem;
   padding: 3rem 0;
 }
@@ -742,12 +755,15 @@ form input.btn {
     -webkit-box-pack: space-evenly;
         -ms-flex-pack: space-evenly;
             justify-content: space-evenly;
-    width: 80%;
+    gap: 2rem;
+    width: 85%;
     max-width: 120rem;
-    margin: 20rem auto;
+    margin: 15rem auto;
   }
   .textbox {
-    margin: 0 4rem;
+    margin: 0;
+    width: 50%;
+    max-width: 40rem;
   }
   .textbox-left {
     -webkit-box-ordinal-group: 1;
@@ -782,7 +798,8 @@ form input.btn {
             flex-grow: 1;
   }
   .intro p {
-    padding: 0 1.6rem;
+    padding: 0;
+    margin: 0;
   }
 }
 
@@ -984,7 +1001,7 @@ form input.btn {
 
 @media screen and (min-width: 800px) {
   .page-title {
-    margin-left: 4rem;
+    margin-left: 6rem;
   }
 }
 
